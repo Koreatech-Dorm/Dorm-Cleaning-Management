@@ -1,0 +1,32 @@
+# OS Files
+# macOS
+.DS_Store
+# Windows
+Thumbs.db
+
+# IntelliJ / JetBrains IDE
+.idea/
+*.iml
+out/
+
+# Build / Dependency
+build/
+target/
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Logs
+*.log
+
+# Environment / Credentials
+.env
+*.env
+
+# Java
+*.class
+
+# Others
+*.war
+*.jar
+*.zip
+*.tar.gz
