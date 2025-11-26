@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"> <head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>QR 체크인 확인</title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+            text-align: center;
+        }
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 80%;
+            max-width: 400px;
+        }
+        h1 { margin-bottom: 20px; color: #333; font-size: 1.5rem; }
+        .info-box {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .label { font-size: 0.9rem; color: #666; margin-top: 5px; }
+        .status-msg { color: blue; font-size: 0.8rem; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>🏠 기숙사 QR 확인</h1>
+
+    <div class="label">기숙사 이름</div>
+    <div class="info-box" th:text="${dormName}">데이터 로딩중...</div>
+
+    <div class="label">호실 번호</div>
+    <div class="info-box" th:text="${roomName} + '호'">데이터 로딩중...</div>
+
+    <p class="status-msg">
+        ✅ 안전하게 확인되었습니다.
+    </p>
+</div>
+
+</body>
+</html>
