@@ -1,11 +1,9 @@
 <!doctype html>
-<html lang="ko">
-<head>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"> <head>
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>QR 체크인 테스트</title>
+    <title>QR 체크인 확인</title>
     <style>
         body {
             font-family: 'Noto Sans KR', sans-serif;
@@ -37,47 +35,24 @@
             font-size: 1.2rem;
         }
         .label { font-size: 0.9rem; color: #666; margin-top: 5px; }
+        .status-msg { color: blue; font-size: 0.8rem; margin-top: 15px; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h1>🏠 기숙사 QR</h1>
+    <h1>🏠 기숙사 QR 확인</h1>
 
     <div class="label">기숙사 이름</div>
-    <div id="dorm-display" class="info-box">정보 없음</div>
+    <div class="info-box" th:text="${dormName}">데이터 로딩중...</div>
 
     <div class="label">호실 번호</div>
-    <div id="room-display" class="info-box">정보 없음</div>
+    <div class="info-box" th:text="${roomName} + '호'">데이터 로딩중...</div>
 
-    <p id="status-msg" style="color: gray; font-size: 0.8rem;">
-        데이터를 불러오는 중...
+    <p class="status-msg">
+        ✅ 안전하게 확인되었습니다.
     </p>
 </div>
 
-<script>
-    // 1. 현재 페이지의 URL에서 파라미터(?dorm=...&room=...)를 가져옵니다.
-    const params = new URLSearchParams(window.location.search);
-
-    // 2. 자바(Controller)에서 설정한 키 이름('dorm', 'room')으로 값을 꺼냅니다.
-    const dormName = params.get('dorm');
-    const roomNum = params.get('room');
-
-    // 3. HTML 화면에 값을 표시해줍니다.
-    const dormDisplay = document.getElementById('dorm-display');
-    const roomDisplay = document.getElementById('room-display');
-    const statusMsg = document.getElementById('status-msg');
-
-    if (dormName && roomNum) {
-        dormDisplay.textContent = dormName;
-        roomDisplay.textContent = roomNum + "호";
-        statusMsg.textContent = "✅ QR 코드 인식이 성공했습니다!";
-        statusMsg.style.color = "blue";
-
-    } else {
-        statusMsg.textContent = "⚠️ QR 코드로 접속하지 않았거나 정보가 없습니다.";
-        statusMsg.style.color = "red";
-    }
-</script>
 </body>
 </html>
