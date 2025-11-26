@@ -11,7 +11,7 @@ public class DormService {
 
     private final DormRepository dormRepository;
 
-    public Dorm createDormitory(String code, String name) {
+    public Dorm createDorm(String code, String name) {
         Dorm dorm = Dorm.builder()
                 .dormCode(code)
                 .dormName(name)

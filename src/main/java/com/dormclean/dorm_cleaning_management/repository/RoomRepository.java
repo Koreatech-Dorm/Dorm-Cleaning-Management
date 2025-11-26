@@ -12,13 +12,13 @@ import java.util.List;
 public interface RoomRepository extends JpaRepository<Room, Long> {
 
     // 특정 기숙사의 전체 방 조회
-    List<Room> findByDormitory(Dorm dormitory);
+    List<Room> findBydorm(Dorm dorm);
 
     // 층별 조회
-    List<Room> findByDormitoryAndFloor(Dorm dormitory, Integer floor);
+    List<Room> findBydormAndFloor(Dorm dorm, Integer floor);
 
     // 방번호로 조회
-    Room findByDormitoryAndRoomNumber(Dorm dormitory, String roomNumber);
+    Room findBydormAndRoomNumber(Dorm dorm, String roomNumber);
 
     // 상태로 조회
     List<Room> findByStatus(Room.RoomStatus status);

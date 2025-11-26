@@ -1,7 +1,7 @@
 package com.dormclean.dorm_cleaning_management.controller;
 
-import com.dormclean.dorm_cleaning_management.dto.CreateDormRequest;
-import com.dormclean.dorm_cleaning_management.dto.CreateRoomRequest;
+import com.dormclean.dorm_cleaning_management.dto.CreateDormRequestDto;
+import com.dormclean.dorm_cleaning_management.dto.CreateRoomRequestDto;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
 import com.dormclean.dorm_cleaning_management.entity.Room;
 import com.dormclean.dorm_cleaning_management.service.DormService;
@@ -15,25 +15,25 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api")
 public class DormController {
 
-    private final DormService dormitoryService;
+    private final DormService dormService;
     private final RoomService roomService;
 
     // 기숙사 생성
     @PostMapping("/dormitories")
-    public ResponseEntity<Long> createDormitory(@RequestBody CreateDormRequest request) {
-        Dorm dormitory = dormitoryService.createDormitory(
-                request.getDormCode(),
-                request.getDormName());
-        return ResponseEntity.ok(dormitory.getId());
+    public ResponseEntity<Long> createdorm(@RequestBody CreateDormRequestDto request) {
+        Dorm dorm = dormService.createDorm(
+                request.dormCode(),
+                request.dormName());
+        return ResponseEntity.ok(dorm.getId());
     }
 
     // 방 생성
     @PostMapping("/rooms")
-    public ResponseEntity<Long> createRoom(@RequestBody CreateRoomRequest request) {
+    public ResponseEntity<Long> createRoom(@RequestBody CreateRoomRequestDto request) {
         Room room = roomService.createRoom(
-                request.getDormCode(),
-                request.getFloor(),
-                request.getRoomNumber());
+                request.dormCode(),
+                request.floor(),
+                request.roomNumber());
         return ResponseEntity.ok(room.getId());
     }
 }
