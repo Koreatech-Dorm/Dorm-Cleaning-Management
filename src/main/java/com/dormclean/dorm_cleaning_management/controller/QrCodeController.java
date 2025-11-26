@@ -1,14 +1,12 @@
 package com.dormclean.dorm_cleaning_management.controller;
 
 import com.dormclean.dorm_cleaning_management.dto.QrRequestDto;
-import com.dormclean.dorm_cleaning_management.dto.QrResponseDto;
 import com.dormclean.dorm_cleaning_management.service.QrCodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
