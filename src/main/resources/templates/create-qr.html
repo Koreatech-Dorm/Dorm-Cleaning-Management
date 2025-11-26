@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기숙사 QR 코드 생성</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f0f2f5; /* 배경색 통일 */
+        }
+        .qr-card {
+            max-width: 500px;
+            margin-top: 50px;
+            border: none;
+            border-radius: 15px; /* 둥근 모서리 통일 */
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .card-header {
+            background-color: #0d6efd; /* 헤더 색상 통일 */
+            color: white;
+            padding: 1.5rem 1rem;
+            text-align: center;
+        }
+        .qr-display-area {
+            min-height: 260px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffffff; /* QR 배경 흰색으로 변경하여 깔끔하게 */
+            border: 2px dashed #dee2e6; /* 점선 테두리로 구역 강조 */
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        #qrImage {
+            max-width: 100%;
+            display: none;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container d-flex justify-content-center mb-5">
+    <div class="card qr-card w-100">
+        <div class="card-header">
+            <h4 class="mb-0 fw-bold"><i class="bi bi-qr-code"></i> QR 코드 생성기</h4>
+            <p class="mb-0 small opacity-75">Dormitory QR Generator</p>
+        </div>
+        <div class="card-body p-4">
+            <form id="qrForm">
+                <div class="mb-3">
+                    <label for="dormSelect" class="form-label">생활관 선택</label>
+                    <select class="form-select form-select-lg" id="dormSelect" required>
+                        <option value="" selected disabled>생활관을 선택하세요</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label for="roomInput" class="form-label">호실 입력</label>
+                    <input type="text" class="form-control form-control-lg" id="roomInput" placeholder="예: 101" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill">
+                    QR 코드 생성하기
+                </button>
+            </form>
+
+            <div id="resultArea" class="mt-4" style="display: none;">
+                <hr class="my-4">
+                <h5 class="text-center mb-3 fw-bold text-dark">생성된 QR 코드</h5>
+                <div class="qr-display-area p-3">
+                    <img id="qrImage" alt="QR Code">
+                    <div id="loadingSpinner" class="spinner-border text-primary" role="status" style="display: none;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+
+                <div class="mt-4 text-center">
+                    <a id="downloadLink" href="#" class="btn btn-success w-100 py-2 fw-bold">
+                        <i class="bi bi-download"></i> 이미지 다운로드
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchDormList();
+        document.getElementById('qrForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            generateQrCode();
+        });
+    });
+
+    async function fetchDormList() {
+        const dormSelect = document.getElementById('dormSelect');
+        try {
+            // const response = await fetch('/api/dorms');
+            // const dorms = await response.json();
+            const dorms = [
+                { id: 1, name: "예지관" },
+                { id: 2, name: "청솔관" },
+                { id: 3, name: "솔빛관" },
+                { id: 4, name: "함지관" },
+                { id: 5, name: "다솔관" }
+            ];
+            dorms.forEach(dorm => {
+                const option = document.createElement('option');
+                option.value = dorm.name;
+                option.textContent = dorm.name;
+                dormSelect.appendChild(option);
+            });
+        } catch (error) {
+            console.error('오류:', error);
+        }
+    }
+
+    function generateQrCode() {
+        const dormName = document.getElementById('dormSelect').value;
+        const roomName = document.getElementById('roomInput').value;
+
+        if (!dormName || !roomName) {
+            alert('생활관과 호실을 모두 입력해주세요.');
+            return;
+        }
+
+        const resultArea = document.getElementById('resultArea');
+        const qrImage = document.getElementById('qrImage');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const downloadLink = document.getElementById('downloadLink');
+
+        resultArea.style.display = 'block';
+        qrImage.style.display = 'none';
+        loadingSpinner.style.display = 'block';
+
+        const params = new URLSearchParams({ dormName: dormName, roomName: roomName });
+        const apiUrl = `/api/qr/generate?${params.toString()}`;
+
+        qrImage.onload = function() {
+            loadingSpinner.style.display = 'none';
+            qrImage.style.display = 'block';
+        };
+
+        qrImage.onerror = function() {
+            loadingSpinner.style.display = 'none';
+            alert('QR 코드 생성 실패');
+            resultArea.style.display = 'none';
+        };
+
+        qrImage.src = apiUrl;
+        downloadLink.href = apiUrl;
+        downloadLink.download = `QR_${dormName}_${roomName}.png`;
+    }
+</script>
+
+</body>
+</html>
