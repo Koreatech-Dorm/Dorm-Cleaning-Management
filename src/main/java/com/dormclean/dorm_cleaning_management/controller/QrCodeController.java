@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URLEncoder;
@@ -22,13 +22,13 @@ public class QrCodeController {
     private String host;
 
     @GetMapping("/api/qr/generate")
-    public ResponseEntity<byte[]> generateQrCode(QrRequestDto dto) {
+    public ResponseEntity<byte[]> generateQrCode(@ModelAttribute QrRequestDto dto) {
         try{
             String baseUrl = String.format("%s/check", host);
 
             // 받은 요청
-            String dormName = dto.getDormName();
-            String roomName = dto.getRoomName();
+            String dormName = dto.dormName();
+            String roomName = dto.roomName();
 
             // 한글 사용을 위한 encode
             String encodedDorm = URLEncoder.encode(dormName, StandardCharsets.UTF_8);
