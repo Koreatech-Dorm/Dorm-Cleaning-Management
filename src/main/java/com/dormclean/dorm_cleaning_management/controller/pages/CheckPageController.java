@@ -21,7 +21,7 @@ public class CheckPageController {
 
         // HTML(뷰)에 데이터 전달
         model.addAttribute("dormName", data.dormName());
-        model.addAttribute("roomName", data.roomName());
+        model.addAttribute("roomNumber", data.roomNumber());
 
         // check.html 파일을 보여줌
         return "check";

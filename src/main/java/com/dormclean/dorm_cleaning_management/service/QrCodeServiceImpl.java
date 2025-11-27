@@ -2,8 +2,12 @@ package com.dormclean.dorm_cleaning_management.service;
 
 import com.dormclean.dorm_cleaning_management.dto.QrRequestDto;
 import com.dormclean.dorm_cleaning_management.dto.QrResponseDto;
+import com.dormclean.dorm_cleaning_management.entity.Dorm;
 import com.dormclean.dorm_cleaning_management.entity.QrCode;
+import com.dormclean.dorm_cleaning_management.entity.Room;
+import com.dormclean.dorm_cleaning_management.repository.DormRepository;
 import com.dormclean.dorm_cleaning_management.repository.QrCodeRepository;
+import com.dormclean.dorm_cleaning_management.repository.RoomRepository;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
@@ -17,19 +21,21 @@ import java.io.ByteArrayOutputStream;
 
 @Service
 @RequiredArgsConstructor
-public class QrCodeServiceImp implements QrCodeService {
+public class QrCodeServiceImpl implements QrCodeService {
     @Value("${app.host}")
     private String host;
 
     private final QrCodeRepository qrCodeRepository;
+    private final RoomRepository roomRepository;
+    private final DormRepository dormRepository;
 
     @Override
     @Transactional
     public byte[] createSecureQr(QrRequestDto dto) {
-        String dormName = dto.dormName();
-        String roomName = dto.roomName();
+        Dorm dorm = dormRepository.findByDormName(dto.dormName()).orElseThrow(() -> new RuntimeException("해당 기숙사의 정보를 찾을 수 없습니다."));
+        Room room = roomRepository.findByDormAndRoomNumber(dorm, dto.roomNumber()).orElseThrow(() -> new RuntimeException("해당 호실의 정보를 찾을 수 없습니다."));
 
-        QrCode qrCode = qrCodeRepository.findByDormNameAndRoomName(dormName, roomName).orElse(null);
+        QrCode qrCode = qrCodeRepository.findByRoom(room).orElse(null);
 
         if (qrCode != null) {
             // 이미 존재하면 -> UUID만 새로고침
@@ -37,8 +43,7 @@ public class QrCodeServiceImp implements QrCodeService {
         } else {
             // 없으면 -> 새로 생성해서 저장
             qrCode = QrCode.builder()
-                    .dormName(dormName)
-                    .roomName(roomName)
+                    .room(room)
                     .build();
 
             qrCodeRepository.save(qrCode);
@@ -75,7 +80,10 @@ public class QrCodeServiceImp implements QrCodeService {
         QrCode qrCode = qrCodeRepository.findByUuid(token)
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않거나 만료된 QR 코드입니다."));
 
+        String dormName = qrCode.getRoom().getDorm().getDormName();
+        String roomNumber = qrCode.getRoom().getRoomNumber();
+
         // 찾은 정보를 DTO로 변환해서 반환
-        return new QrResponseDto(qrCode.getDormName(), qrCode.getRoomName());
+        return new QrResponseDto(dormName, roomNumber);
     }
 }

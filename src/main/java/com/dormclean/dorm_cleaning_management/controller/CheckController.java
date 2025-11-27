@@ -1,0 +1,41 @@
+package com.dormclean.dorm_cleaning_management.controller;
+
+import com.dormclean.dorm_cleaning_management.dto.CheckRequestDto;
+import com.dormclean.dorm_cleaning_management.entity.Dorm;
+import com.dormclean.dorm_cleaning_management.repository.DormRepository;
+import com.dormclean.dorm_cleaning_management.service.CheckService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/check")
+@RequiredArgsConstructor
+public class CheckController {
+    private final CheckService checkService;
+    private final DormRepository dormRepository;
+
+    @PostMapping("/out")
+    public ResponseEntity<Map<String, String>> checkOut(@RequestBody CheckRequestDto dto) {
+        System.out.println(dto.dormName() + " " + dto.roomNumber());
+        Dorm dorm = dormRepository.findByDormName(dto.dormName())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 기숙사입니다."));
+        checkService.checkOut(dorm, dto.roomNumber());
+
+        return ResponseEntity.ok(Map.of("message", "퇴실 처리가 완료되었습니다."));
+    }
+
+    @PostMapping("/clean")
+    public ResponseEntity<Map<String, String>> cleanCheck(@RequestBody CheckRequestDto dto) {
+        Dorm dorm = dormRepository.findByDormName(dto.dormName())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 기숙사입니다."));
+        checkService.cleanCheck(dorm, dto.roomNumber());
+
+        return ResponseEntity.ok(Map.of("message", "청소 처리가 완료되었습니다."));
+    }
+}

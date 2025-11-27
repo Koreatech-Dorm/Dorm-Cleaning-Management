@@ -1,5 +1,6 @@
 package com.dormclean.dorm_cleaning_management.entity;
 
+import com.dormclean.dorm_cleaning_management.entity.enums.RoomStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.Instant;
@@ -24,9 +25,12 @@ public class Room {
     private String roomNumber;
 
     @Enumerated(EnumType.STRING)
-    private RoomStatus status = RoomStatus.OCCUPIED;
+    private RoomStatus roomStatus = RoomStatus.OCCUPIED;
 
     private Instant cleanedAt;
+
+    @OneToOne(mappedBy = "room", fetch = FetchType.LAZY)
+    private QrCode qrCode;
 
     @Builder
     public Room(Dorm dorm,
@@ -38,28 +42,22 @@ public class Room {
         this.dorm = dorm;
         this.floor = floor;
         this.roomNumber = roomNumber;
-        this.status = status != null ? status : RoomStatus.OCCUPIED;
+        this.roomStatus = status != null ? status : RoomStatus.OCCUPIED;
         this.cleanedAt = cleanedAt;
     }
 
-    public enum RoomStatus {
-        VACANT_DIRTY,
-        VACANT_CLEAN,
-        OCCUPIED
-    }
-
-    // 필요한 상태 변경 메서드만 제공
     public void updateStatus(RoomStatus status) {
-        this.status = status;
+        this.roomStatus = status;
     }
-
-    // 상태 레이블 반환
     public void updateCleanedAt(Instant cleanedAt) {
         this.cleanedAt = cleanedAt;
     }
+    public void assignQrCode(QrCode qrCode) {
+        this.qrCode = qrCode;
+    }
 
     public String getStatusLabel() {
-        switch (status) {
+        switch (roomStatus) {
             case OCCUPIED:
                 return "재실";
             case VACANT_DIRTY:

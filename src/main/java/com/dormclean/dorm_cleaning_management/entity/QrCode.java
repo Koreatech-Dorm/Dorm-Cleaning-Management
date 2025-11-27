@@ -21,17 +21,14 @@ public class QrCode {
     @Column(nullable = false, unique = true)
     private String uuid;
 
-    @Column(nullable = false)
-    private String dormName;
-
-    @Column(nullable = false)
-    private String roomName;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "room_id", nullable = false)
+    private Room room;
 
     @Builder
-    public QrCode(String dormName, String roomName) {
+    public QrCode(Room room) {
         this.uuid = UUID.randomUUID().toString();
-        this.dormName = dormName;
-        this.roomName = roomName;
+        this.room = room;
     }
 
     public void refreshUuid() {

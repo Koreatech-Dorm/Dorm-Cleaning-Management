@@ -40,7 +40,7 @@ public class RoomController {
 
         List<RoomDto> rooms = roomService.getRoomsByDormAndFloor(dorm, floor)
                 .stream()
-                .map(r -> new RoomDto(r.getId(), r.getRoomNumber(), r.getStatus(), r.getStatusLabel()))
+                .map(r -> new RoomDto(r.getId(), r.getRoomNumber(), r.getRoomStatus(), r.getStatusLabel()))
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(rooms);
@@ -51,7 +51,7 @@ public class RoomController {
     public ResponseEntity<Void> updateRoomStatus(
             @PathVariable Long roomId,
             @RequestBody RoomStatusUpdateDto dto) {
-        roomService.updateRoomStatus(roomId, dto.status());
+        roomService.updateRoomStatus(roomId, dto.roomStatus());
         return ResponseEntity.ok().build();
     }
 

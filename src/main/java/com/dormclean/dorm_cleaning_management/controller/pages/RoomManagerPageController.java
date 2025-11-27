@@ -29,9 +29,9 @@ public class RoomManagerPageController {
 
         if (dormCode != null && !dormCode.isEmpty()) {
             // 선택된 dorm 조회
-            Dorm dorm = dormRepository.findByDormCode(dormCode);
+            Dorm dorm = dormRepository.findByDormCode(dormCode).orElse(null);
             if (dorm != null) {
-                floors = roomRepository.findBydorm(dorm).stream()
+                floors = roomRepository.findByDorm(dorm).stream()
                         .map(Room::getFloor) // 층만 추출
                         .distinct() // 중복 제거
                         .sorted() // 오름차순 정렬

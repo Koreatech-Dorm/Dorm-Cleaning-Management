@@ -67,9 +67,9 @@
 
     function generateQrCode() {
         const dormName = document.getElementById('dormSelect').value;
-        const roomName = document.getElementById('roomInput').value;
+        const roomNumber = document.getElementById('roomInput').value;
 
-        if (!dormName || !roomName) {
+        if (!dormName || !roomNumber) {
             alert('생활관과 호실을 모두 입력해주세요.');
             return;
         }
@@ -83,7 +83,7 @@
         qrImage.style.display = 'none';
         loadingSpinner.style.display = 'block';
 
-        const params = new URLSearchParams({ dormName: dormName, roomName: roomName });
+        const params = new URLSearchParams({ dormName: dormName, roomNumber: roomNumber });
         const apiUrl = `/api/qr/generate?${params.toString()}`;
 
         qrImage.onload = function() {
@@ -99,7 +99,7 @@
 
         qrImage.src = apiUrl;
         downloadLink.href = apiUrl;
-        downloadLink.download = `QR_${dormName}_${roomName}.png`;
+        downloadLink.download = `QR_${dormName}_${roomNumber}.png`;
     }
 </script>
 

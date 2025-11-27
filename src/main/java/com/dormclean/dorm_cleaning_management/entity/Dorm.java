@@ -3,6 +3,9 @@ package com.dormclean.dorm_cleaning_management.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -17,6 +20,9 @@ public class Dorm {
     private String dormCode;
 
     private String dormName;
+
+    @OneToMany(mappedBy = "dorm", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Room> rooms = new ArrayList<>();
 
     @Builder
     public Dorm(String dormCode, String dormName) {

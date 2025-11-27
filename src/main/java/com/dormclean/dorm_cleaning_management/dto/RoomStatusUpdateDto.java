@@ -1,7 +1,7 @@
 package com.dormclean.dorm_cleaning_management.dto;
 
-import com.dormclean.dorm_cleaning_management.entity.Room;
+import com.dormclean.dorm_cleaning_management.entity.enums.RoomStatus;
 
 public record RoomStatusUpdateDto(
-        Room.RoomStatus status) {
+        RoomStatus roomStatus) {
 }

@@ -1,58 +1,198 @@
 <!doctype html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org"> <head>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <title>QR 체크인 확인</title>
     <style>
+        :root {
+            --primary-color: #FFB366; /* 주요 색상 */
+            --primary-dark: #E69545; /* 버튼 호버용 어두운 주황색 */
+            --text-color: #333;
+            --bg-light: #FFF5E6; /* 연한 주황색 배경 */
+        }
+
         body {
             font-family: 'Noto Sans KR', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
             margin: 0;
-            background-color: #f0f2f5;
-            text-align: center;
+            background-color: #f0f2f5; /* 깔끔한 회색 배경 */
+            display: flex;
+            align-items: center;     /* 수직 중앙 정렬 */
+            justify-content: center; /* 수평 중앙 정렬 */
+            min-height: 100vh;       /* 화면 전체 높이 사용 */
+            color: var(--text-color);
+            padding: 20px;           /* 모바일 좌우 여백 확보 */
+            box-sizing: border-box;
         }
+
         .card {
             background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            width: 80%;
+            padding: 2.5rem 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08); /* 그림자 부드럽게 */
+            width: 100%;
             max-width: 400px;
+            text-align: center;
         }
-        h1 { margin-bottom: 20px; color: #333; font-size: 1.5rem; }
+
+        /* 상단 아이콘 */
+        .card-icon {
+            font-size: 3.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            margin: 0 0 1.5rem 0;
+            color: var(--text-color);
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        /* 정보 라벨 */
+        .info-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #888;
+            margin-bottom: 0.4rem;
+            display: block;
+            text-align: left;
+            padding-left: 0.5rem;
+        }
+
+        /* 정보 박스 */
         .info-box {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            font-weight: bold;
+            background-color: var(--bg-light); /* 연한 주황색 배경 */
+            color: #D97706; /* 진한 주황색 글씨 */
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 1.2rem;
+            font-weight: 700;
             font-size: 1.2rem;
+            border: 1px solid #FFE0B2;
         }
-        .label { font-size: 0.9rem; color: #666; margin-top: 5px; }
-        .status-msg { color: blue; font-size: 0.8rem; margin-top: 15px; }
+
+        .status-msg {
+            color: #888;
+            font-size: 0.95rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        /* 버튼 스타일 */
+        .btn-container {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        /* 퇴실 버튼 */
+        .btn-out {
+            background-color: #FF8A65;
+        }
+        .btn-out:hover {
+            background-color: #F4511E;
+            transform: translateY(-2px);
+        }
+
+        /* 청소 완료 버튼 */
+        .btn-clean {
+            background-color: var(--primary-color);
+        }
+        .btn-clean:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h1>🏠 기숙사 QR 확인</h1>
+    <div class="card-icon">🏠</div>
+    <h1>QR 체크인 확인</h1>
 
-    <div class="label">기숙사 이름</div>
+    <span class="info-label">기숙사 이름</span>
     <div class="info-box" th:text="${dormName}">데이터 로딩중...</div>
 
-    <div class="label">호실 번호</div>
-    <div class="info-box" th:text="${roomName} + '호'">데이터 로딩중...</div>
+    <span class="info-label">호실 번호</span>
+    <div class="info-box" th:text="${roomNumber} + '호'">데이터 로딩중...</div>
 
     <p class="status-msg">
-        ✅ 안전하게 확인되었습니다.
+        해당 호실의 상태를 변경하려면<br>아래 버튼을 클릭해주세요.
     </p>
+
+    <div class="btn-container">
+        <button class="btn btn-out" onclick="sendRequest('out')">
+            👋 퇴실 하기
+        </button>
+        <button class="btn btn-clean" onclick="sendRequest('clean')">
+            ✨ 청소 완료
+        </button>
+    </div>
 </div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const currentDormName = '[[${dormName}]]';
+    const currentRoomNumber = '[[${roomNumber}]]';
+
+    function sendRequest(type) {
+        // URL 및 액션 이름 결정
+        const url = type === 'out' ? '/api/check/out' : '/api/check/clean';
+        const actionName = type === 'out' ? "퇴실" : "청소 완료";
+
+        const cleanedDormName = currentDormName.trim().replace(/["']/g, "");
+        const cleanedRoomNumber = currentRoomNumber.trim().replace(/["']/g, "");
+
+        // 보낼 데이터 (자동으로 JSON으로 변환됨)
+        const data = {
+            dormName: cleanedDormName,
+            roomNumber: cleanedRoomNumber
+        };
+
+        // 확인 창 띄우기
+        if (!confirm(`${currentDormName} 생활관 ${currentRoomNumber}호 ${actionName} 처리를 하시겠습니까?`)) {
+            return;
+        }
+
+        // POST 요청 전송
+        axios.post(url, data) // Axios는 POST 요청 시 데이터를 두 번째 인수로 받습니다.
+            .then(response => {
+                const resultMessage = response.data.message;
+
+                alert(resultMessage);
+            })
+            .catch(error => {
+                const errorMessage = error.response.data.message || "알 수 없는 오류가 발생했습니다.";
+
+                console.error('Error:', error.response);
+                alert(`처리 중 오류 발생:\n${errorMessage}`);
+            });
+    }
+    /*]]>*/
+</script>
 
 </body>
 </html>
