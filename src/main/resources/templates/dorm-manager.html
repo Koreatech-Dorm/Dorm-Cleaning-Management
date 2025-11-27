@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: headFragment}"> </head>
+
+<body>
+<header th:replace="~{fragments/header :: headerFragment}"></header>
+
+<div class="container mt-5">
+    <h1 class="mb-4 text-center">Dorm Manager 🏠</h1>
+
+    <!-- 1. 기숙사 추가 -->
+    <div class="card mb-4 p-4">
+        <h4 class="mb-3">생활관 추가</h4>
+        <form id="createDormForm">
+            <div class="mb-3">
+                <label for="dormCode" class="form-label">생활관 코드</label>
+                <input type="text" class="form-control" id="dormCode" required>
+            </div>
+            <div class="mb-3">
+                <label for="dormName" class="form-label">생활관 이름</label>
+                <input type="text" class="form-control" id="dormName" required>
+            </div>
+            <button type="submit" class="btn btn-primary">생활관 추가하기</button>
+            <p id="dormStatus" class="status-msg text-muted">Enter details to create a dorm.</p>
+        </form>
+    </div>
+
+    <!-- 2. 방 생성 -->
+    <div class="card mb-4 p-4">
+        <h4 class="mb-3">호실 추가</h4>
+        <form id="createRoomForm">
+            <div class="mb-3">
+                <label for="roomDormCode" class="form-label">생활관 코드</label>
+                <input type="text" class="form-control" id="roomDormCode" required>
+            </div>
+            <div class="mb-3">
+                <label for="floor" class="form-label">층</label>
+                <input type="number" class="form-control" id="floor" value="1" min="1" required>
+            </div>
+            <div class="mb-3">
+                <label for="roomNumber" class="form-label">호실 번호</label>
+                <input type="text" class="form-control" id="roomNumber" required>
+            </div>
+            <button type="submit" class="btn btn-primary">호실 추가하기</button>
+            <p id="roomStatus" class="status-msg text-muted">Enter details to create a room.</p>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<script>
+    document.getElementById('createDormForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const dormCode = document.getElementById('dormCode').value;
+        const dormName = document.getElementById('dormName').value;
+        const statusEl = document.getElementById('dormStatus');
+
+        try {
+            const res = await axios.post('/api/dormitories', { dormCode, dormName });
+            statusEl.textContent = `✅ dorm created! ID: ${res.data}`;
+            statusEl.style.color = 'blue';
+            e.target.reset();
+        } catch (err) {
+            statusEl.textContent = '⚠️ Error creating dorm';
+            statusEl.style.color = 'red';
+        }
+    });
+
+    document.getElementById('createRoomForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const dormCode = document.getElementById('roomDormCode').value;
+        const floor = parseInt(document.getElementById('floor').value);
+        const roomNumber = document.getElementById('roomNumber').value;
+        const statusEl = document.getElementById('roomStatus');
+
+        try {
+            const res = await axios.post('/api/rooms', { dormCode, floor, roomNumber });
+            statusEl.textContent = `✅ Room created! ID: ${res.data}`;
+            statusEl.style.color = 'blue';
+            e.target.reset();
+        } catch (err) {
+            statusEl.textContent = '⚠️ Error creating room';
+            statusEl.style.color = 'red';
+        }
+    });
+
+    // async function loadRooms() {
+    //     const statusEl = document.getElementById('roomsStatus');
+    //     try {
+    //         const res = await axios.get('/api/rooms');
+    //         const tbody = document.querySelector('#roomsTable tbody');
+    //         tbody.innerHTML = '';
+    //         res.data.forEach(room => {
+    //             tbody.innerHTML += `
+    //                 <tr>
+    //                     <td>${room.dormCode}</td>
+    //                     <td>${room.floor}</td>
+    //                     <td>${room.roomNumber}</td>
+    //                     <td>${room.status}</td>
+    //                     <td>${room.cleanedAt || '-'}</td>
+    //                 </tr>
+    //             `;
+    //         });
+    //         statusEl.textContent = '✅ Room list updated';
+    //         statusEl.style.color = 'blue';
+    //     } catch (err) {
+    //         statusEl.textContent = '⚠️ Error fetching rooms';
+    //         statusEl.style.color = 'red';
+    //     }
+    // }
+
+    // document.getElementById('refreshBtn').addEventListener('click', loadRooms);
+    // loadRooms();
+</script>
+
+<footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+</body>
+</html>

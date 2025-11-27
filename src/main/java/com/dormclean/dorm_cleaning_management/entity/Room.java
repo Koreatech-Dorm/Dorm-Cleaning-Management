@@ -6,6 +6,7 @@ import java.time.Instant;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "room")
 public class Room {
@@ -42,9 +43,9 @@ public class Room {
     }
 
     public enum RoomStatus {
-        OCCUPIED,
-        CLEANED,
-        DIRTY
+        VACANT_DIRTY,
+        VACANT_CLEAN,
+        OCCUPIED
     }
 
     // 필요한 상태 변경 메서드만 제공
@@ -52,7 +53,22 @@ public class Room {
         this.status = status;
     }
 
+    // 상태 레이블 반환
     public void updateCleanedAt(Instant cleanedAt) {
         this.cleanedAt = cleanedAt;
     }
+
+    public String getStatusLabel() {
+        switch (status) {
+            case OCCUPIED:
+                return "재실";
+            case VACANT_DIRTY:
+                return "공실 (청소 필요)";
+            case VACANT_CLEAN:
+                return "공실 (청소 완료)";
+            default:
+                return "";
+        }
+    }
+
 }
