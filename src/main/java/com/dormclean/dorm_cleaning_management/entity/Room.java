@@ -32,6 +32,9 @@ public class Room {
 
     private Instant cleanedAt;
 
+    @OneToOne(mappedBy = "room", fetch = FetchType.LAZY)
+    private QrCode qrCode;
+
     @Builder
     public Room(Dorm dorm,
             Integer floor,
@@ -56,5 +59,8 @@ public class Room {
     }
     public void updateCleanedAt(Instant cleanedAt) {
         this.cleanedAt = cleanedAt;
+    }
+    public void assignQrCode(QrCode qrCode) {
+        this.qrCode = qrCode;
     }
 }

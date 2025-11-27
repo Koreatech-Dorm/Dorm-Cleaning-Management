@@ -5,7 +5,10 @@ import org.springframework.stereotype.Repository;
 
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
 
+import java.util.Optional;
+
 @Repository
 public interface DormRepository extends JpaRepository<Dorm, Long> {
-    Dorm findByDormCode(String dormCode);
+    Optional<Dorm> findByDormCode(String dormCode);
+    Optional<Dorm> findByDormName(String dormName);
 }
