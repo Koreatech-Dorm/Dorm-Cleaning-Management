@@ -2,8 +2,7 @@ package com.dormclean.dorm_cleaning_management.service;
 
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
 import com.dormclean.dorm_cleaning_management.entity.Room;
-import com.dormclean.dorm_cleaning_management.entity.enums.CheckOutStatus;
-import com.dormclean.dorm_cleaning_management.entity.enums.CleanStatus;
+import com.dormclean.dorm_cleaning_management.entity.enums.RoomStatus;
 import com.dormclean.dorm_cleaning_management.repository.RoomRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +18,7 @@ public class CheckServiceImpl implements CheckService{
     public void checkOut(Dorm dorm, String roomNumber) {
         Room room = roomRepository.findByDormAndRoomNumber(dorm, roomNumber).orElse(null);
         if (room != null) {
-            room.updateCheckOutStatus(CheckOutStatus.CHECKOUT);
+            room.updateStatus(RoomStatus.VACANT_DIRTY);
             roomRepository.save(room);
         }
     }
@@ -28,7 +27,7 @@ public class CheckServiceImpl implements CheckService{
     public void cleanCheck(Dorm dorm, String roomNumber){
         Room room = roomRepository.findByDormAndRoomNumber(dorm, roomNumber).orElse(null);
         if (room != null) {
-            room.updateCleanStatus(CleanStatus.CLEANED);
+            room.updateStatus(RoomStatus.VACANT_CLEAN);
             roomRepository.save(room);
         }
     }

@@ -1,7 +1,6 @@
 package com.dormclean.dorm_cleaning_management.entity;
 
-import com.dormclean.dorm_cleaning_management.entity.enums.CheckOutStatus;
-import com.dormclean.dorm_cleaning_management.entity.enums.CleanStatus;
+import com.dormclean.dorm_cleaning_management.entity.enums.RoomStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.Instant;
@@ -25,10 +24,7 @@ public class Room {
     private String roomNumber;
 
     @Enumerated(EnumType.STRING)
-    private CheckOutStatus checkOutStatus = CheckOutStatus.OCCUPIED;
-
-    @Enumerated(EnumType.STRING)
-    private  CleanStatus cleanStatus = CleanStatus.UNCLEANED;
+    private RoomStatus roomStatus = RoomStatus.OCCUPIED;
 
     private Instant cleanedAt;
 
@@ -39,23 +35,18 @@ public class Room {
     public Room(Dorm dorm,
             Integer floor,
             String roomNumber,
-            CheckOutStatus checkOutStatus,
-            CleanStatus cleanStatus,
+            RoomStatus status,
             Instant cleanedAt) {
 
         this.dorm = dorm;
         this.floor = floor;
         this.roomNumber = roomNumber;
-        this.checkOutStatus = checkOutStatus != null ? checkOutStatus : CheckOutStatus.OCCUPIED;
-        this.cleanStatus = cleanStatus != null ? cleanStatus : CleanStatus.UNCLEANED;
+        this.roomStatus = status != null ? status : RoomStatus.OCCUPIED;
         this.cleanedAt = cleanedAt;
     }
 
-    public void updateCleanStatus(CleanStatus cleanStatus) {
-        this.cleanStatus = cleanStatus;
-    }
-    public void updateCheckOutStatus(CheckOutStatus checkOutStatus) {
-        this.checkOutStatus = checkOutStatus;
+    public void updateStatus(RoomStatus status) {
+        this.roomStatus = status;
     }
     public void updateCleanedAt(Instant cleanedAt) {
         this.cleanedAt = cleanedAt;
@@ -63,4 +54,18 @@ public class Room {
     public void assignQrCode(QrCode qrCode) {
         this.qrCode = qrCode;
     }
+
+    public String getStatusLabel() {
+        switch (roomStatus) {
+            case OCCUPIED:
+                return "재실";
+            case VACANT_DIRTY:
+                return "공실 (청소 필요)";
+            case VACANT_CLEAN:
+                return "공실 (청소 완료)";
+            default:
+                return "";
+        }
+    }
+
 }
