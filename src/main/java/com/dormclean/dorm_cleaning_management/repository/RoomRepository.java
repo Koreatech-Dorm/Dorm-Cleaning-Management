@@ -1,5 +1,6 @@
 package com.dormclean.dorm_cleaning_management.repository;
 
+import com.dormclean.dorm_cleaning_management.entity.enums.RoomStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -21,5 +22,5 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     Room findBydormAndRoomNumber(Dorm dorm, String roomNumber);
 
     // 상태로 조회
-    List<Room> findByStatus(Room.RoomStatus status);
+    List<Room> findByStatus(RoomStatus status);
 }

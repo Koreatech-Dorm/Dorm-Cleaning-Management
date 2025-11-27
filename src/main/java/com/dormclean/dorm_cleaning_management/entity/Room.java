@@ -1,5 +1,6 @@
 package com.dormclean.dorm_cleaning_management.entity;
 
+import com.dormclean.dorm_cleaning_management.entity.enums.RoomStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.Instant;
@@ -41,13 +42,6 @@ public class Room {
         this.cleanedAt = cleanedAt;
     }
 
-    public enum RoomStatus {
-        OCCUPIED,
-        CLEANED,
-        DIRTY
-    }
-
-    // 필요한 상태 변경 메서드만 제공
     public void updateStatus(RoomStatus status) {
         this.status = status;
     }
