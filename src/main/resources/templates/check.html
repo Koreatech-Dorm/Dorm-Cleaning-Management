@@ -125,6 +125,18 @@
             transform: translateY(-2px);
         }
 
+        /* 비활성화 버튼 스타일 */
+        .btn-disabled {
+            background-color: #BDBDBD !important;
+            color: #fff;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none !important;
+        }
+        .btn-disabled:hover {
+            background-color: #BDBDBD !important;
+        }
+
     </style>
 </head>
 <body>
@@ -144,11 +156,19 @@
     </p>
 
     <div class="btn-container">
-        <button class="btn btn-out" onclick="sendRequest('out')">
-            👋 퇴실 하기
+        <!-- 퇴실 버튼 -->
+        <button class="btn btn-out"
+                th:classappend="${!isOccupied} ? 'btn-disabled'"
+                th:onclick="${isOccupied} ? 'sendRequest(\'out\')' : 'return false;'"
+                th:disabled="${!isOccupied}">
+            <span th:text="${isOccupied} ? '👋 퇴실 하기' : '퇴실 완료'"></span>
         </button>
-        <button class="btn btn-clean" onclick="sendRequest('clean')">
-            ✨ 청소 완료
+
+        <button class="btn btn-clean"
+                th:classappend="${!isVacantDirty and !isOccupied} ? 'btn-disabled'"
+                th:onclick="${isVacantDirty or isOccupied} ? 'sendRequest(\'clean\')' : 'return false;'"
+                th:disabled="${!isVacantDirty and !isOccupied}">
+            <span th:text="${isVacantDirty or isOccupied} ? '✨ 청소 완료' : '청소 완료됨'"></span>
         </button>
     </div>
 </div>
@@ -178,15 +198,14 @@
         }
 
         // POST 요청 전송
-        axios.post(url, data) // Axios는 POST 요청 시 데이터를 두 번째 인수로 받습니다.
+        axios.post(url, data)
             .then(response => {
                 const resultMessage = response.data.message;
-
                 alert(resultMessage);
+                location.reload(); // 처리가 끝나면 상태 반영을 위해 페이지 새로고침
             })
             .catch(error => {
-                const errorMessage = error.response.data.message || "알 수 없는 오류가 발생했습니다.";
-
+                const errorMessage = error.response && error.response.data ? error.response.data.message : "알 수 없는 오류가 발생했습니다.";
                 console.error('Error:', error.response);
                 alert(`처리 중 오류 발생:\n${errorMessage}`);
             });

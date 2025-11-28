@@ -20,7 +20,9 @@ public class CheckServiceImpl implements CheckService {
         Room room = roomRepository.findByDormAndRoomNumber(dorm, roomNumber)
                 .orElseThrow(() -> new IllegalArgumentException("해당 호실이 존재하지 않습니다."));
 
-        room.updateStatus(RoomStatus.VACANT_DIRTY);
+        if(room.getRoomStatus() == RoomStatus.OCCUPIED){
+            room.updateStatus(RoomStatus.VACANT_DIRTY);
+        }
     }
 
     @Override
@@ -28,7 +30,11 @@ public class CheckServiceImpl implements CheckService {
         Room room = roomRepository.findByDormAndRoomNumber(dorm, roomNumber)
                 .orElseThrow(() -> new IllegalArgumentException("해당 호실이 존재하지 않습니다."));
 
-        room.updateStatus(RoomStatus.VACANT_CLEAN);
-        room.updateCleanedAt(java.time.Instant.now());
+        if(room.getRoomStatus() == RoomStatus.VACANT_DIRTY){
+            room.updateStatus(RoomStatus.VACANT_CLEAN);
+            room.updateCleanedAt(java.time.Instant.now());
+        }else{
+            throw new IllegalArgumentException("퇴실하지 않은 상태입니다.");
+        }
     }
 }
