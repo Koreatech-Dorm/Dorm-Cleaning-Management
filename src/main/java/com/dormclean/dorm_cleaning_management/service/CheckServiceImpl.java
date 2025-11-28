@@ -34,7 +34,7 @@ public class CheckServiceImpl implements CheckService {
             room.updateStatus(RoomStatus.VACANT_CLEAN);
             room.updateCleanedAt(java.time.Instant.now());
         }else{
-            throw new IllegalArgumentException("퇴실하지 않은 상태입니다.");
+            throw new IllegalStateException("퇴실하지 않은 상태에서는 청소할 수 없습니다.");
         }
     }
 }
