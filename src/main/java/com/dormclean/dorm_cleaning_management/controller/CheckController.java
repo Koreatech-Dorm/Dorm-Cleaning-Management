@@ -4,6 +4,7 @@ import com.dormclean.dorm_cleaning_management.dto.CheckRequestDto;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
 import com.dormclean.dorm_cleaning_management.repository.DormRepository;
 import com.dormclean.dorm_cleaning_management.service.CheckService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/check")
 @RequiredArgsConstructor
+@Tag(name = "방 상태 관리 API", description = "퇴실 확인 및 청소 완료 처리 API")
 public class CheckController {
     private final CheckService checkService;
     private final DormRepository dormRepository;

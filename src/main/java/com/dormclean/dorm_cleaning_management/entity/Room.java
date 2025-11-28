@@ -29,7 +29,7 @@ public class Room {
 
     private Instant cleanedAt;
 
-    @OneToOne(mappedBy = "room", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "room", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private QrCode qrCode;
 
     @Builder
