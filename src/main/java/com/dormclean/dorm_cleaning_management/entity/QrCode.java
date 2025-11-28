@@ -22,7 +22,7 @@ public class QrCode {
     private String uuid;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "room_id", nullable = false)
+    @JoinColumn(name = "room_id", nullable = false, unique = true)
     private Room room;
 
     @Builder
