@@ -16,11 +16,11 @@ import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
-public class RoomManagerPageController {
+public class RoomsPageController {
     private final DormRepository dormRepository;
     private final RoomRepository roomRepository;
 
-    @GetMapping("/room-manager")
+    @GetMapping("/rooms")
     public String roomManager(Model model, @RequestParam(required = false) String dormCode) {
         List<Dorm> dormList = dormRepository.findAll();
         model.addAttribute("dorms", dormList);
@@ -49,6 +49,6 @@ public class RoomManagerPageController {
         }
 
         model.addAttribute("floors", floors);
-        return "room-Manager";
+        return "rooms";
     }
 }

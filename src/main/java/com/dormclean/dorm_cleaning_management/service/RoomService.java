@@ -20,7 +20,8 @@ public class RoomService {
 
     // 방 생성
     public Room createRoom(String dormCode, Integer floor, String roomNumber) {
-        Dorm dorm = dormRepository.findByDormCode(dormCode).orElseThrow(() -> new IllegalArgumentException("해당 dormCode의 기숙사가 없습니다."));
+        Dorm dorm = dormRepository.findByDormCode(dormCode)
+                .orElseThrow(() -> new IllegalArgumentException("해당 dormCode의 기숙사가 없습니다."));
 
         Room room = Room.builder()
                 .dorm(dorm)
@@ -42,11 +43,22 @@ public class RoomService {
         return roomRepository.findByDorm(dorm);
     }
 
-    // 방 상태 변경
+    // 호실 상태 변경
     @Transactional
     public void updateRoomStatus(Long roomId, RoomStatus roomStatus) {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 호실을 찾을 수 없습니다."));
         room.updateStatus(roomStatus);
+    }
+
+    // 호실 삭제
+    @Transactional
+    public void deleteRoom(String dormCode, String roomName) {
+        Dorm dorm = dormRepository.findByDormCode(dormCode)
+                .orElseThrow(() -> new IllegalArgumentException("해당 상활관을 찾을 수 없습니다."));
+        Room room = roomRepository.findByDormAndRoomNumber(dorm, roomName)
+                .orElseThrow(() -> new IllegalArgumentException("해당 생활관을 찾을 수 없습니다."));
+
+        roomRepository.delete(room);
     }
 }

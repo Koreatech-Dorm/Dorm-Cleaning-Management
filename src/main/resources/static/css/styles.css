@@ -486,3 +486,30 @@ main {
         font-size: 10px;
     }
 }
+
+/* =========================================
+   카드 내부 버튼/상태 메시지 하단 정렬
+   ========================================= */
+.card {
+    display: flex;
+    flex-direction: column;
+}
+
+.card form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.form-bottom {
+    margin-top: auto; /* 아래로 밀기 */
+}
+
+/* =========================================
+   상태 메시지 폰트 조정 (Status Message)
+   ========================================= */
+.status-msg {
+    font-size: 13px; /* 기존보다 2px 낮춤 (원래 15px) */
+    margin-top: 8px; /* 필요 시 간격 유지 */
+    color: #6c757d; /* text-muted 색상 유지 */
+}

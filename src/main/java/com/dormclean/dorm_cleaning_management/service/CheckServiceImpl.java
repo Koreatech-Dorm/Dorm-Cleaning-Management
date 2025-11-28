@@ -12,19 +12,21 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class CheckServiceImpl implements CheckService{
+public class CheckServiceImpl implements CheckService {
     private final RoomRepository roomRepository;
 
     @Override
     public void checkOut(Dorm dorm, String roomNumber) {
-        Room room = roomRepository.findByDormAndRoomNumber(dorm, roomNumber).orElseThrow(() -> new IllegalArgumentException("해당 호실이 존재하지 않습니다."));
+        Room room = roomRepository.findByDormAndRoomNumber(dorm, roomNumber)
+                .orElseThrow(() -> new IllegalArgumentException("해당 호실이 존재하지 않습니다."));
 
         room.updateStatus(RoomStatus.VACANT_DIRTY);
     }
 
     @Override
-    public void cleanCheck(Dorm dorm, String roomNumber){
-        Room room = roomRepository.findByDormAndRoomNumber(dorm, roomNumber).orElseThrow(() -> new IllegalArgumentException("해당 호실이 존재하지 않습니다."));
+    public void cleanCheck(Dorm dorm, String roomNumber) {
+        Room room = roomRepository.findByDormAndRoomNumber(dorm, roomNumber)
+                .orElseThrow(() -> new IllegalArgumentException("해당 호실이 존재하지 않습니다."));
 
         room.updateStatus(RoomStatus.VACANT_CLEAN);
         room.updateCleanedAt(java.time.Instant.now());

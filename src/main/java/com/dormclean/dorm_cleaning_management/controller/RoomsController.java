@@ -17,21 +17,28 @@ import java.util.stream.Collectors;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
-public class RoomController {
+public class RoomsController {
 
     private final RoomService roomService;
     private final DormRepository dormRepository;
 
-    // 1️⃣ 방 생성
-    @PostMapping("/rooms")
-    public ResponseEntity<Long> createRoom(@RequestBody CreateRoomRequestDto dto) {
-        Room room = roomService.createRoom(dto.dormCode(), dto.floor(), dto.roomNumber());
-        return ResponseEntity.ok(room.getId());
+    // 특정 생활관의 호실 정보 반환
+    @GetMapping(value = "/rooms", params = "!floor")
+    public ResponseEntity<List<RoomDto>> getRoomsByDorm(@RequestParam Long dormId) {
+
+        Dorm dorm = dormRepository.findById(dormId)
+                .orElseThrow(() -> new RuntimeException("Dorm not found"));
+
+        List<RoomDto> rooms = roomService.getRoomsByDorm(dorm)
+                .stream()
+                .map(r -> new RoomDto(r.getId(), r.getRoomNumber(), r.getRoomStatus(), r.getStatusLabel()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(rooms);
     }
 
-    // 2️⃣ 특정 Dorm + Floor의 Room 리스트 반환
-    @GetMapping("/rooms")
-    public ResponseEntity<List<RoomDto>> getRooms(
+    @GetMapping(value = "/rooms", params = "floor")
+    public ResponseEntity<List<RoomDto>> getRoomsByDormAndFloor(
             @RequestParam Long dormId,
             @RequestParam Integer floor) {
 
@@ -46,7 +53,14 @@ public class RoomController {
         return ResponseEntity.ok(rooms);
     }
 
-    // 3️⃣ Room 상태 변경
+    // 호실 생성
+    @PostMapping("/rooms/create")
+    public ResponseEntity<Long> createRoom(@RequestBody CreateRoomRequestDto dto) {
+        Room room = roomService.createRoom(dto.dormCode(), dto.floor(), dto.roomNumber());
+        return ResponseEntity.ok(room.getId());
+    }
+
+    // 호실 상태 변경
     @PatchMapping("/rooms/{roomId}/status")
     public ResponseEntity<Void> updateRoomStatus(
             @PathVariable Long roomId,
@@ -55,7 +69,7 @@ public class RoomController {
         return ResponseEntity.ok().build();
     }
 
-    // 4️⃣ 특정 Dorm의 층 목록 반환
+    // 생활관 층 목록 반환
     @GetMapping("/floors")
     public ResponseEntity<List<Integer>> getFloors(@RequestParam Long dormId) {
         Dorm dorm = dormRepository.findById(dormId)
@@ -69,5 +83,14 @@ public class RoomController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(floors);
+    }
+
+    // 호실 삭제
+    @DeleteMapping("/rooms/delete")
+    public ResponseEntity<Void> deleteDorm(
+            @RequestParam String dormCode,
+            @RequestParam String roomName) {
+        roomService.deleteRoom(dormCode, roomName);
+        return ResponseEntity.ok().build();
     }
 }

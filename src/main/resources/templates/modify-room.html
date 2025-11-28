@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: headFragment}"> </head>
+
+<body>
+<header th:replace="~{fragments/header :: headerFragment}"></header>
+
+<main class="container-fluid px-4 mt-4">
+    <!-- 메인 컨텐츠 -->
+    <div class="container">
+        <div class="page-header">
+            <h2>생활관∙호실 관리</h2>
+            <p>생활관∙호실을 추가/삭제/수정합니다.</p>
+        </div>
+ 
+        <!-- 생활관 선택 -->           
+        <div class="filter-section d-flex gap-3 mb-4">
+            <div class="filter-group flex-fill">
+                <label for="dormSelect" class="form-label">생활관 선택</label>
+                    <select class="form-select form-select-lg" id="dormSelect" required>
+                    <option value="" selected disabled>생활관을 선택하세요</option>
+                    <option th:each="dorm : ${dorms}" 
+                            th:value="${dorm.id}" 
+                            th:text="${dorm.dormCode} + '층'"></option>
+                </select>
+            </div>
+
+            <div class="d-flex align-items-end">
+                <button class="btn btn-primary" onclick="loadRooms()">조회</button>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- 호실 추가 -->
+            <div class="col-md-6">
+                <div class="card p-4 h-100">
+                    <h4 class="mb-3">호실 추가</h4>
+                    <form id="createRoomForm">
+                        <div class="mb-3">
+                            <label for="roomDormCode" class="form-label">생활관 동</label>
+                            <input type="text" class="form-control" id="roomDormCode" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="floor" class="form-label">층</label>
+                            <input type="number" class="form-control" id="floor" value="1" min="1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="roomNumber" class="form-label">호실 번호</label>
+                            <input type="text" class="form-control" id="roomNumber" required>
+                        </div>
+                        <div class="form-bottom mt-auto">
+                            <button type="submit" class="btn btn-primary">호실 추가하기</button>
+                            <p id="roomStatus" class="status-msg text-muted">호실을 추가하려면 세부 정보를 입력하십시오.</p>
+                        </div>    
+                    </form>
+                </div>
+            </div>
+
+            <!-- 호실 삭제 -->
+            <div class="col-md-6">
+                <div class="card p-4 h-100">
+                    <h4 class="mb-3">호실 삭제</h4>
+                    <form id="deleteRoomForm">
+                        <div class="mb-3">
+                            <label for="deleteRoomId" class="form-label">삭제할 호실 번호</label>
+                            <input type="number" class="form-control" id="deleteRoomId" required>
+                        </div>
+                        <div class="form-bottom mt-auto">
+                            <button type="submit" class="btn btn-primary">호실 삭제</button>
+                            <p id="deleteRoomStatus" class="status-msg text-muted">호실을 삭제하려면 세부 정보를 입력하십시오.</p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 호실 그리드 -->
+         <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>호실</th>
+                    <th>상태</th>
+                </tr>
+            </thead>
+            <tbody id="roomTableBody"></tbody>
+        </table>
+
+        <div id="emptyState" style="display:none;">조회된 방이 없습니다.</div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+        const dormSelect = document.getElementById('dormSelect');
+
+        // 조회 버튼 클릭 시 호실 정보 갱신
+        async function loadRooms() {
+            const dormId = dormSelect.value;
+
+            if (!dormId) return;
+
+            roomGrid.innerHTML = '<p>로딩 중...</p>';
+            emptyState.style.display = 'none';
+
+            try {
+                const res = await fetch(`/api/rooms?dormId=${dormId}`);
+                let rooms = await res.json();
+
+                // 테이블 요소 선택
+                const tbody = document.getElementById('roomTableBody');
+                tbody.innerHTML = '';
+                emptyState.style.display = 'none';
+
+                // 방 번호 기준 오름차순 정렬
+                rooms.sort((a, b) => a.number.localeCompare(b.number));
+
+                if (!rooms || rooms.length === 0) {
+                    emptyState.style.display = 'block';
+                    return;
+                }
+
+                rooms.forEach(room => {
+                    const row = document.createElement('tr');
+
+                    // 상태별 배경색 클래스 설정
+                    let statusClass = '';
+                    if (room.status === 'OCCUPIED') statusClass = 'occupied';
+                    else if (room.status === 'VACANT_DIRTY') statusClass = 'vacant-dirty';
+                    else statusClass = 'vacant-clean';
+
+                    row.classList.add('room-row', statusClass);
+
+                    row.onclick = () => openStatusModal(room.id, room.number, room.status);
+
+                    row.innerHTML = `
+                        <td class="fw-bold">${room.number}</td>
+                        <td>${room.statusLabel}</td>
+                    `;
+
+                    tbody.appendChild(row);
+                });
+            } catch (err) {
+                console.error(err);
+                roomGrid.innerHTML = '<p>호실 정보를 불러오는데 실패했습니다.</p>';
+            }
+        }
+
+
+        // 호실 추가
+        document.getElementById('createRoomForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            // const dormCode = document.getElementById('roomDormCode').value;
+            const floor = parseInt(document.getElementById('floor').value);
+            const roomNumber = document.getElementById('roomNumber').value;
+            const statusEl = document.getElementById('roomStatus');
+
+            try {
+                const res = await axios.post('/api/rooms/create', { dormSelect, floor, roomNumber });
+                statusEl.textContent = `✅ Room created! ID: ${res.data}`;
+                statusEl.style.color = 'blue';
+                e.target.reset();
+            } catch (err) {
+                statusEl.textContent = '⚠️ Error creating room';
+                statusEl.style.color = 'red';
+            }
+        });
+
+        // 호실 삭제
+        document.getElementById('deleteRoomForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const roomId = document.getElementById('deleteRoomId').value;
+            const statusEl = document.getElementById('deleteRoomStatus');
+
+            try {
+                await axios.delete(`/api/deleteRoom/${roomId}`);
+                statusEl.textContent = `✅ Room ID ${roomId} deleted`;
+                statusEl.style.color = 'blue';
+                e.target.reset();
+            } catch (err) {
+                statusEl.textContent = `⚠️ Error deleting room ID ${roomId}`;
+                statusEl.style.color = 'red';
+            }
+        });
+    </script>
+</main>
+
+<footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+</body>
+</html>
