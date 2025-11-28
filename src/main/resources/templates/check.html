@@ -166,8 +166,8 @@
 
         <button class="btn btn-clean"
                 th:classappend="${!isVacantDirty and !isOccupied} ? 'btn-disabled'"
-                th:onclick="${isVacantDirty} ? 'sendRequest(\'clean\')' : 'return false;'"
-                th:disabled="${!isVacantDirty}">
+                th:onclick="${isVacantDirty or isOccupied} ? 'sendRequest(\'clean\')' : 'return false;'"
+                th:disabled="${!isVacantDirty and !isOccupied}">
             <span th:text="${isVacantDirty or isOccupied} ? '✨ 청소 완료' : '청소 완료됨'"></span>
         </button>
     </div>
