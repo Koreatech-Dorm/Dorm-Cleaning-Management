@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface CleaningCodeRepository extends JpaRepository<CleaningCode, Long> {
-    Optional<CleaningCode> findByCode(String cleaningCode);
+    Optional<CleaningCode> findByCodeAndDorm_DormCode(String cleaningCode, String dormCode);
     Optional<CleaningCode> findByDorm(Dorm dorm);
 }
