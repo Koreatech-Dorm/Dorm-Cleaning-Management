@@ -1,9 +1,11 @@
 package com.dormclean.dorm_cleaning_management.service;
 
+import com.dormclean.dorm_cleaning_management.dto.CleaningCodeDto;
 import com.dormclean.dorm_cleaning_management.entity.CleaningCode;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
 import com.dormclean.dorm_cleaning_management.repository.CleaningCodeRepository;
 import com.dormclean.dorm_cleaning_management.repository.DormRepository;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,7 @@ import java.util.Optional;
 public class CleaningCodeServiceImpl implements  CleaningCodeService {
     private final CleaningCodeRepository cleaningCodeRepository;
     private final DormRepository dormRepository;
+    private final HttpSession session;
 
     @Override
     @Transactional
@@ -34,5 +37,15 @@ public class CleaningCodeServiceImpl implements  CleaningCodeService {
                     .build();
             cleaningCodeRepository.save(newCleaningCode);
         }
+    }
+
+    @Override
+    public void useCleaningCode(String cleaningCode, String dormCode) {
+        System.out.println("dorm %s".formatted(dormCode));
+        CleaningCode checkCode = cleaningCodeRepository.findByCodeAndDorm_DormCode(cleaningCode, dormCode)
+                .orElseThrow(() -> new IllegalArgumentException("코드가 유효하지 않습니다."));
+
+        session.setAttribute("cleaningCode", checkCode.getCode());
+        session.setAttribute("dormCodeForCleaning", dormCode);
     }
 }

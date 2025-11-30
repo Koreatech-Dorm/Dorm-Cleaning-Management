@@ -34,7 +34,9 @@ public class CheckPageController {
 
         // HTML(뷰)에 데이터 전달
         model.addAttribute("dormName", data.dormName());
+        model.addAttribute("dormCode", dorm.getDormCode());
         model.addAttribute("roomNumber", data.roomNumber());
+
         model.addAttribute("isOccupied", isOccupied);
         model.addAttribute("isVacantDirty", isVacantDirty);
 

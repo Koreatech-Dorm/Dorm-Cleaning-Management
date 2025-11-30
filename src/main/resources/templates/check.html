@@ -164,7 +164,14 @@
             <span th:text="${isOccupied} ? '👋 퇴실 하기' : '퇴실 완료'"></span>
         </button>
 
+        <button class="btn" style="background-color: #6c757d;"
+                th:if="${session.cleaningCode == null or session.dormCodeForCleaning != dormCode}"
+                onclick="requestAuth()">
+            <span>🔒 청소자 인증</span>
+        </button>
+
         <button class="btn btn-clean"
+                th:if="${session.cleaningCode != null and session.dormCodeForCleaning == dormCode}"
                 th:classappend="${!isVacantDirty and !isOccupied} ? 'btn-disabled'"
                 th:onclick="${isVacantDirty or isOccupied} ? 'sendRequest(\'clean\')' : 'return false;'"
                 th:disabled="${!isVacantDirty and !isOccupied}">
@@ -176,7 +183,25 @@
 <script th:inline="javascript">
     /*<![CDATA[*/
     const currentDormName = '[[${dormName}]]';
+    const currentDormCode = '[[${dormCode}]]';
     const currentRoomNumber = '[[${roomNumber}]]';
+
+    function requestAuth() {
+        const code = prompt("청소 관리자 코드를 입력해주세요:");
+
+        if (code === null || code.trim() === "") return;
+
+        const cleanedDormCode = currentDormCode.trim().replace(/["']/g, "");
+
+        axios.post('/api/cleaning-code/use-code', { cleaningCode: code, dormCode: cleanedDormCode})
+            .then(response => {
+                alert("인증되었습니다.");
+                location.reload();
+            })
+            .catch(error => {
+                alert("인증 실패: 코드가 올바르지 않습니다.");
+            });
+    }
 
     function sendRequest(type) {
         // URL 및 액션 이름 결정
