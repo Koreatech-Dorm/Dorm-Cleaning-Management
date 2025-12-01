@@ -21,7 +21,7 @@
                     <select class="form-select form-select-lg" id="dormSelect" required>
                     <option value="" selected disabled>생활관을 선택하세요</option>
                     <option th:each="dorm : ${dorms}" 
-                            th:value="${dorm.id}" 
+                            th:value="${dorm.dormCode}"
                             th:text="${dorm.dormCode} + '동'"></option>
                 </select>
             </div>
@@ -147,20 +147,24 @@
         // 호실 추가
         document.getElementById('createRoomForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const dormId = dormSelect.value;
+            const dormCode = dormSelect.value;
             const floor = parseInt(document.getElementById('floor').value);
             const roomNumber = document.getElementById('roomNumber').value;
             const statusEl = document.getElementById('roomStatus');
             
 
-            if (!dormId) {
+            if (!dormCode) {
                 statusEl.textContent = '⚠️ 생활관을 먼저 선택하세요.';
                 statusEl.style.color = 'red';
                 return;
             }
 
             try {
-                const res = await axios.post('/api/rooms/create', { dormId, floor, roomNumber });
+                const res = await axios.post('/api/rooms/create', {
+                    dormCode: dormCode,
+                    floor: floor,
+                    roomNumber: roomNumber
+                });
                 statusEl.textContent = `✅ ${roomNumber}호가 추가되었습니다.`;
                 statusEl.style.color = 'blue';
                 e.target.reset();
