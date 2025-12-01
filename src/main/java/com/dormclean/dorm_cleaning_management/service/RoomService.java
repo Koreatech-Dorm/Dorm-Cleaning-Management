@@ -19,8 +19,8 @@ public class RoomService {
     private final DormRepository dormRepository;
 
     // 방 생성
-    public Room createRoom(String dormCode, Integer floor, String roomNumber) {
-        Dorm dorm = dormRepository.findByDormCode(dormCode)
+    public Room createRoom(long dormId, Integer floor, String roomNumber) {
+        Dorm dorm = dormRepository.findById(dormId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 dormCode의 기숙사가 없습니다."));
 
         Room room = Room.builder()
@@ -53,8 +53,8 @@ public class RoomService {
 
     // 호실 삭제
     @Transactional
-    public void deleteRoom(String dormCode, String roomName) {
-        Dorm dorm = dormRepository.findByDormCode(dormCode)
+    public void deleteRoom(long dormId, String roomName) {
+        Dorm dorm = dormRepository.findById(dormId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 상활관을 찾을 수 없습니다."));
         Room room = roomRepository.findByDormAndRoomNumber(dorm, roomName)
                 .orElseThrow(() -> new IllegalArgumentException("해당 생활관을 찾을 수 없습니다."));

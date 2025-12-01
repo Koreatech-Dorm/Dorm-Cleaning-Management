@@ -60,7 +60,7 @@ public class RoomController {
         // 호실 생성
         @PostMapping("/rooms/create")
         public ResponseEntity<Long> createRoom(@RequestBody CreateRoomRequestDto dto) {
-                Room room = roomService.createRoom(dto.dormCode(), dto.floor(), dto.roomNumber());
+                Room room = roomService.createRoom(dto.dormId(), dto.floor(), dto.roomNumber());
                 return ResponseEntity.ok(room.getId());
         }
 
@@ -91,10 +91,10 @@ public class RoomController {
 
         // 호실 삭제
         @DeleteMapping("/rooms/delete")
-        public ResponseEntity<Void> deleteDorm(
-                        @RequestParam String dormCode,
+        public ResponseEntity<Void> deleteRoom(
+                        @RequestParam long dormId,
                         @RequestParam String roomName) {
-                roomService.deleteRoom(dormCode, roomName);
+                roomService.deleteRoom(dormId, roomName);
                 return ResponseEntity.ok().build();
         }
 }

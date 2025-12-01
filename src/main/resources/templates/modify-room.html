@@ -38,10 +38,6 @@
                     <h4 class="mb-3">호실 추가</h4>
                     <form id="createRoomForm">
                         <div class="mb-3">
-                            <label for="roomDormCode" class="form-label">생활관 동</label>
-                            <input type="text" class="form-control" id="roomDormCode" required>
-                        </div>
-                        <div class="mb-3">
                             <label for="floor" class="form-label">층</label>
                             <input type="number" class="form-control" id="floor" value="1" min="1" required>
                         </div>
@@ -151,18 +147,25 @@
         // 호실 추가
         document.getElementById('createRoomForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            // const dormCode = document.getElementById('roomDormCode').value;
+            const dormId = dormSelect.value;
             const floor = parseInt(document.getElementById('floor').value);
             const roomNumber = document.getElementById('roomNumber').value;
             const statusEl = document.getElementById('roomStatus');
+            
+
+            if (!dormId) {
+                statusEl.textContent = '⚠️ 생활관을 먼저 선택하세요.';
+                statusEl.style.color = 'red';
+                return;
+            }
 
             try {
-                const res = await axios.post('/api/rooms/create', { dormSelect, floor, roomNumber });
-                statusEl.textContent = `✅ Room created! ID: ${res.data}`;
+                const res = await axios.post('/api/rooms/create', { dormId, floor, roomNumber });
+                statusEl.textContent = `✅ ${roomNumber}호가 추가되었습니다.`;
                 statusEl.style.color = 'blue';
                 e.target.reset();
             } catch (err) {
-                statusEl.textContent = '⚠️ Error creating room';
+                statusEl.textContent = `⚠️ ${roomNumber}호 추가에 실패하였습니다.`;
                 statusEl.style.color = 'red';
             }
         });
@@ -170,16 +173,27 @@
         // 호실 삭제
         document.getElementById('deleteRoomForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const roomId = document.getElementById('deleteRoomId').value;
+            const dormId = dormSelect.value;
+            console.log("before dormCode : "+dormCode);
+            const roomNumber = document.getElementById('deleteRoomId').value;
             const statusEl = document.getElementById('deleteRoomStatus');
 
+            if (!dormId) {
+                statusEl.textContent = '⚠️ 생활관을 먼저 선택하세요.';
+                statusEl.style.color = 'red';
+                return;
+            }
+
             try {
-                await axios.delete(`/api/deleteRoom/${roomId}`);
-                statusEl.textContent = `✅ Room ID ${roomId} deleted`;
+                await axios.delete(`/api/Rooms/delete`,{
+                    params: { dormId, roomNumber}
+                });
+
+                statusEl.textContent = `✅ ${roomNumber}호가 삭제되었습니다.`;
                 statusEl.style.color = 'blue';
                 e.target.reset();
             } catch (err) {
-                statusEl.textContent = `⚠️ Error deleting room ID ${roomId}`;
+                statusEl.textContent = `⚠️ ${roomNumber}호 삭제에 실패하였습니다.`;
                 statusEl.style.color = 'red';
             }
         });

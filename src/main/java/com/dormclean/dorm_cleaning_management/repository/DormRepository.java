@@ -9,6 +9,8 @@ import java.util.Optional;
 
 @Repository
 public interface DormRepository extends JpaRepository<Dorm, Long> {
+    Optional<Dorm> findById(Long roomId);
+
     Optional<Dorm> findByDormCode(String dormCode);
 
     Optional<Dorm> findByDormName(String dormName);
