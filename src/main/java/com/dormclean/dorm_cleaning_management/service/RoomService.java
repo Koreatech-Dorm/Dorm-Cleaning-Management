@@ -1,5 +1,7 @@
 package com.dormclean.dorm_cleaning_management.service;
 
+import com.dormclean.dorm_cleaning_management.dto.CreateRoomRequestDto;
+import com.dormclean.dorm_cleaning_management.dto.DeleteRoomRequestDto;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
 import com.dormclean.dorm_cleaning_management.entity.Room;
 import com.dormclean.dorm_cleaning_management.entity.enums.RoomStatus;
@@ -19,14 +21,14 @@ public class RoomService {
     private final DormRepository dormRepository;
 
     // 방 생성
-    public Room createRoom(String dormCode, Integer floor, String roomNumber) {
-        Dorm dorm = dormRepository.findByDormCode(dormCode)
+    public Room createRoom(CreateRoomRequestDto dto) {
+        Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
                 .orElseThrow(() -> new IllegalArgumentException("해당 dormCode의 기숙사가 없습니다."));
 
         Room room = Room.builder()
                 .dorm(dorm)
-                .floor(floor)
-                .roomNumber(roomNumber)
+                .floor(dto.floor())
+                .roomNumber(dto.roomNumber())
                 .status(RoomStatus.OCCUPIED)
                 .build();
 
@@ -53,8 +55,8 @@ public class RoomService {
 
     // 호실 삭제
     @Transactional
-    public void deleteRoom(long dormId, String roomNumber) {
-        Dorm dorm = dormRepository.findById(dormId)
+    public void deleteRoom(String dormCode, String roomNumber) {
+        Dorm dorm = dormRepository.findByDormCode(dormCode)
                 .orElseThrow(() -> new IllegalArgumentException("해당 상활관을 찾을 수 없습니다."));
         Room room = roomRepository.findByDormAndRoomNumber(dorm, roomNumber)
                 .orElseThrow(() -> new IllegalArgumentException("해당 생활관을 찾을 수 없습니다."));

@@ -177,19 +177,22 @@
         // 호실 삭제
         document.getElementById('deleteRoomForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const dormId = dormSelect.value;
+            const dormCode = dormSelect.value;
             const roomNumber = document.getElementById('deleteRoomNumber').value;
             const statusEl = document.getElementById('deleteRoomStatus');
 
-            if (!dormId) {
+            if (!dormCode) {
                 statusEl.textContent = '⚠️ 생활관을 먼저 선택하세요.';
                 statusEl.style.color = 'red';
                 return;
             }
 
             try {
-                await axios.delete(`/api/Rooms/delete`,{
-                    params: { dormId, roomNumber}
+                await axios.delete(`/api/rooms/delete`,{
+                    params: {
+                        dormCode: dormCode,
+                        roomNumber: roomNumber
+                    }
                 });
 
                 statusEl.textContent = `✅ ${roomNumber}호가 삭제되었습니다.`;
