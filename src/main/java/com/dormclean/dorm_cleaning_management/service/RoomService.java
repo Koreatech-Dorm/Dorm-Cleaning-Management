@@ -19,8 +19,8 @@ public class RoomService {
     private final DormRepository dormRepository;
 
     // 방 생성
-    public Room createRoom(long dormId, Integer floor, String roomNumber) {
-        Dorm dorm = dormRepository.findById(dormId)
+    public Room createRoom(String dormCode, Integer floor, String roomNumber) {
+        Dorm dorm = dormRepository.findByDormCode(dormCode)
                 .orElseThrow(() -> new IllegalArgumentException("해당 dormCode의 기숙사가 없습니다."));
 
         Room room = Room.builder()
