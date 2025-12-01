@@ -75,8 +75,8 @@ public class RoomController {
 
         // 생활관 층 목록 반환
         @GetMapping("/floors")
-        public ResponseEntity<List<Integer>> getFloors(@RequestParam Long dormId) {
-                Dorm dorm = dormRepository.findById(dormId)
+        public ResponseEntity<List<Integer>> getFloors(@RequestParam String dormCode) {
+                Dorm dorm = dormRepository.findByDormCode(dormCode)
                                 .orElseThrow(() -> new RuntimeException("Dorm not found"));
 
                 List<Integer> floors = roomService.getRoomsByDorm(dorm)
