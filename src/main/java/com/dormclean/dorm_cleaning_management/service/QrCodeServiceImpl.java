@@ -32,7 +32,7 @@ public class QrCodeServiceImpl implements QrCodeService {
     @Override
     @Transactional
     public byte[] createSecureQr(QrRequestDto dto) {
-        Dorm dorm = dormRepository.findByDormName(dto.dormName()).orElseThrow(() -> new RuntimeException("해당 기숙사의 정보를 찾을 수 없습니다."));
+        Dorm dorm = dormRepository.findByDormCode(dto.dormCode()).orElseThrow(() -> new RuntimeException("해당 기숙사의 정보를 찾을 수 없습니다."));
         Room room = roomRepository.findByDormAndRoomNumber(dorm, dto.roomNumber()).orElseThrow(() -> new RuntimeException("해당 호실의 정보를 찾을 수 없습니다."));
 
         QrCode qrCode = qrCodeRepository.findByRoom(room).orElse(null);
@@ -80,10 +80,10 @@ public class QrCodeServiceImpl implements QrCodeService {
         QrCode qrCode = qrCodeRepository.findByUuid(token)
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않거나 만료된 QR 코드입니다."));
 
-        String dormName = qrCode.getRoom().getDorm().getDormName();
+        String dormCode = qrCode.getRoom().getDorm().getDormCode();
         String roomNumber = qrCode.getRoom().getRoomNumber();
 
         // 찾은 정보를 DTO로 변환해서 반환
-        return new QrResponseDto(dormName, roomNumber);
+        return new QrResponseDto(dormCode, roomNumber);
     }
 }

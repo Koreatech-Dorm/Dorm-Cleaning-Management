@@ -1,7 +1,7 @@
 package com.dormclean.dorm_cleaning_management.dto;
 
 public record CreateRoomRequestDto(
-        long dormId,
+        String dormCode,
         Integer floor,
         String roomNumber) {
 }

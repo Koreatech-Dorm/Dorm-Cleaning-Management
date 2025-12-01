@@ -24,7 +24,7 @@ public class Dorm {
     @OneToMany(mappedBy = "dorm", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Room> rooms = new ArrayList<>();
 
-    @OneToOne(mappedBy = "dorm", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "dorm", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private CleaningCode cleaningCode;
 
     @Builder

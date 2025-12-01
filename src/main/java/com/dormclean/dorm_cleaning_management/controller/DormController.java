@@ -1,6 +1,7 @@
 package com.dormclean.dorm_cleaning_management.controller;
 
 import com.dormclean.dorm_cleaning_management.dto.CreateDormRequestDto;
+import com.dormclean.dorm_cleaning_management.dto.DormListResponseDto;
 import com.dormclean.dorm_cleaning_management.dto.DormUpdateRequestDto;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
 import com.dormclean.dorm_cleaning_management.service.DormService;
@@ -23,9 +24,14 @@ public class DormController {
 
     // 기숙사 리스트 반환
     @GetMapping("/dorms")
-    public ResponseEntity<List<Dorm>> getAllDorms() {
+    public ResponseEntity<List<DormListResponseDto>> getAllDorms() {
         List<Dorm> dorms = dormService.findAllDorms();
-        return ResponseEntity.ok(dorms);
+
+        List<DormListResponseDto> dtoList = dorms.stream()
+                .map(d -> new DormListResponseDto(d.getDormCode(), d.getDormName()))
+                .toList();
+
+        return ResponseEntity.ok(dtoList);
     }
 
     // 기숙사 생성

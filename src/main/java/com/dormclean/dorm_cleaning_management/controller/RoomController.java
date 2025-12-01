@@ -1,7 +1,6 @@
 package com.dormclean.dorm_cleaning_management.controller;
 
 import com.dormclean.dorm_cleaning_management.dto.CreateRoomRequestDto;
-import com.dormclean.dorm_cleaning_management.dto.DeleteRoomRequestDto;
 import com.dormclean.dorm_cleaning_management.dto.RoomDto;
 import com.dormclean.dorm_cleaning_management.dto.RoomStatusUpdateDto;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
@@ -27,9 +26,9 @@ public class RoomController {
 
         // 특정 생활관의 호실 정보 반환
         @GetMapping(value = "/rooms/info", params = "!floor")
-        public ResponseEntity<List<RoomDto>> getRoomsByDorm(@RequestParam Long dormId) {
+        public ResponseEntity<List<RoomDto>> getRoomsByDorm(@RequestParam String dormCode) {
 
-                Dorm dorm = dormRepository.findById(dormId)
+                Dorm dorm = dormRepository.findByDormCode(dormCode)
                                 .orElseThrow(() -> new RuntimeException("Dorm not found"));
 
                 List<RoomDto> rooms = roomService.getRoomsByDorm(dorm)
@@ -43,10 +42,10 @@ public class RoomController {
 
         @GetMapping(value = "/rooms/info", params = "floor")
         public ResponseEntity<List<RoomDto>> getRoomsByDormAndFloor(
-                        @RequestParam Long dormId,
+                        @RequestParam String dormCode,
                         @RequestParam Integer floor) {
 
-                Dorm dorm = dormRepository.findById(dormId)
+                Dorm dorm = dormRepository.findByDormCode(dormCode)
                                 .orElseThrow(() -> new RuntimeException("Dorm not found"));
 
                 List<RoomDto> rooms = roomService.getRoomsByDormAndFloor(dorm, floor)
@@ -61,7 +60,7 @@ public class RoomController {
         // 호실 생성
         @PostMapping("/rooms/create")
         public ResponseEntity<Long> createRoom(@RequestBody CreateRoomRequestDto dto) {
-                Room room = roomService.createRoom(dto.dormId(), dto.floor(), dto.roomNumber());
+                Room room = roomService.createRoom(dto);
                 return ResponseEntity.ok(room.getId());
         }
 
@@ -76,8 +75,8 @@ public class RoomController {
 
         // 생활관 층 목록 반환
         @GetMapping("/floors")
-        public ResponseEntity<List<Integer>> getFloors(@RequestParam Long dormId) {
-                Dorm dorm = dormRepository.findById(dormId)
+        public ResponseEntity<List<Integer>> getFloors(@RequestParam String dormCode) {
+                Dorm dorm = dormRepository.findByDormCode(dormCode)
                                 .orElseThrow(() -> new RuntimeException("Dorm not found"));
 
                 List<Integer> floors = roomService.getRoomsByDorm(dorm)
@@ -93,10 +92,10 @@ public class RoomController {
         // 호실 삭제
         @DeleteMapping("/rooms/delete")
         public ResponseEntity<Void> deleteRoom(
-                        @RequestParam long dormId,
-                        @RequestParam DeleteRoomRequestDto dto) {
-                System.out.println("roomNumber : " + dto.roomNumber());
-                roomService.deleteRoom(dormId, dto.roomNumber());
+                        @RequestParam String dormCode,
+                        @RequestParam String roomNumber){
+                roomService.deleteRoom(dormCode, roomNumber);
+
                 return ResponseEntity.ok().build();
         }
 }
