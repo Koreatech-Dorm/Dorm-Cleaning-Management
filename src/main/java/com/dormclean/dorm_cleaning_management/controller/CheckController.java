@@ -24,8 +24,7 @@ public class CheckController {
 
     @PostMapping("/out")
     public ResponseEntity<Map<String, String>> checkOut(@RequestBody CheckRequestDto dto) {
-        System.out.println(dto.dormName() + " " + dto.roomNumber());
-        Dorm dorm = dormRepository.findByDormName(dto.dormName())
+        Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 기숙사입니다."));
         checkService.checkOut(dorm, dto.roomNumber());
 
@@ -34,7 +33,7 @@ public class CheckController {
 
     @PostMapping("/clean")
     public ResponseEntity<Map<String, String>> cleanCheck(@RequestBody CheckRequestDto dto) {
-        Dorm dorm = dormRepository.findByDormName(dto.dormName())
+        Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 기숙사입니다."));
         checkService.cleanCheck(dorm, dto.roomNumber());
 

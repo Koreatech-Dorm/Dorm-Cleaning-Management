@@ -18,7 +18,7 @@
                     <select class="form-select form-select-lg" id="dormSelect" required>
                     <option value="" selected disabled>생활관을 선택하세요</option>
                     <option th:each="dorm : ${dorms}" 
-                            th:value="${dorm.id}" 
+                            th:value="${dorm.dormCode}"
                             th:text="${dorm.dormCode} + '동'"></option>
                 </select>
             </div>
@@ -93,15 +93,15 @@
 
         // 생활관 선택 시 층 드롭다운만 갱신
         dormSelect.addEventListener('change', async () => {
-            const dormId = dormSelect.value;
+            const dormCode = dormSelect.value;
 
             // 층 드롭다운 초기화
             floorSelect.innerHTML = '<option value="" selected disabled>층을 선택하세요</option>';
 
-            if (!dormId) return;
+            if (!dormCode) return;
 
             try {
-                const res = await fetch(`/api/floors?dormId=${dormId}`);
+                const res = await fetch(`/api/floors?dormCode=${dormCode}`);
                 const floors = await res.json();
 
                 if (!floors || floors.length === 0) return;
@@ -119,10 +119,10 @@
 
         // 조회 버튼 클릭 시 호실 정보 갱신
         async function loadRooms() {
-            const dormId = dormSelect.value;
+            const dormCode = dormSelect.value;
             const floor = floorSelect.value;
 
-            if (!dormId || !floor) return;
+            if (!dormCode || !floor) return;
 
             if (!emptyState) {
                 console.warn('emptyState 요소가 없음');
@@ -133,7 +133,7 @@
             emptyState.style.display = 'none';
 
             try {
-                const res = await fetch(`/api/rooms?dormId=${dormId}&floor=${floor}`);
+                const res = await fetch(`/api/rooms/info?dormCode=${dormCode}&floor=${floor}`);
                 const rooms = await res.json();
 
                 roomGrid.innerHTML = '';

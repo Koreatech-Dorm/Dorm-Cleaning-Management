@@ -21,8 +21,8 @@
                     <select class="form-select form-select-lg" id="dormSelect" required>
                     <option value="" selected disabled>생활관을 선택하세요</option>
                     <option th:each="dorm : ${dorms}" 
-                            th:value="${dorm.id}" 
-                            th:text="${dorm.dormCode} + '층'"></option>
+                            th:value="${dorm.dormCode}"
+                            th:text="${dorm.dormCode} + '동'"></option>
                 </select>
             </div>
 
@@ -37,10 +37,6 @@
                 <div class="card p-4 h-100">
                     <h4 class="mb-3">호실 추가</h4>
                     <form id="createRoomForm">
-                        <div class="mb-3">
-                            <label for="roomDormCode" class="form-label">생활관 동</label>
-                            <input type="text" class="form-control" id="roomDormCode" required>
-                        </div>
                         <div class="mb-3">
                             <label for="floor" class="form-label">층</label>
                             <input type="number" class="form-control" id="floor" value="1" min="1" required>
@@ -63,8 +59,8 @@
                     <h4 class="mb-3">호실 삭제</h4>
                     <form id="deleteRoomForm">
                         <div class="mb-3">
-                            <label for="deleteRoomId" class="form-label">삭제할 호실 번호</label>
-                            <input type="number" class="form-control" id="deleteRoomId" required>
+                            <label for="deleteRoomNumber" class="form-label">삭제할 호실 번호</label>
+                            <input type="number" class="form-control" id="deleteRoomNumber" required>
                         </div>
                         <div class="form-bottom mt-auto">
                             <button type="submit" class="btn btn-primary">호실 삭제</button>
@@ -97,15 +93,15 @@
 
         // 조회 버튼 클릭 시 호실 정보 갱신
         async function loadRooms() {
-            const dormId = dormSelect.value;
+            const dormCode = dormSelect.value;
 
-            if (!dormId) return;
+            if (!dormCode) return;
 
             roomGrid.innerHTML = '<p>로딩 중...</p>';
             emptyState.style.display = 'none';
 
             try {
-                const res = await fetch(`/api/rooms?dormId=${dormId}`);
+                const res = await fetch(`/api/rooms/info?dormCode=${dormCode}`);
                 let rooms = await res.json();
 
                 // 테이블 요소 선택
@@ -151,18 +147,29 @@
         // 호실 추가
         document.getElementById('createRoomForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            // const dormCode = document.getElementById('roomDormCode').value;
+            const dormCode = dormSelect.value;
             const floor = parseInt(document.getElementById('floor').value);
             const roomNumber = document.getElementById('roomNumber').value;
             const statusEl = document.getElementById('roomStatus');
+            
+
+            if (!dormCode) {
+                statusEl.textContent = '⚠️ 생활관을 먼저 선택하세요.';
+                statusEl.style.color = 'red';
+                return;
+            }
 
             try {
-                const res = await axios.post('/api/rooms/create', { dormSelect, floor, roomNumber });
-                statusEl.textContent = `✅ Room created! ID: ${res.data}`;
+                const res = await axios.post('/api/rooms/create', {
+                    dormCode: dormCode,
+                    floor: floor,
+                    roomNumber: roomNumber
+                });
+                statusEl.textContent = `✅ ${roomNumber}호가 추가되었습니다.`;
                 statusEl.style.color = 'blue';
                 e.target.reset();
             } catch (err) {
-                statusEl.textContent = '⚠️ Error creating room';
+                statusEl.textContent = `⚠️ ${roomNumber}호 추가에 실패하였습니다.`;
                 statusEl.style.color = 'red';
             }
         });
@@ -170,16 +177,29 @@
         // 호실 삭제
         document.getElementById('deleteRoomForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const roomId = document.getElementById('deleteRoomId').value;
+            const dormCode = dormSelect.value;
+            const roomNumber = document.getElementById('deleteRoomNumber').value;
             const statusEl = document.getElementById('deleteRoomStatus');
 
+            if (!dormCode) {
+                statusEl.textContent = '⚠️ 생활관을 먼저 선택하세요.';
+                statusEl.style.color = 'red';
+                return;
+            }
+
             try {
-                await axios.delete(`/api/deleteRoom/${roomId}`);
-                statusEl.textContent = `✅ Room ID ${roomId} deleted`;
+                await axios.delete(`/api/rooms/delete`,{
+                    params: {
+                        dormCode: dormCode,
+                        roomNumber: roomNumber
+                    }
+                });
+
+                statusEl.textContent = `✅ ${roomNumber}호가 삭제되었습니다.`;
                 statusEl.style.color = 'blue';
                 e.target.reset();
             } catch (err) {
-                statusEl.textContent = `⚠️ Error deleting room ID ${roomId}`;
+                statusEl.textContent = `⚠️ ${roomNumber}호 삭제에 실패하였습니다.`;
                 statusEl.style.color = 'red';
             }
         });

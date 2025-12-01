@@ -145,10 +145,10 @@
     <div class="card-icon">🏠</div>
     <h1>QR 체크인 확인</h1>
 
-    <span class="info-label">기숙사 이름</span>
-    <div class="info-box" th:text="${dormName}">데이터 로딩중...</div>
+    <span class="info-label">생활관</span>
+    <div class="info-box" th:text="${dormCode} + '동(' + ${dormName} + ')'">데이터 로딩중...</div>
 
-    <span class="info-label">호실 번호</span>
+    <span class="info-label">호실</span>
     <div class="info-box" th:text="${roomNumber} + '호'">데이터 로딩중...</div>
 
     <p class="status-msg">
@@ -182,7 +182,6 @@
 
 <script th:inline="javascript">
     /*<![CDATA[*/
-    const currentDormName = '[[${dormName}]]';
     const currentDormCode = '[[${dormCode}]]';
     const currentRoomNumber = '[[${roomNumber}]]';
 
@@ -208,17 +207,17 @@
         const url = type === 'out' ? '/api/check/out' : '/api/check/clean';
         const actionName = type === 'out' ? "퇴실" : "청소 완료";
 
-        const cleanedDormName = currentDormName.trim().replace(/["']/g, "");
+        const cleanedDormCode = currentDormCode.trim().replace(/["']/g, "");
         const cleanedRoomNumber = currentRoomNumber.trim().replace(/["']/g, "");
 
         // 보낼 데이터 (자동으로 JSON으로 변환됨)
         const data = {
-            dormName: cleanedDormName,
+            dormCode: cleanedDormCode,
             roomNumber: cleanedRoomNumber
         };
 
         // 확인 창 띄우기
-        if (!confirm(`${currentDormName} 생활관 ${currentRoomNumber}호 ${actionName} 처리를 하시겠습니까?`)) {
+        if (!confirm(`${currentDormCode} 생활관 ${currentRoomNumber}호 ${actionName} 처리를 하시겠습니까?`)) {
             return;
         }
 

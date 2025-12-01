@@ -18,8 +18,8 @@
                         <option value="" selected disabled>생활관을 선택하세요</option>
 
                         <option th:each="dorm : ${dorms}"
-                                th:value="${dorm.dormName}"
-                                th:text="${dorm.dormName}">
+                                th:value="${dorm.dormCode}"
+                                th:text="${dorm.dormCode}">
                         </option>
 
                     </select>
@@ -66,10 +66,10 @@
     });
 
     function generateQrCode() {
-        const dormName = document.getElementById('dormSelect').value;
+        const dormCode = document.getElementById('dormSelect').value;
         const roomNumber = document.getElementById('roomInput').value;
 
-        if (!dormName || !roomNumber) {
+        if (!dormCode || !roomNumber) {
             alert('생활관과 호실을 모두 입력해주세요.');
             return;
         }
@@ -83,7 +83,7 @@
         qrImage.style.display = 'none';
         loadingSpinner.style.display = 'block';
 
-        const params = new URLSearchParams({ dormName: dormName, roomNumber: roomNumber });
+        const params = new URLSearchParams({ dormCode: dormCode, roomNumber: roomNumber });
         const apiUrl = `/api/qr/generate?${params.toString()}`;
 
         qrImage.onload = function() {
