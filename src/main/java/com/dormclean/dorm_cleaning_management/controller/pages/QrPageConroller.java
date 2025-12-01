@@ -16,7 +16,7 @@ public class QrPageConroller {
 
     @GetMapping("/create-qr")
     public String createQR(Model model){
-        List<Dorm> dormList = dormRepository.findAll();
+        List<Dorm> dormList = dormRepository.findAllByOrderByDormCodeAsc();
 
         model.addAttribute("dorms",dormList);
 
