@@ -19,7 +19,7 @@
 
                         <option th:each="dorm : ${dorms}"
                                 th:value="${dorm.dormCode}"
-                                th:text="${dorm.dormCode}">
+                                th:text="${dorm.dormCode} + '동(' + ${dorm.dormName} + ')'">
                         </option>
 
                     </select>
