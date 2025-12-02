@@ -13,23 +13,23 @@
         <div class="card-body p-4">
             <form id="cleaningCodeForm">
                 <div class="mb-3">
-                    <label for="currentKey" class="form-label">현재 인증 코드</label>
+                    <label for="currentKey" class="form-label">현재 인증코드</label>
                     <input type="text" class="form-control form-control-lg" id="currentKey" readonly>
                 </div>
 
                 <div class="mb-3">
-                    <label for="generatedKey" class="form-label">새로운 인증 코드</label>
+                    <label for="generatedKey" class="form-label">새로운 인증코드</label>
                     <input type="text" class="form-control form-control-lg" id="generatedKey" placeholder="새로운 인증 코드를 입력해주십시오." required>
                 </div>
                 
                 <div class="mb-3">
                     <button type="button" class="btn orange-btn w-100 py-3 fw-bold rounded-pill" onclick="generateRandomKey()">
-                        자동으로 인증 코드 생성
+                        인증코드 자동 생성
                     </button>
                 </div>
                 
                 <button type="submit" class="btn orange-btn w-100 py-3 fw-bold rounded-pill">
-                    생활관 인증 코드 생성하기
+                    생활관 인증코드 등록하기
                 </button>
                 <p id="createKeyStatus" class="status-msg text-muted">세부 정보를 입력하십시오.</p>
             </form>
@@ -58,10 +58,10 @@
             if (Array.isArray(cleaningCodes) && cleaningCodes.length > 0) {
                 currentKey.value = cleaningCodes[0].cleaningCode; // DTO의 code 필드 사용
             } else {
-                currentKey.value = "⚠️ 인증 코드가 없습니다.";
+                currentKey.value = "⚠️ 인증코드가 없습니다.";
             }
         } catch (err) {
-            currentKey.value = `⚠️ 인증 코드를 불러오지 못했습니다.`;
+            currentKey.value = `⚠️ 인증코드를 불러오지 못했습니다.`;
         }
     }
     
@@ -78,42 +78,21 @@
             const res = await axios.get('/api/dorms'); // 전체 생활관 조회 API 필요
             let dorms = res.data;
 
-            await axios.get(`/api/cleaning-code/exist/${dorms[0].dormCode}`);
-            await axios.put("/api/cleaning-code/update", {
-                // dormCode: dorms[0].dormCode,
-                dormCode: "101",
-                cleaningCode: generatedKey
-            }); 
+            for (let i = 0; i < dorms.length; i++) {
+                const dorm = dorms[i];
+                await axios.post("/api/cleaning-code/registration", {
+                    dormCode: dorm.dormCode,
+                    cleaningCode: keyValue
+                });
+            }
 
-            // for (let i = 0; i < dorms.length; i++) {
-            //     const dorm = dorms[i];
-            //     try{
-            //         await axios.get(`/api/cleaning-code/exist/${dorm.dormCode}`);
-            //         await axios.put("/api/cleaning-code/update", {
-            //             dormCode: dorm.dormCode,
-            //             cleaningCode: generatedKey
-            //         }); 
-            //     } catch (err) {
-            //         if (err.response && err.response.status === 404) {
-            //             // 존재하지 않음 → 새로 생성
-            //             await axios.post("/api/cleaning-code/registration", {
-            //                 dormCode: dorm.dormCode,
-            //                 cleaningCode: generatedKey
-            //             });
-            //         } else {
-            //             console.error(err);
-            //         }
-            //     }
-            // }
-
-
-            statusEl.textContent = `✅ 인증키가 생성되었습니다.`;
+            statusEl.textContent = `✅ 인증코드가 생성되었습니다.`;
             statusEl.style.color = "blue";
 
             e.target.reset();
-            // loadkey();
+            loadkey();
         } catch (err) {
-            statusEl.textContent = `⚠️ 인증키를 생성하지 못했습니다.`;
+            statusEl.textContent = `⚠️ 인증코드를 생성하지 못했습니다.`;
             statusEl.style.color = "red";
         }
     });

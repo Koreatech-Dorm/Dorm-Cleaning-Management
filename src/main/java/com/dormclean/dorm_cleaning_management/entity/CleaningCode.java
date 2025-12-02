@@ -7,9 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "cleaning_code")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "cleaning_code")
 public class CleaningCode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +28,7 @@ public class CleaningCode {
         this.code = code;
     }
 
-    public void updateCode(String code) {
-        this.code = code;
+    public void updateCode(String newCode) {
+        this.code = newCode;
     }
 }

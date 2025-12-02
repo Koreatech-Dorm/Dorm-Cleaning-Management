@@ -48,25 +48,4 @@ public class CleaningCodeServiceImpl implements CleaningCodeService {
         session.setAttribute("cleaningCode", checkCode.getCode());
         session.setAttribute("dormCodeForCleaning", dormCode);
     }
-
-    @Override
-    public void updateCleaningCode(String dormCode, String newCleaningCode) {
-        Dorm dorm = dormRepository.findByDormCode(dormCode)
-                .orElseThrow(() -> new IllegalArgumentException("해당 기숙사가 존재하지 않습니다."));
-        CleaningCode cleaningCode = cleaningCodeRepository.findByDorm(dorm)
-                .orElseThrow(() -> new IllegalArgumentException("해당 인증코드가 존재하지 않습니다."));
-        cleaningCode.updateCode(newCleaningCode);
-    }
-
-    @Override
-    public void deleteCleaningCode(String dormCode) {
-        Dorm dorm = dormRepository.findByDormCode(dormCode)
-                .orElseThrow(() -> new IllegalArgumentException("해당 기숙사가 존재하지 않습니다."));
-
-        CleaningCode cleaningCode = cleaningCodeRepository.findByDorm(dorm)
-                .orElseThrow(() -> new IllegalArgumentException("코드가 유효하지 않습니다."));
-
-        cleaningCodeRepository.delete(cleaningCode);
-    }
-
 }
