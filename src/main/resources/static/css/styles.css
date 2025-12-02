@@ -1,5 +1,5 @@
 /* =========================================
-   공통 레이아웃 (Global & Layout)
+   GLOBAL RESET & BASE LAYOUT
    ========================================= */
 * {
     margin: 0;
@@ -13,7 +13,7 @@ body {
     min-height: 100vh;
     font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
     background-color: #F9F9F9;
-    color: #333333;
+    color: #333;
     line-height: 1.6;
 }
 
@@ -22,40 +22,39 @@ main {
 }
 
 /* =========================================
-   헤더 & 네비게이션 (Header & Navbar)
+   HEADER & NAVBAR
    ========================================= */
 .navbar {
     background-color: #FFB366;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     padding: 0;
     position: sticky;
     top: 0;
     z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .navbar .container {
     display: flex;
     justify-content: space-between;
-    /* align-items: center; */
     height: 55px;
-    padding-left: 0%;
-    padding-right: 0%;
+    padding-left: 0;
+    padding-right: 0;
+    margin: 0 20px !important;
 }
 
 .logo {
-    color: #FFFFFF;
     font-size: 20px;
     font-weight: 700;
-    margin: 0;
+    color: #fff;
 }
 
 .back-btn {
-    color: #FFFFFF;
+    color: #fff;
     text-decoration: none;
     padding: 8px 16px;
     border-radius: 6px;
-    transition: all 0.3s ease;
     font-size: 15px;
+    transition: 0.3s;
 }
 
 .back-btn:hover {
@@ -70,7 +69,7 @@ main {
 
 .navbar-custom .nav-link {
     color: #FF7F2A !important;
-    transition: all 0.3s ease;
+    transition: 0.3s;
 }
 
 .navbar-custom .nav-link:hover {
@@ -79,10 +78,8 @@ main {
     text-shadow: 0 2px 4px rgba(0,0,0,0.15);
 }
 
-
-
 /* =========================================
-   컨테이너 & 페이지 헤더 (Container & Page Header)
+   CONTENT CONTAINER
    ========================================= */
 .container {
     max-width: 1200px;
@@ -90,6 +87,7 @@ main {
     padding: 20px;
 }
 
+/* 페이지 헤더 */
 .page-header {
     text-align: center;
     margin: 40px 0;
@@ -98,17 +96,15 @@ main {
 .page-header h2 {
     font-size: 28px;
     font-weight: 700;
-    color: #333333;
-    margin-bottom: 10px;
 }
 
 .page-header p {
     font-size: 15px;
-    color: #666666;
+    color: #666;
 }
 
 /* =========================================
-   메인 페이지 - 카드 그리드 (Main Page - Card Grid)
+   MAIN PAGE – CARD GRID
    ========================================= */
 .card-grid {
     display: grid;
@@ -118,19 +114,19 @@ main {
 }
 
 .main-card {
-    background: #FFFFFF;
+    background: #fff;
     border-radius: 12px;
     padding: 32px;
+    color: #333;
     text-align: center;
     text-decoration: none;
-    color: #333333;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: 0.3s;
 }
 
 .main-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
 }
 
 .card-icon {
@@ -140,30 +136,22 @@ main {
 
 .main-card h3 {
     font-size: 20px;
-    font-weight: 600;
     margin-bottom: 12px;
-    color: #333333;
-}
-
-.main-card p {
-    font-size: 14px;
-    color: #666666;
-    line-height: 1.5;
 }
 
 /* =========================================
-   상태 확인 페이지 - 필터 섹션 (Status Page - Filter Section)
+   STATUS PAGE – FILTERS
    ========================================= */
 .filter-section {
-    background: #FFFFFF;
+    background: #fff;
     border-radius: 12px;
     padding: 24px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    display: flex;
-    gap: 20px;
-    align-items: flex-end;
     margin-bottom: 30px;
+    gap: 20px;
+    display: flex;
     flex-wrap: wrap;
+    align-items: flex-end;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
 }
 
 .filter-group {
@@ -172,42 +160,39 @@ main {
 }
 
 .filter-group label {
-    display: block;
     font-size: 14px;
     font-weight: 600;
-    color: #333333;
     margin-bottom: 8px;
 }
 
 .filter-group select {
     width: 100%;
     padding: 10px 16px;
-    border: 1px solid #DDDDDD;
-    border-radius: 6px;
     font-size: 15px;
-    background: #FFFFFF;
-    color: #333333;
-    transition: border-color 0.3s ease;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fff;
+    transition: 0.3s;
 }
 
 .filter-group select:focus {
-    outline: none;
     border-color: #FFB366;
+    outline: none;
 }
 
 /* =========================================
-   버튼 스타일 (Button Styles)
+   BUTTONS
    ========================================= */
 .btn-primary {
     background: #FFB366;
-    color: #FFFFFF;
+    color: #fff;
     padding: 12px 28px;
+    border: none;
     border-radius: 8px;
     font-size: 15px;
     font-weight: 600;
-    border: none;
     cursor: pointer;
-    transition: background 0.3s ease;
+    transition: 0.3s;
 }
 
 .btn-primary:hover {
@@ -215,7 +200,7 @@ main {
 }
 
 .btn-secondary {
-    background: #FFFFFF;
+    background: #fff;
     color: #FFB366;
     border: 2px solid #FFB366;
     padding: 10px 26px;
@@ -223,7 +208,7 @@ main {
     font-size: 15px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: 0.3s;
 }
 
 .btn-secondary:hover {
@@ -231,7 +216,7 @@ main {
 }
 
 /* =========================================
-   상태 확인 페이지 - 범례 (Status Page - Legend)
+   STATUS PAGE – LEGEND
    ========================================= */
 .legend {
     display: flex;
@@ -243,10 +228,10 @@ main {
 
 .legend-item {
     display: flex;
-    align-items: center;
     gap: 8px;
+    align-items: center;
     font-size: 14px;
-    color: #666666;
+    color: #666;
 }
 
 .legend-color {
@@ -255,26 +240,18 @@ main {
     border-radius: 4px;
 }
 
-.legend-color.occupied {
-    background-color: #4CAF50;
-}
-
-.legend-color.vacant-dirty {
-    background-color: #E57373;
-}
-
-.legend-color.vacant-clean {
-    background-color: #E0E0E0;
-}
+.legend-color.occupied { background: #4CAF50; }
+.legend-color.vacant-dirty { background: #E57373; }
+.legend-color.vacant-clean { background: #E0E0E0; }
 
 /* =========================================
-   상태 확인 페이지 - 호실 그리드 (Status Page - Room Grid)
+   STATUS PAGE – ROOM GRID
    ========================================= */
 .room-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     gap: 16px;
     margin-top: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
 }
 
 .room-card {
@@ -283,52 +260,33 @@ main {
     border-radius: 8px;
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: 0.2s;
 }
 
 .room-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
 }
 
-.room-card.occupied {
-    background-color: #4CAF50;
-    color: #FFFFFF;
-}
+.room-card.occupied { background: #4CAF50; color: #fff; }
+.room-card.vacant-dirty { background: #E57373; color: #fff; }
+.room-card.vacant-clean { background: #E0E0E0; color: #333; }
 
-.room-card.vacant-dirty {
-    background-color: #E57373;
-    color: #FFFFFF;
-}
-
-.room-card.vacant-clean {
-    background-color: #E0E0E0;
-    color: #333333;
-}
-
-.room-number {
-    font-size: 20px;
-    font-weight: 700;
-    margin-bottom: 4px;
-}
-
-.room-status {
-    font-size: 12px;
-    font-weight: 500;
-}
+.room-number { font-size: 20px; font-weight: 700; }
+.room-status { font-size: 12px; }
 
 /* =========================================
-   빈 상태 표시 (Empty State)
+   EMPTY STATE
    ========================================= */
 .empty-state {
     grid-column: 1 / -1;
     text-align: center;
     padding: 60px 20px;
-    color: #999999;
+    color: #999;
 }
 
 .empty-state p {
@@ -336,7 +294,7 @@ main {
 }
 
 /* =========================================
-   QR 코드 생성 페이지 (QR Page)
+   QR PAGE
    ========================================= */
 .qr-card {
     max-width: 500px;
@@ -344,12 +302,11 @@ main {
     border: none;
     border-radius: 15px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    overflow: hidden;
 }
 
 .card-header {
-    background-color: #FFB366;
-    color: white;
+    background: #FFB366;
+    color: #fff;
     padding: 1.5rem 1rem;
     text-align: center;
 }
@@ -359,7 +316,7 @@ main {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #ffffff;
+    background: #fff;
     border: 2px dashed #dee2e6;
     border-radius: 12px;
     margin-top: 20px;
@@ -376,77 +333,32 @@ main {
 }
 
 /* =========================================
-   색상 유틸리티 클래스 (Color Utility Classes)
+   COLOR UTILITIES
    ========================================= */
-/* 오렌지 배경 */
-.bg-orange-color {
-    background: #FFB366;
-}
+.bg-orange-color { background: #FFB366; }
+.orange-btn { background: #FFB366 !important; border-color: #FFB366 !important; color: #fff !important; }
+.orange-btn:hover { background: #FFA04D !important; border-color: #FFA04D !important; }
 
-/* 오렌지 버튼 */
-.orange-btn {
-    background-color: #FFB366 !important;
-    border-color: #FFB366 !important;
-    color: #fff !important;
-}
-
-.orange-btn:hover {
-    background-color: #FFA04D !important;
-    border-color: #FFA04D !important;
-}
-
-/* 남색 배경 (기존 호환성) */
-.bg-Indigo-color {
-    background: #1c5f90;
-}
-
-/* 남색 버튼 (기존 호환성) */
-.Indigo-btn {
-    background-color: #1c5f90 !important;
-    border-color: #1c5f90 !important;
-    color: #fff !important;
-}
+.bg-Indigo-color { background: #1c5f90; }
+.Indigo-btn { background: #1c5f90 !important; border-color: #1c5f90 !important; color: #fff !important; }
 
 /* =========================================
-   반응형 디자인 (Responsive Design)
+   RESPONSIVE DESIGN
    ========================================= */
 @media (max-width: 768px) {
-    .navbar .container {
-        height: 60px;
-    }
+    .navbar .container { height: 60px; }
+    .logo { font-size: 16px; }
 
-    .logo {
-        font-size: 16px;
-    }
+    .page-header h2 { font-size: 24px; }
+    .page-header { margin: 20px 0; }
 
-    .page-header h2 {
-        font-size: 24px;
-    }
+    .card-grid { grid-template-columns: 1fr; }
+    .main-card { padding: 24px; }
 
-    .page-header {
-        margin: 20px 0;
-    }
+    .filter-section { flex-direction: column; }
+    .filter-group { width: 100%; }
 
-    .card-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .main-card {
-        padding: 24px;
-    }
-
-    .filter-section {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .filter-group {
-        width: 100%;
-    }
-
-    .btn-primary {
-        width: 100%;
-    }
+    .btn-primary { width: 100%; }
 
     .room-grid {
         grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
@@ -457,20 +369,10 @@ main {
         width: 80px;
         height: 80px;
     }
-
-    .room-number {
-        font-size: 18px;
-    }
-
-    .room-status {
-        font-size: 11px;
-    }
 }
 
 @media (max-width: 480px) {
-    .container {
-        padding: 12px;
-    }
+    .container { padding: 12px; }
 
     .room-grid {
         grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
@@ -481,39 +383,17 @@ main {
         width: 70px;
         height: 70px;
     }
-
-    .room-number {
-        font-size: 16px;
-    }
-
-    .room-status {
-        font-size: 10px;
-    }
 }
 
 /* =========================================
-   카드 내부 버튼/상태 메시지 하단 정렬
+   FORM / STATUS MESSAGE
    ========================================= */
-.card {
-    display: flex;
-    flex-direction: column;
-}
+.card { display: flex; flex-direction: column; }
+.card form { flex: 1; display: flex; flex-direction: column; }
+.form-bottom { margin-top: auto; }
 
-.card form {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-}
-
-.form-bottom {
-    margin-top: auto; /* 아래로 밀기 */
-}
-
-/* =========================================
-   상태 메시지 폰트 조정 (Status Message)
-   ========================================= */
 .status-msg {
-    font-size: 13px; /* 기존보다 2px 낮춤 (원래 15px) */
-    margin-top: 8px; /* 필요 시 간격 유지 */
-    color: #6c757d; /* text-muted 색상 유지 */
+    font-size: 13px;
+    margin-top: 8px;
+    color: #6c757d;
 }

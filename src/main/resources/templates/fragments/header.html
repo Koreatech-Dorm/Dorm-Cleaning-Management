@@ -1,10 +1,10 @@
 <nav th:fragment="headerFragment"
      class="navbar navbar-expand-lg navbar-dark bg-orange-color navbar-custom sticky-top shadow-sm">
     
-    <div class="container d-flex flex-column align-items-start py-2">
+    <div class="container d-flex flex-column align-items-start py-2 ps-0">
 
         <!-- 좌측 상단 제목 -->
-        <a class="navbar-brand mb-2" th:href="@{/}">
+        <a class="navbar-brand mb-2 ms-3" th:href="@{/}">
             <i class="me-1"></i> 한국기술교육대학교 생활관 관리
         </a>
 
@@ -17,7 +17,7 @@
             </li>
             <li class="nav-item me-3">
                 <a class="nav-link text-dark" th:href="@{/dorm-manager}">
-                    생활관 및 호실 관리
+                    생활관/호실 관리
                 </a>
             </li>
             <li class="nav-item me-3">
@@ -25,9 +25,9 @@
                     QR 코드 생성
                 </a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item me-3">
                 <a class="nav-link text-dark" th:href="@{/key-manager}">
-                    생활관 인증 코드 생성
+                    인증코드 생성
                 </a>
             </li>
         </ul>
