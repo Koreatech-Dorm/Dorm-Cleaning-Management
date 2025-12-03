@@ -18,14 +18,16 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="generatedKey" class="form-label">새로운 인증코드</label>
+                    <div class="col">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label for="generatedKey" class="form-label">새로운 인증코드</label>
+                            <button type="button" class="btn orange-btn py-0 fw-bold"
+                                    onclick="generateRandomKey()">
+                                인증코드 자동 생성
+                            </button>
+                        </div>
+                    </div>
                     <input type="text" class="form-control form-control-lg" id="generatedKey" placeholder="새로운 인증 코드를 입력해주십시오." required>
-                </div>
-                
-                <div class="mb-3">
-                    <button type="button" class="btn orange-btn w-100 py-3 fw-bold rounded-pill" onclick="generateRandomKey()">
-                        인증코드 자동 생성
-                    </button>
                 </div>
                 
                 <button type="submit" class="btn orange-btn w-100 py-3 fw-bold rounded-pill">
