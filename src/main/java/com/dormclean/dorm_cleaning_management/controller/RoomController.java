@@ -34,7 +34,7 @@ public class RoomController {
                 List<Room> rooms = roomService.getRoomsByDorm(dorm);
 
                 List<RoomListResponseDto> dtoList = rooms.stream()
-                                .map(r -> new RoomListResponseDto(r.getRoomNumber(), r.getStatusLabel()))
+                                .map(r -> new RoomListResponseDto(r.getFloor(), r.getRoomNumber(), r.getStatus()))
                                 .toList();
 
                 return ResponseEntity.ok(dtoList);
@@ -50,7 +50,7 @@ public class RoomController {
                 List<Room> rooms = roomService.getRoomsByDormAndFloor(dorm, floor);
 
                 List<RoomListResponseDto> dtoList = rooms.stream()
-                                .map(r -> new RoomListResponseDto(r.getRoomNumber(), r.getStatus()))
+                                .map(r -> new RoomListResponseDto(r.getFloor(), r.getRoomNumber(), r.getStatus()))
                                 .toList();
 
                 return ResponseEntity.ok(dtoList);
