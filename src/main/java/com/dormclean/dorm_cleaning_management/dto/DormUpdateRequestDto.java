@@ -1,6 +1,6 @@
 package com.dormclean.dorm_cleaning_management.dto;
 
-public record QrResponseDto(
+public record DormUpdateRequestDto(
         String dormCode,
-        String roomNumber
-) {}
+        String dormName) {
+}

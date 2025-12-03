@@ -48,7 +48,7 @@ HELP.md
 
 # 🔑 민감 정보 및 로컬 환경 설정
 # ----------------------------------------------------
-application.properties
+application-dev.properties
 application.yml
 
 # 환경변수

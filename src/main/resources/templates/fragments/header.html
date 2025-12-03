@@ -1,0 +1,39 @@
+<nav th:fragment="headerFragment"
+     class="navbar navbar-expand-lg navbar-dark bg-orange-color navbar-custom sticky-top shadow-sm">
+    
+    <div class="container d-flex flex-column align-items-start py-2 ps-0">
+
+        <!-- 좌측 상단 제목 -->
+        <a class="navbar-brand mb-2 ms-3" th:href="@{/}">
+            <img th:src="@{/img/koreatechDormLogo.png}" 
+                alt="Koreatech Dorm Logo" 
+                class="me-2" 
+                style="width:100px; height:30px; object-fit:contain;">
+            한국기술교육대학교 생활관 관리
+        </a>
+
+        <!-- 가로 네비게이션 메뉴 -->
+        <ul class="nav flex-row">
+            <li class="nav-item me-3">
+                <a class="nav-link text-dark" th:href="@{/rooms}">
+                    생활관 상태 확인
+                </a>
+            </li>
+            <li class="nav-item me-3">
+                <a class="nav-link text-dark" th:href="@{/dorm-manager}">
+                    생활관/호실 관리
+                </a>
+            </li>
+            <li class="nav-item me-3">
+                <a class="nav-link text-dark" th:href="@{/create-qr}">
+                    QR 코드 생성
+                </a>
+            </li>
+            <li class="nav-item me-3">
+                <a class="nav-link text-dark" th:href="@{/key-manager}">
+                    인증코드 생성
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>

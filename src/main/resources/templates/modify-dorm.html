@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: headFragment}"> </head>
+
+<body>
+<header th:replace="~{fragments/header :: headerFragment}"></header>
+
+<main class="container-fluid px-4 mt-4">
+    <!-- 메인 컨텐츠 -->
+    <div class="container">
+        <div class="page-header">
+            <h2>생활관 관리</h2>
+            <p>생활관을 추가/삭제/수정합니다.</p>
+        </div>
+
+        <!-- 생활관 목록 -->
+        <div class="card p-4 mb-4">
+            <h4 class="mb-3">현재 생활관 목록</h4>
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>생활관 동</th>
+                    <th>생활관 이름</th>
+                </tr>
+                </thead>
+                <tbody id="dormListBody">
+                <!-- JS로 목록 로드됨 -->
+                </tbody>
+            </table>
+        </div>
+
+
+        <div class="row g-4">
+            <!-- 생활관 추가 -->
+            <div class="col-md-4">
+                <div class="card p-4 h-100">
+                    <h4 class="mb-3">생활관 추가</h4>
+                    <form id="createDormForm">
+                        <div class="mb-3">
+                            <label for="dormCode" class="form-label">생활관 동</label>
+                            <input type="text" class="form-control" id="dormCode" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="dormName" class="form-label">생활관 이름</label>
+                            <input type="text" class="form-control" id="dormName" required>
+                        </div>
+                        <div class="form-bottom mt-auto">
+                            <button type="submit" class="btn btn-primary">생활관 추가하기</button>
+                            <p id="dormStatus" class="status-msg text-muted">생활관을 추가하려면 세부 정보를 입력하십시오.</p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 생활관 수정 -->
+            <div class="col-md-4">
+                <div class="card p-4 h-100">
+                    <h4 class="mb-3">생활관 수정</h4>
+                    <form id="modifyDormForm">
+                        <div class="mb-3">
+                            <label for="modifyDormCode" class="form-label">수정할 생활관 동</label>
+                            <input type="text" class="form-control" id="modifyDormCode" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="modifyDormNewName" class="form-label">새로운 생활관 이름</label>
+                            <input type="text" class="form-control" id="modifyDormNewName" required>
+                        </div>
+                        <div class="form-bottom mt-auto">
+                            <button type="submit" class="btn btn-primary">생활관 수정하기</button>
+                            <p id="modifyDormStatus" class="status-msg text-muted">생활관을 수정하려면 세부 정보를 입력하십시오.</p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 생활관 삭제 -->
+            <div class="col-md-4">
+                <div class="card p-4 h-100">
+                    <h4 class="mb-3">생활관 삭제</h4>
+                    <form id="deleteDormForm">
+                        <div class="mb-3">
+                            <label for="deleteDormCode" class="form-label">삭제할 생활관 동</label>
+                            <input type="text" class="form-control" id="deleteDormCode" required>
+                        </div>
+                        <div class="form-bottom mt-auto">
+                            <button type="submit" class="btn btn-primary">생활관 삭제하기</button>
+                            <p id="deleteDormStatus" class="status-msg text-muted">생활관을 삭제하려면 세부 정보를 입력하십시오.</p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<script>
+    // 생활관 목록 불러오기
+    async function loadDormList() {
+        const tbody = document.getElementById('dormListBody');
+        tbody.innerHTML = ''; // 기존 목록 비우기
+
+        try {
+            const res = await axios.get('/api/dorms'); // 전체 생활관 조회 API 필요
+            let dorms = res.data;
+
+            // 코드 기준으로 오름차순 정렬
+            dorms.sort((a, b) => a.dormCode.localeCompare(b.dormCode));
+
+            dorms.forEach(dorm => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${dorm.dormCode}</td>
+                    <td>${dorm.dormName}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        } catch (err) {
+            tbody.innerHTML = `
+                <tr><td colspan="2" class="text-danger">⚠️ 생활관 정보를 불러오지 못했습니다.</td></tr>
+            `;
+        }
+    }
+
+    // 페이지 로드시 목록 불러오기
+    loadDormList();
+
+    // 생활관 추가
+    document.getElementById('createDormForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const dormCode = document.getElementById('dormCode').value;
+        const dormName = document.getElementById('dormName').value;
+        const statusEl = document.getElementById('dormStatus');
+
+        try {
+            const res = await axios.post('/api/dorms/create', { 
+                dormCode:dormCode, 
+                dormName :dormName
+            });
+            statusEl.textContent = `✅ ${dormCode}동이 추가되었습니다!`;
+            statusEl.style.color = 'blue';
+            e.target.reset();
+            loadDormList();
+        } catch (err) {
+            statusEl.textContent = '⚠️ 생활관을 추가하지 못하였습니다.';
+            statusEl.style.color = 'red';
+        }
+    });
+
+    // 생활관 수정
+    document.getElementById('modifyDormForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const dormCode = document.getElementById('modifyDormCode').value;
+        const newDormName = document.getElementById('modifyDormNewName').value;
+        const statusEl = document.getElementById('modifyDormStatus');
+
+        try {
+            const res = await axios.post('/api/dorms/update', {
+                dormCode: dormCode,
+                dormName: newDormName
+            });
+
+            statusEl.textContent = `✅ ${dormCode}동의 이름이 ${newDormName}으로 변경되었습니다.`;
+            statusEl.style.color = 'blue';
+            e.target.reset();
+            loadDormList();
+        } catch (err) {
+            statusEl.textContent = `⚠️ ${dormCode}동의 이름을 수정하지 못하였습니다.`;
+            statusEl.style.color = 'red';
+        }
+    });
+
+    // 생활관 삭제
+    document.getElementById('deleteDormForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const dormCode = document.getElementById('deleteDormCode').value;
+        const statusEl = document.getElementById('deleteDormStatus');
+
+        try {
+            await axios.delete(`/api/dorms/${dormCode}`);
+            statusEl.textContent = `✅ ${dormCode}동이 삭제되었습니다.`;
+            statusEl.style.color = 'blue';
+            e.target.reset();
+            loadDormList();
+        } catch (err) {
+            statusEl.textContent = `⚠️ ${dormCode}동을 삭제하지 못하였습니다.`;
+            statusEl.style.color = 'red';
+        }
+    });
+
+</script>
+
+<footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+</body>
+</html>
