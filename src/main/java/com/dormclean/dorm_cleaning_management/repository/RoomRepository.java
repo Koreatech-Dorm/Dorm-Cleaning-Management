@@ -12,8 +12,8 @@ import java.util.Optional;
 @Repository
 public interface RoomRepository extends JpaRepository<Room, Long> {
 
-    // 특정 방 조회
-    Optional<Room> findByRoomNumber(String roomNumber);
+    // 호실 생성 시: 특정 생활관의 호실 중복 체크
+    boolean existsByDormAndRoomNumber(Dorm dorm, String roomNumber);
 
     // 특정 방 조회
     Optional<Room> findById(Long roomId);

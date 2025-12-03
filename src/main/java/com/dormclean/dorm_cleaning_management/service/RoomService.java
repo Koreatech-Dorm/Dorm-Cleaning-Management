@@ -23,6 +23,9 @@ public class RoomService {
     public Room createRoom(CreateRoomRequestDto dto) {
         Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
                 .orElseThrow(() -> new IllegalArgumentException("해당 dormCode의 기숙사가 없습니다."));
+        if(roomRepository.existsByDormAndRoomNumber(dorm, dto.roomNumber())){
+            throw new IllegalArgumentException("해당 기숙사에 이미 같은 호실이 존재합니다.");
+        }
 
         Room room = Room.builder()
                 .dorm(dorm)
