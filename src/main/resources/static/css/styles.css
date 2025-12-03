@@ -273,9 +273,9 @@ main {
     box-shadow: 0 6px 16px rgba(0,0,0,0.15);
 }
 
-.room-card.occupied { background: #4CAF50; color: #fff; }
-.room-card.vacant-dirty { background: #E57373; color: #fff; }
-.room-card.vacant-clean { background: #E0E0E0; color: #333; }
+.room-card.occupied { background: #4CAF50 !important; color: #fff !important; }
+.room-card.vacant-dirty { background: #E57373 !important; color: #fff !important; }
+.room-card.vacant-clean { background: #E0E0E0 !important; color: #333 !important; }
 
 .room-number { font-size: 20px; font-weight: 700; }
 .room-status { font-size: 12px; }

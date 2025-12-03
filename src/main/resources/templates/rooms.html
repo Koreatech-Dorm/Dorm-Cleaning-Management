@@ -133,10 +133,10 @@
             emptyState.style.display = 'none';
 
             try {
-                const res = await fetch(`/api/rooms/info?dormCode=${dormCode}&floor=${floor}`);
+                const res = await fetch(`/api/rooms/info/byFloor?dormCode=${dormCode}&floor=${floor}`);
                 const rooms = await res.json();
 
-                roomGrid.innerHTML = '';
+                roomGrid.innerHTML = ``;
 
                 if (!rooms || rooms.length === 0) {
                     emptyState.style.display = 'block';
@@ -148,14 +148,13 @@
                     div.classList.add('room-card', 'col-2', 'mb-3', 'p-2');
 
                     if (room.status === 'OCCUPIED') div.classList.add('occupied');
-                    else if (room.status === 'VACANT_DIRTY') div.classList.add('vacant-dirty');
+                    else if (room.statusL === 'VACANT_DIRTY') div.classList.add('vacant-dirty');
                     else div.classList.add('vacant-clean');
 
-                    div.onclick = () => openStatusModal(room.id, room.number, room.status);
+                    div.onclick = () => openStatusModal(room.roomNumber, room.status);
 
                     div.innerHTML = `
-                        <div class="room-number fw-bold">${room.number}</div>
-                        <div class="room-status">${room.statusLabel}</div>
+                        <div class="room-number fw-bold">${room.roomNumber}</div>
                     `;
                     roomGrid.appendChild(div);
                 });
@@ -165,10 +164,10 @@
             }
         }
 
-        let selectedRoomId = null; // 모달에서 사용할 호실 ID
+        let selectedRoomNumber = null; // 모달에서 사용할 호실 이름
 
-        function openStatusModal(roomId, roomNumber, currentStatus) {
-            selectedRoomId = roomId;
+        function openStatusModal(roomNumber, currentStatus) {
+            selectedRoomNumber = roomNumber;
 
             // 모달에 호실 정보 표시
             document.getElementById('modalRoomNumber').textContent = `호실: ${roomNumber}`;
@@ -182,9 +181,9 @@
         // 저장 버튼 클릭 이벤트
         document.getElementById('saveStatusBtn').addEventListener('click', () => {
             const newStatus = document.getElementById('modalRoomStatus').value;
-            if (!selectedRoomId) return;
+            if (!selectedRoomNumber) return;
 
-            fetch(`/api/rooms/${selectedRoomId}/status`, {
+            fetch(`/api/rooms/${selectedRoomNumber}/status`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: newStatus })
