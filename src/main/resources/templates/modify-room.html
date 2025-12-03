@@ -169,7 +169,8 @@
                 statusEl.style.color = 'blue';
                 e.target.reset();
             } catch (err) {
-                statusEl.textContent = `⚠️ ${roomNumber}호 추가에 실패하였습니다.`;
+                const message = err.response.data.message;
+                statusEl.textContent = `⚠️ ${roomNumber}호 추가 실패: ${message}`;
                 statusEl.style.color = 'red';
             }
         });

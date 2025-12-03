@@ -8,7 +8,7 @@ import java.time.Instant;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "room")
+@Table(name = "room", uniqueConstraints = {@UniqueConstraint(columnNames = {"dorm_id", "room_number"})})
 public class Room {
 
     @Id
@@ -19,8 +19,10 @@ public class Room {
     @JoinColumn(name = "dorm_id", nullable = false)
     private Dorm dorm;
 
+    @Column(nullable = false)
     private Integer floor;
 
+    @Column(nullable = false)
     private String roomNumber;
 
     @Enumerated(EnumType.STRING)
