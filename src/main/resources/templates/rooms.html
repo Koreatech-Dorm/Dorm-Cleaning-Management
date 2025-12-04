@@ -111,83 +111,6 @@
         const emptyState = document.getElementById('emptyState');
         const bulkSection = document.getElementById('bulkSection');
 
-        // 층별로 방 상태 표시
-        async function loadRoomsByDorm() {
-            const dormCode = dormSelect.value;
-
-            if (!dormCode) return;
-
-            if (!emptyState) {
-                console.warn('emptyState 요소가 없음');
-                return;
-            }
-
-            floorDiv.innerHTML = '<p>로딩 중...</p>';
-            emptyState.style.display = 'none';
-
-            try {
-                const res = await fetch(`/api/rooms/info/byDorm?dormCode=${dormCode}`);
-                const rooms = await res.json();
-
-                floorDiv.innerHTML = ``;
-
-                if (!rooms || rooms.length === 0) {
-                    emptyState.style.display = 'block';
-                    return;
-                }
-                floorDiv.style.marginTop = "6rem";
-
-                // rooms 배열을 층별로 그룹핑
-                const floors = {};
-
-                rooms.forEach(room => {
-                    const floor = room.floor;    // 1, 2, 3 같은 층 정보
-                    if (!floors[floor]) floors[floor] = [];
-                    floors[floor].push(room);
-                });
-
-                // 층별로 렌더링
-                Object.keys(floors).sort().forEach(floor => {
-                    // 1) 층 제목 추가
-                    const title = document.createElement('h3');
-                    title.textContent = `${floor}층`;
-                    floorDiv.appendChild(title)
-
-                    // 2) 해당 층의 방 목록 렌더링
-                    const roomGrid = document.createElement('div');
-                    roomGrid.classList.add('room-grid', 'row');
-                    floors[floor].forEach(room => {
-                        const div = document.createElement('div');
-                        div.classList.add('room-card', 'col-2', 'mb-3', 'p-2');
-
-                        // 상태별 색상 적용
-                        if (room.status === 'OCCUPIED') div.classList.add('occupied');
-                        else if (room.status === 'VACANT_DIRTY') div.classList.add('vacant-dirty');
-                        else div.classList.add('vacant-clean');
-
-                        // 클릭 이벤트
-                        div.onclick = () => {
-                            if (!bulkMode)
-                                openStatusModal(room.roomNumber, room.status);
-                            else 
-                                selectRoom(room.roomNumber);
-                        };
-                        
-                        div.dataset.roomNumber = room.roomNumber;
-
-                        div.innerHTML = `
-                            <div class="room-number fw-bold">${room.roomNumber}</div>
-                        `;
-                        roomGrid.appendChild(div);
-                    });
-                    floorDiv.appendChild(roomGrid)
-                });
-            } catch (err) {
-                console.error(err);
-                roomGrid.innerHTML = '<p>호실 정보를 불러오는데 실패했습니다.</p>';
-            }
-        }
-
         // 생활관 선택 시 층 드롭다운만 갱신
         dormSelect.addEventListener('change', async () => {
             const dormCode = dormSelect.value;
@@ -198,7 +121,7 @@
             if (!dormCode) return;
             
             // 생활관 상태 정보 층별 표시
-            loadRoomsByDorm();
+            loadRooms();
 
             // 일괄 선택 기능 표시
             if (bulkSection.style.display === 'none' || bulkSection.style.display === '') {
@@ -229,62 +152,129 @@
             }
         });
 
-        // 조회 버튼 클릭 시 호실 정보 갱신
+        // 호실 정보 갱신
         async function loadRooms() {
             const dormCode = dormSelect.value;
             const floor = floorSelect.value;
 
-            if (!dormCode || !floor) return;
+            if (!dormCode) return;
 
             if (!emptyState) {
                 console.warn('emptyState 요소가 없음');
                 return;
             }
 
-            bulkMode = true;
-            document.getElementById('bulkSelectBtn').click();
+            if (floor)
+            {
+                bulkMode = true;
+                document.getElementById('bulkSelectBtn').click();
+            }
             
             floorDiv.innerHTML = '<p>로딩 중...</p>';
             emptyState.style.display = 'none';
 
             try {
-                const res = await fetch(`/api/rooms/info/byFloor?dormCode=${dormCode}&floor=${floor}`);
-                const rooms = await res.json();
+                if (floor)
+                {
+                    
+                    const res = await fetch(`/api/rooms/info/byFloor?dormCode=${dormCode}&floor=${floor}`);
+                    const rooms = await res.json();
 
-                floorDiv.innerHTML = ``;
+                    floorDiv.innerHTML = ``;
 
-                if (!rooms || rooms.length === 0) {
-                    emptyState.style.display = 'block';
-                    return;
+                    if (!rooms || rooms.length === 0) {
+                        emptyState.style.display = 'block';
+                        return;
+                    }
+
+                    floorDiv.style.marginTop = "10rem";
+                    
+                    const roomGrid = document.createElement('div');
+                    roomGrid.classList.add('room-grid', 'row');
+                    rooms.forEach(room => {
+
+                        const div = document.createElement('div');
+                        div.classList.add('room-card', 'col-2', 'mb-3', 'p-2');
+
+                        if (room.status === 'OCCUPIED') div.classList.add('occupied');
+                        else if (room.status === 'VACANT_DIRTY') div.classList.add('vacant-dirty');
+                        else div.classList.add('vacant-clean');
+
+                        div.onclick = () => {
+                            if (!bulkMode)
+                                openStatusModal(room.roomNumber, room.status);
+                            else 
+                                selectRoom(room.roomNumber);
+                        };
+
+                        div.dataset.roomNumber = room.roomNumber;
+
+                        div.innerHTML = `
+                            <div class="room-number fw-bold">${room.roomNumber}</div>
+                        `;
+                        roomGrid.appendChild(div);
+                    });
+                    floorDiv.appendChild(roomGrid);
                 }
+                else
+                {
+                    const res = await fetch(`/api/rooms/info/byDorm?dormCode=${dormCode}`);
+                    const rooms = await res.json();
 
-                floorDiv.style.marginTop = "10rem";
-                const roomGrid = document.createElement('div');
-                roomGrid.classList.add('room-grid', 'row');
-                rooms.forEach(room => {
+                    floorDiv.innerHTML = ``;
 
-                    const div = document.createElement('div');
-                    div.classList.add('room-card', 'col-2', 'mb-3', 'p-2');
+                    if (!rooms || rooms.length === 0) {
+                        emptyState.style.display = 'block';
+                        return;
+                    }
 
-                    if (room.status === 'OCCUPIED') div.classList.add('occupied');
-                    else if (room.status === 'VACANT_DIRTY') div.classList.add('vacant-dirty');
-                    else div.classList.add('vacant-clean');
+                    floorDiv.style.marginTop = "6rem";
+                    // rooms 배열을 층별로 그룹핑
+                    const floors = {};
 
-                    div.onclick = () => {
-                        if (!bulkMode)
-                            openStatusModal(room.roomNumber, room.status);
-                        else 
-                            selectRoom(room.roomNumber);
-                    };
+                    rooms.forEach(room => {
+                        const floor = room.floor;    // 1, 2, 3 같은 층 정보
+                        if (!floors[floor]) floors[floor] = [];
+                        floors[floor].push(room);
+                    });
 
-                    div.dataset.roomNumber = room.roomNumber;
+                    // 층별로 렌더링
+                    Object.keys(floors).sort().forEach(floor => {
+                        // 1) 층 제목 추가
+                        const title = document.createElement('h3');
+                        title.textContent = `${floor}층`;
+                        floorDiv.appendChild(title)
 
-                    div.innerHTML = `
-                        <div class="room-number fw-bold">${room.roomNumber}</div>
-                    `;
-                    roomGrid.appendChild(div);
-                });
-                floorDiv.appendChild(roomGrid);
+                        // 2) 해당 층의 방 목록 렌더링
+                        const roomGrid = document.createElement('div');
+                        roomGrid.classList.add('room-grid', 'row');
+                        floors[floor].forEach(room => {
+                            const div = document.createElement('div');
+                            div.classList.add('room-card', 'col-2', 'mb-3', 'p-2');
+
+                            // 상태별 색상 적용
+                            if (room.status === 'OCCUPIED') div.classList.add('occupied');
+                            else if (room.status === 'VACANT_DIRTY') div.classList.add('vacant-dirty');
+                            else div.classList.add('vacant-clean');
+
+                            // 클릭 이벤트
+                            div.onclick = () => {
+                                if (!bulkMode)
+                                    openStatusModal(room.roomNumber, room.status);
+                                else 
+                                    selectRoom(room.roomNumber);
+                            };
+                            
+                            div.dataset.roomNumber = room.roomNumber;
+
+                            div.innerHTML = `
+                                <div class="room-number fw-bold">${room.roomNumber}</div>
+                            `;
+                            roomGrid.appendChild(div);
+                        });
+                        floorDiv.appendChild(roomGrid)
+                    });
+                }
             } catch (err) {
                 console.error(err);
                 roomGrid.innerHTML = '<p>호실 정보를 불러오는데 실패했습니다.</p>';
@@ -323,11 +313,12 @@
                     const modalEl = document.getElementById('statusModal');
                     const modal = bootstrap.Modal.getInstance(modalEl);
                     modal.hide();
-                    // 갱신
-                    if (!floor)
-                        loadRoomsByDorm();
-                    else 
-                        loadRooms();
+                    // // 갱신
+                    // if (!floor)
+                    //     loadRoomsByDorm();
+                    // else 
+                    //     loadRooms();
+                    loadRooms();
                 } else {
                     alert('상태 변경 실패');
                 }
@@ -422,11 +413,12 @@
                 })
                 .then(res => {
                     if (res.ok) {
-                        // 갱신
-                        if (!floor)
-                            loadRoomsByDorm();
-                        else 
-                            loadRooms();
+                        // // 갱신
+                        // if (!floor)
+                        //     loadRoomsByDorm();
+                        // else 
+                        //     loadRooms();
+                        loadRooms();
                     } else {
                         alert(`${roomNumber}호 상태 변경 실패`);
                     }
