@@ -22,6 +22,7 @@ public class CheckServiceImpl implements CheckService {
 
         if(room.getRoomStatus() == RoomStatus.OCCUPIED){
             room.updateStatus(RoomStatus.VACANT_DIRTY);
+            room.updateCheckOutAt(java.time.Instant.now());
         }
     }
 
