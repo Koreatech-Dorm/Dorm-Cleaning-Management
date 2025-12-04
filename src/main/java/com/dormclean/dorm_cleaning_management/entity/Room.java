@@ -80,6 +80,8 @@ public class Room {
 
     public String getStatusLabel() {
         switch (roomStatus) {
+            case NOT_USED:
+                return "공실 (입실 이전)";
             case OCCUPIED:
                 return "재실";
             case VACANT_DIRTY:
