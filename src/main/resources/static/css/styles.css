@@ -449,3 +449,11 @@ main {
         width: 100%;
     }
 }
+
+.section-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 20px 0 12px;
+    color: #333;
+    text-align: left;
+}
