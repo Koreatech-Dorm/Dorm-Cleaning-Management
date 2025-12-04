@@ -8,7 +8,7 @@ import java.time.Instant;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "room")
+@Table(name = "room", uniqueConstraints = {@UniqueConstraint(columnNames = {"dorm_id", "room_number"})})
 public class Room {
 
     @Id
@@ -19,8 +19,10 @@ public class Room {
     @JoinColumn(name = "dorm_id", nullable = false)
     private Dorm dorm;
 
+    @Column(nullable = false)
     private Integer floor;
 
+    @Column(nullable = false)
     private String roomNumber;
 
     @Enumerated(EnumType.STRING)
@@ -55,6 +57,19 @@ public class Room {
 
     public void assignQrCode(QrCode qrCode) {
         this.qrCode = qrCode;
+    }
+
+    public String getStatus() {
+        switch (roomStatus) {
+            case OCCUPIED:
+                return "OCCUPIED";
+            case VACANT_DIRTY:
+                return "VACANT_DIRTY";
+            case VACANT_CLEAN:
+                return "VACANT_CLEAN";
+            default:
+                return "";
+        }
     }
 
     public String getStatusLabel() {
