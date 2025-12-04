@@ -16,6 +16,16 @@ public class CheckServiceImpl implements CheckService {
     private final RoomRepository roomRepository;
 
     @Override
+    public void checkIn(Dorm dorm, String roomNumber) {
+        Room room = roomRepository.findByDormAndRoomNumber(dorm, roomNumber)
+                .orElseThrow(() -> new IllegalArgumentException("해당 호실이 존재하지 않습니다."));
+        if(room.getRoomStatus() == RoomStatus.NOT_USED){
+            room.updateStatus(RoomStatus.OCCUPIED);
+            room.updateCheckInAt(java.time.Instant.now());
+        }
+    }
+
+    @Override
     public void checkOut(Dorm dorm, String roomNumber) {
         Room room = roomRepository.findByDormAndRoomNumber(dorm, roomNumber)
                 .orElseThrow(() -> new IllegalArgumentException("해당 호실이 존재하지 않습니다."));
