@@ -28,7 +28,7 @@ public class RoomServiceImpl implements RoomService {
                 .dorm(dorm)
                 .floor(floor)
                 .roomNumber(roomNumber)
-                .status(RoomStatus.OCCUPIED)
+                .status(RoomStatus.NOT_USED)
                 .build();
 
         return roomRepository.save(room);
