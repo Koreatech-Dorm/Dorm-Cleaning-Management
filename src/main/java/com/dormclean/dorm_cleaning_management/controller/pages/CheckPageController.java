@@ -29,6 +29,7 @@ public class CheckPageController {
         Dorm dorm = dormRepository.findByDormCode(data.dormCode()).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 기숙사입니다."));
         Room room = roomRepository.findByDormAndRoomNumber(dorm, data.roomNumber()).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 호실입니다."));
 
+        boolean isNotUsed = room.getRoomStatus() == RoomStatus.NOT_USED;
         boolean isOccupied = room.getRoomStatus() == RoomStatus.OCCUPIED;
         boolean isVacantDirty = room.getRoomStatus() == RoomStatus.VACANT_DIRTY;
 
@@ -37,6 +38,7 @@ public class CheckPageController {
         model.addAttribute("dormCode", dorm.getDormCode());
         model.addAttribute("roomNumber", room.getRoomNumber());
 
+        model.addAttribute("isNotUsed", isNotUsed);
         model.addAttribute("isOccupied", isOccupied);
         model.addAttribute("isVacantDirty", isVacantDirty);
 
