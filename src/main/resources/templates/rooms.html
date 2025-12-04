@@ -39,21 +39,36 @@
             </div>
         </div>
 
-        <!-- 범례 -->
-        <div class="legend d-flex gap-3 mb-3">
-            <div class="legend-item d-flex align-items-center gap-1">
-                <span class="legend-color occupied"></span> 재실
+        <div class="position-relative mb-3">
+            <!-- 상태 범례 -->
+            <div class="legend d-flex gap-3 position-absolute start-50 translate-middle-x">
+                <div class="legend-item d-flex align-items-center gap-1">
+                    <span class="legend-color occupied"></span> 재실
+                </div>
+                <div class="legend-item d-flex align-items-center gap-1">
+                    <span class="legend-color vacant-dirty"></span> 공실 (청소 필요)
+                </div>
+                <div class="legend-item d-flex align-items-center gap-1">
+                    <span class="legend-color vacant-clean"></span> 공실 (청소 완료)
+                </div>
             </div>
-            <div class="legend-item d-flex align-items-center gap-1">
-                <span class="legend-color vacant-dirty"></span> 공실 (청소 필요)
-            </div>
-            <div class="legend-item d-flex align-items-center gap-1">
-                <span class="legend-color vacant-clean"></span> 공실 (청소 완료)
+
+            <!-- 일괄 상태 변경 컨트롤 -->
+            <div id="bulkSection" class="bulk-section d-flex align-items-center gap-3 position-absolute end-0" style="display: none !important;">
+                <button id="bulkSelectBtn" class="btn btn-primary">선택</button>
+                <div class="bulk-status-group align-items-center">
+                    <select id="bulkStatusSelect" class="form-select form-select-sm">
+                        <option value="OCCUPIED">재실</option>
+                        <option value="VACANT_DIRTY">공실 (청소 필요)</option>
+                        <option value="VACANT_CLEAN">공실 (청소 완료)</option>
+                    </select>
+                </div>
+                <button id="applyBulkBtn" class="btn btn-primary">적용</button>
             </div>
         </div>
 
         <!-- 호실 그리드 -->
-        <div class="floor-div col" id="floorDiv">
+        <div class="floor-div col" id="floorDiv" style="margin-top: 6rem;">
             <div class="empty-state" id="emptyState">
                 <p>생활관과 층을 선택하여 호실을 조회하세요.</p>
             </div>
@@ -90,6 +105,7 @@
         const floorSelect = document.getElementById('floorSelect');
         const floorDiv = document.getElementById('floorDiv');
         const emptyState = document.getElementById('emptyState');
+        const bulkSection = document.getElementById('bulkSection');
 
         // 층별로 방 상태 표시
         async function loadRoomsByDorm() {
@@ -145,7 +161,14 @@
                         else div.classList.add('vacant-clean');
 
                         // 클릭 이벤트
-                        div.onclick = () => openStatusModal(room.roomNumber, room.status);
+                        div.onclick = () => {
+                            if (!bulkMode)
+                                openStatusModal(room.roomNumber, room.status);
+                            else 
+                                selectRoom(room.roomNumber);
+                        };
+                        
+                        div.dataset.roomNumber = room.roomNumber;
 
                         div.innerHTML = `
                             <div class="room-number fw-bold">${room.roomNumber}</div>
@@ -171,6 +194,14 @@
             
             // 생활관 상태 정보 층별 표시
             loadRoomsByDorm();
+
+            // 일괄 선택 기능 표시
+            if (bulkSection.style.display === 'none' || bulkSection.style.display === '') {
+                bulkSection.style.display = 'flex'; // 나타내기
+            } else {
+                bulkSection.style.display = 'none'; // 숨기기
+            }
+
 
             // 층 목록 갱신
             try {
@@ -219,6 +250,7 @@
                 const roomGrid = document.createElement('div');
                 roomGrid.classList.add('room-grid', 'row');
                 rooms.forEach(room => {
+
                     const div = document.createElement('div');
                     div.classList.add('room-card', 'col-2', 'mb-3', 'p-2');
 
@@ -226,7 +258,14 @@
                     else if (room.status === 'VACANT_DIRTY') div.classList.add('vacant-dirty');
                     else div.classList.add('vacant-clean');
 
-                    div.onclick = () => openStatusModal(room.roomNumber, room.status);
+                    div.onclick = () => {
+                        if (!bulkMode)
+                            openStatusModal(room.roomNumber, room.status);
+                        else 
+                            selectRoom(room.roomNumber);
+                    };
+
+                    div.dataset.roomNumber = room.roomNumber;
 
                     div.innerHTML = `
                         <div class="room-number fw-bold">${room.roomNumber}</div>
@@ -285,6 +324,101 @@
                 console.error(err);
                 alert('오류 발생');
             });
+        });
+        
+        let bulkMode = false;
+        document.getElementById('bulkSelectBtn').addEventListener('click', () =>{
+            if (bulkMode == false)
+            {
+                bulkMode = true;
+
+                const cards = document.querySelectorAll('.room-card');
+                cards.forEach(card =>{
+                    if (!card.classList.contains('select-mode'))
+                        card.classList.add('select-mode');
+                });
+
+                const bulkSelectBtn = document.getElementById('bulkSelectBtn');
+                bulkSelectBtn.classList.remove('btn-primary');
+                bulkSelectBtn.classList.add('btn-secondary');
+                bulkSelectBtn.textContent = '해제';
+            }
+            else
+            {
+                bulkMode = false;
+
+                const cards = document.querySelectorAll('.room-card');
+                cards.forEach(card =>{
+                    if (card.classList.contains('select-mode'))
+                        card.classList.remove('select-mode');
+                    else if (card.classList.contains('selected'))
+                        card.classList.remove('selected');
+                });
+
+                const bulkSelectBtn = document.getElementById('bulkSelectBtn');
+                bulkSelectBtn.classList.remove('btn-secondary');
+                bulkSelectBtn.classList.add('btn-primary');
+                bulkSelectBtn.textContent = '선택';
+            }
+        });
+
+        // 선택모드에서 호실 선택
+        let selectedRooms = []
+        function selectRoom(roomNumber) {
+            const room = document.querySelector(`.room-card[data-room-number="${roomNumber}"]`);
+
+            const isSelected = selectedRooms.includes(roomNumber);
+
+            if (!isSelected) {
+                room.classList.remove('select-mode');
+                room.classList.add('selected');
+                selectedRooms.push(roomNumber);
+            } else {
+                room.classList.remove('selected');
+                room.classList.add('select-mode');
+
+                // 배열에서 제거
+                selectedRooms = selectedRooms.filter(r => r !== roomNumber);
+            }
+        }
+
+        // 호실 상태 일괄 변경
+        function updateAllSelectedRoom() {
+            const newStatus = document.getElementById('bulkStatusSelect').value;
+            const dormCode = dormSelect.value;
+            const floor = floorSelect.value;
+
+            if (!dormCode || selectedRooms.length < 1) return;
+            
+            selectedRooms.forEach(roomNumber =>{
+                fetch(`/api/rooms/${roomNumber}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ newRoomStatus: newStatus, dormCode: dormCode})
+                })
+                .then(res => {
+                    if (res.ok) {
+                        // 갱신
+                        if (!floor)
+                            loadRoomsByDorm();
+                        else 
+                            loadRooms();
+                    } else {
+                        alert(`${roomNumber}호 상태 변경 실패`);
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('오류 발생');
+                });
+            });
+        }
+
+        // 일괄 변경 적용 버튼 
+        document.getElementById('applyBulkBtn').addEventListener('click', () => {
+            updateAllSelectedRoom();
+            document.getElementById('bulkSelectBtn').click();
+            selectedRooms = [];
         });
     </script>
 </main>

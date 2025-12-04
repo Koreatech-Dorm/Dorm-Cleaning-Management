@@ -398,3 +398,54 @@ main {
     margin-top: 8px;
     color: #6c757d;
 }
+
+/* =========================================
+   BULK SELECT SECTION (일괄 변경 UI)
+   ========================================= */
+.bulk-section {
+    border-radius: 12px;
+    padding: 0px;
+}
+
+.bulk-status-group {
+    display: flex;
+    flex-direction: column;
+    min-width: 180px;
+}
+
+#bulkStatusSelect {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 14px;
+}
+
+/* 선택 모드일 때 방 카드 강조 */
+.room-card.select-mode {
+    outline: 3px solid #FFB366;
+    box-shadow: 0 0 10px rgba(255, 163, 77, 0.6);
+    transform: scale(1.05);
+    opacity: 0.4;
+}
+
+/* 사용자가 클릭해 선택한 방 */
+.room-card.selected {
+    outline: 4px solid #1c5f90;
+    box-shadow: 0 0 8px rgba(28, 95, 144, 0.65);
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .bulk-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .bulk-status-group {
+        width: 100%;
+    }
+
+    #applyBulkBtn, #bulkSelectBtn {
+        width: 100%;
+    }
+}
