@@ -425,6 +425,7 @@ main {
     outline: 3px solid #FFB366;
     box-shadow: 0 0 10px rgba(255, 163, 77, 0.6);
     transform: scale(1.05);
+    opacity: 0.4;
 }
 
 /* 사용자가 클릭해 선택한 방 */

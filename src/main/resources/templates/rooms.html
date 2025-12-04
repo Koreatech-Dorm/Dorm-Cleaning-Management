@@ -155,22 +155,20 @@
                         const div = document.createElement('div');
                         div.classList.add('room-card', 'col-2', 'mb-3', 'p-2');
 
-                        const checkbox = document.createElement('input');
-                        checkbox.type = 'checkbox';
-                        checkbox.classList.add('room-checkbox');
-                        checkbox.style.display = 'none';
-                        checkbox.style.transform = 'scale(0.3)';
-                        checkbox.style.margin = '0px';
-                        checkbox.style.padding = '0px';
-                        div.appendChild(checkbox);
-
                         // 상태별 색상 적용
                         if (room.status === 'OCCUPIED') div.classList.add('occupied');
                         else if (room.status === 'VACANT_DIRTY') div.classList.add('vacant-dirty');
                         else div.classList.add('vacant-clean');
 
                         // 클릭 이벤트
-                        div.onclick = () => openStatusModal(room.roomNumber, room.status);
+                        div.onclick = () => {
+                            if (!bulkMode)
+                                openStatusModal(room.roomNumber, room.status);
+                            else 
+                                selectRoom(room.roomNumber);
+                        };
+                        
+                        div.dataset.roomNumber = room.roomNumber;
 
                         div.innerHTML = `
                             <div class="room-number fw-bold">${room.roomNumber}</div>
@@ -256,25 +254,18 @@
                     const div = document.createElement('div');
                     div.classList.add('room-card', 'col-2', 'mb-3', 'p-2');
 
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.classList.add('room-checkbox');
-                    checkbox.style.display = 'none';
-                    checkbox.style.transform = 'scale(0.3)';
-                    checkbox.style.margin = '0px';
-                    checkbox.style.padding = '0px';
-                    div.appendChild(checkbox);
-
                     if (room.status === 'OCCUPIED') div.classList.add('occupied');
                     else if (room.status === 'VACANT_DIRTY') div.classList.add('vacant-dirty');
                     else div.classList.add('vacant-clean');
 
                     div.onclick = () => {
-                        if (bulkMode == false)
+                        if (!bulkMode)
                             openStatusModal(room.roomNumber, room.status);
-                        // else 
-
+                        else 
+                            selectRoom(room.roomNumber);
                     };
+
+                    div.dataset.roomNumber = room.roomNumber;
 
                     div.innerHTML = `
                         <div class="room-number fw-bold">${room.roomNumber}</div>
@@ -342,15 +333,12 @@
                 bulkMode = true;
 
                 const cards = document.querySelectorAll('.room-card');
-
                 cards.forEach(card =>{
-                    const bulkSelectBtn = document.getElementById('bulkSelectBtn');
-                    const checkbox = card.querySelector('.room-checkbox');
-
-                    card.classList.add('select-mode');
-                    if (checkbox)
-                        checkbox.style.display = 'block';
+                    if (!card.classList.contains('select-mode'))
+                        card.classList.add('select-mode');
                 });
+
+                const bulkSelectBtn = document.getElementById('bulkSelectBtn');
                 bulkSelectBtn.classList.remove('btn-primary');
                 bulkSelectBtn.classList.add('btn-secondary');
                 bulkSelectBtn.textContent = '해제';
@@ -360,21 +348,38 @@
                 bulkMode = false;
 
                 const cards = document.querySelectorAll('.room-card');
-
                 cards.forEach(card =>{
-                    const bulkSelectBtn = document.getElementById('bulkSelectBtn');
-                    const checkbox = card.querySelector('.room-checkbox');
-
-                    card.classList.remove('select-mode');
-                    if (checkbox)
-                        checkbox.style.display = 'none';
+                    if (card.classList.contains('select-mode'))
+                        card.classList.remove('select-mode');
+                    else if (card.classList.contains('selected'))
+                        card.classList.remove('selected');
                 });
+
+                const bulkSelectBtn = document.getElementById('bulkSelectBtn');
                 bulkSelectBtn.classList.remove('btn-secondary');
                 bulkSelectBtn.classList.add('btn-primary');
                 bulkSelectBtn.textContent = '선택';
-
             }
         });
+
+        let selectedRooms = []
+        function selectRoom(roomNumber) {
+            const room = document.querySelector(`.room-card[data-room-number="${roomNumber}"]`);
+
+            const isSelected = selectedRooms.includes(roomNumber);
+
+            if (!isSelected) {
+                room.classList.remove('select-mode');
+                room.classList.add('selected');
+                selectedRooms.push(roomNumber);
+            } else {
+                room.classList.remove('selected');
+                room.classList.add('select-mode');
+
+                // 배열에서 제거
+                selectedRooms = selectedRooms.filter(r => r !== roomNumber);
+            }
+        }
     </script>
 </main>
 
