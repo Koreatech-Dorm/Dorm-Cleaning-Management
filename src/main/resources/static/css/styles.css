@@ -485,3 +485,14 @@ main {
     background: #FFB366;
     color: white;
 }
+
+.room-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.room-cell {
+    width: 10%; /* 10개이므로 10%씩 */
+    padding: 6px;
+    text-align: center;
+}
