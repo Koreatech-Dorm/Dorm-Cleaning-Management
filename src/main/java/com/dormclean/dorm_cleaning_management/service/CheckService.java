@@ -4,7 +4,7 @@ import com.dormclean.dorm_cleaning_management.dto.CheckRequestDto;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
 
 public interface CheckService {
-    public void checkIn(CheckRequestDto dto);
-    public void checkOut(CheckRequestDto dto);
-    public void cleanCheck(CheckRequestDto dto);
+    void checkIn(CheckRequestDto dto);
+    void checkOut(CheckRequestDto dto);
+    void cleanCheck(CheckRequestDto dto);
 }
