@@ -71,8 +71,9 @@ public class RoomController {
         public ResponseEntity<Void> updateRoomStatus(
                         @PathVariable("roomNumber") String roomNumber,
                         @RequestBody RoomStatusUpdateDto dto) {
-                roomService.updateRoomStatus(dto.dormCode(), roomNumber, dto.newRoomStatus());
-                return ResponseEntity.ok().build();
+            roomService.updateRoomStatus(roomNumber, dto);
+
+            return ResponseEntity.ok().build();
         }
 
         // 생활관 층 목록 반환

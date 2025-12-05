@@ -1,6 +1,7 @@
 package com.dormclean.dorm_cleaning_management.service;
 
 import com.dormclean.dorm_cleaning_management.dto.CreateRoomRequestDto;
+import com.dormclean.dorm_cleaning_management.dto.RoomStatusUpdateDto;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
 import com.dormclean.dorm_cleaning_management.entity.Room;
 import com.dormclean.dorm_cleaning_management.entity.enums.RoomStatus;
@@ -67,15 +68,15 @@ public class RoomServiceImpl implements RoomService {
     // 호실 상태 변경
     @Override
     @Transactional
-    public void updateRoomStatus(String dormCode, String roomNumber, String newRoomStatus) {
-        Dorm dorm = dormRepository.findByDormCode(dormCode)
+    public void updateRoomStatus(String roomNumber, RoomStatusUpdateDto dto) {
+        Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
                 .orElseThrow(() -> new IllegalArgumentException("해당 생활관을 찾을 수 없습니다."));
         Room room = roomRepository.findByDormAndRoomNumber(dorm, roomNumber)
                 .orElseThrow(() -> new IllegalArgumentException("해당 호실을 찾을 수 없습니다."));
 
-        if (newRoomStatus.equals("OCCUPIED"))
+        if (dto.newRoomStatus().equals("OCCUPIED"))
             room.updateStatus(RoomStatus.OCCUPIED);
-        else if (newRoomStatus.equals("READY"))
+        else if (dto.newRoomStatus().equals("READY"))
             room.updateStatus(RoomStatus.READY);
         else
             room.updateStatus(RoomStatus.VACANT);
