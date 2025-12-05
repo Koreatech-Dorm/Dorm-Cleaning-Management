@@ -95,6 +95,33 @@
         const emptyState = document.getElementById('emptyState');
         const floorDiv = document.getElementById('floorDiv');
 
+        // 방 번호(숫자 + 알파벳) 파싱 함수
+        function parseRoomNumber(roomNumber) {
+            // 숫자 + 선택적 알파벳 1글자 (예: 805, 805A)
+            const match = roomNumber.match(/^(\d+)([A-Za-z]?)$/);
+            if (!match) return { num: Infinity, suffix: "" };
+
+            return {
+                num: Number(match[1]),     // 숫자
+                suffix: match[2] || ""     // 알파벳 또는 빈 문자열
+            };
+        }
+
+        // 정렬 함수
+        function sortRooms(rooms) {
+            return rooms.sort((a, b) => {
+                const A = parseRoomNumber(a.roomNumber);
+                const B = parseRoomNumber(b.roomNumber);
+
+                // 1️⃣ 숫자 먼저 비교
+                if (A.num !== B.num) return A.num - B.num;
+
+                // 2️⃣ 알파벳 비교
+                return A.suffix.localeCompare(B.suffix);
+            });
+        }
+
+
         // 조회 버튼 클릭 시 호실 정보 갱신
         async function loadRooms() {
 
@@ -132,8 +159,9 @@
 
                         Object.keys(floors).sort().forEach(floor => {
                             let row = document.createElement('tr');
-                            floors[floor].sort((a, b) => Number(a.roomNumber) - Number(b.roomNumber))
-                            .forEach((room, index) => {
+                            
+                            const sortedRooms = sortRooms(floors[floor]);
+                            sortedRooms.forEach((room, index) => {
 
                                 // td 생성
                                 const td = document.createElement('td');
