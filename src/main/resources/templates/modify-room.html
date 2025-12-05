@@ -22,7 +22,7 @@
                     <option value="" selected disabled>생활관을 선택하세요</option>
                     <option th:each="dorm : ${dorms}" 
                             th:value="${dorm.dormCode}"
-                            th:text="${dorm.dormCode} + '동'"></option>
+                            th:text="${dorm.dormCode} + '동{' + ${dorm.dormName} + '}"></option>
                 </select>
             </div>
 
