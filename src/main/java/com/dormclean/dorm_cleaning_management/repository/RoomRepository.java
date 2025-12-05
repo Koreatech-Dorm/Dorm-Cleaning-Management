@@ -22,7 +22,7 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     List<Room> findByDorm(Dorm dorm);
 
     // 층별 조회
-    List<Room> findBydormAndFloor(Dorm dorm, Integer floor);
+    List<Room> findByDormAndFloor(Dorm dorm, Integer floor);
 
     // 특정 기숙사의 방 조회
     Optional<Room> findByDormAndRoomNumber(Dorm dorm, String roomNumber);

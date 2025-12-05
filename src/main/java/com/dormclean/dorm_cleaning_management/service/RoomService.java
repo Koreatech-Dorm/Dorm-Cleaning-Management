@@ -3,19 +3,22 @@ package com.dormclean.dorm_cleaning_management.service;
 import java.util.List;
 
 import com.dormclean.dorm_cleaning_management.dto.CreateRoomRequestDto;
+import com.dormclean.dorm_cleaning_management.dto.RoomListResponseDto;
 import com.dormclean.dorm_cleaning_management.dto.RoomStatusUpdateDto;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
 import com.dormclean.dorm_cleaning_management.entity.Room;
 
 public interface RoomService {
-    public Room createRoom(CreateRoomRequestDto dto);
+    Room createRoom(CreateRoomRequestDto dto);
 
-    public List<Room> getRoomsByDorm(Dorm dorm);
+    List<RoomListResponseDto> getRooms(String dormCode);
 
-    public List<Room> getRoomsByDormAndFloor(Dorm dorm, Integer floor);
+    List<RoomListResponseDto> getRooms(String dormCode, Integer floor);
 
-    public void updateRoomStatus(String roomNumber, RoomStatusUpdateDto dto);
+    List<Integer> getFloors(String dormCode);
 
-    public void deleteRoom(String dormCode, String roomNumber);
+    void updateRoomStatus(String roomNumber, RoomStatusUpdateDto dto);
+
+    void deleteRoom(String dormCode, String roomNumber);
 
 }

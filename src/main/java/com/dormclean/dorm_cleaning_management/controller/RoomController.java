@@ -28,34 +28,16 @@ public class RoomController {
         // 특정 생활관의 호실 정보 반환
         @GetMapping("/rooms/info/byDorm")
         public ResponseEntity<List<RoomListResponseDto>> getRoomsByDorm(@RequestParam("dormCode") String dormCode) {
-                Dorm dorm = dormRepository.findByDormCode(dormCode)
-                                .orElseThrow(() -> new RuntimeException("Dorm not found"));
 
-                List<Room> rooms = roomService.getRoomsByDorm(dorm);
-
-                List<RoomListResponseDto> dtoList = rooms.stream()
-                                .map(r -> new RoomListResponseDto(r.getDorm().getDormCode(), r.getFloor(),
-                                                r.getRoomNumber(), r.getStatus()))
-                                .toList();
-
-                return ResponseEntity.ok(dtoList);
+                return ResponseEntity.ok(roomService.getRooms(dormCode));
         }
 
         @GetMapping("/rooms/info/byFloor")
         public ResponseEntity<List<RoomListResponseDto>> getRoomsByDormAndFloor(
                         @RequestParam("dormCode") String dormCode,
                         @RequestParam("floor") Integer floor) {
-                Dorm dorm = dormRepository.findByDormCode(dormCode)
-                                .orElseThrow(() -> new RuntimeException("Dorm not found"));
 
-                List<Room> rooms = roomService.getRoomsByDormAndFloor(dorm, floor);
-
-                List<RoomListResponseDto> dtoList = rooms.stream()
-                                .map(r -> new RoomListResponseDto(r.getDorm().getDormCode(), r.getFloor(),
-                                                r.getRoomNumber(), r.getStatus()))
-                                .toList();
-
-                return ResponseEntity.ok(dtoList);
+            return ResponseEntity.ok(roomService.getRooms(dormCode, floor));
         }
 
         // 호실 생성
@@ -79,17 +61,9 @@ public class RoomController {
         // 생활관 층 목록 반환
         @GetMapping("/floors")
         public ResponseEntity<List<Integer>> getFloors(@RequestParam("dormCode") String dormCode) {
-                Dorm dorm = dormRepository.findByDormCode(dormCode)
-                                .orElseThrow(() -> new RuntimeException("Dorm not found"));
+            List<Integer> floors = roomService.getFloors(dormCode);
 
-                List<Integer> floors = roomService.getRoomsByDorm(dorm)
-                                .stream()
-                                .map(Room::getFloor)
-                                .distinct()
-                                .sorted()
-                                .collect(Collectors.toList());
-
-                return ResponseEntity.ok(floors);
+            return ResponseEntity.ok(floors);
         }
 
         // 호실 삭제

@@ -1,6 +1,7 @@
 package com.dormclean.dorm_cleaning_management.service;
 
 import com.dormclean.dorm_cleaning_management.dto.CreateRoomRequestDto;
+import com.dormclean.dorm_cleaning_management.dto.RoomListResponseDto;
 import com.dormclean.dorm_cleaning_management.dto.RoomStatusUpdateDto;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
 import com.dormclean.dorm_cleaning_management.entity.Room;
@@ -55,14 +56,48 @@ public class RoomServiceImpl implements RoomService {
 
     // 특정 Dorm + Floor의 방 목록 조회
     @Override
-    public List<Room> getRoomsByDormAndFloor(Dorm dorm, Integer floor) {
-        return roomRepository.findBydormAndFloor(dorm, floor);
+    public List<RoomListResponseDto> getRooms(String dormCode, Integer floor) {
+        Dorm dorm = dormRepository.findByDormCode(dormCode)
+                .orElseThrow(() -> new RuntimeException("Dorm not found"));
+        List<Room> rooms = roomRepository.findByDormAndFloor(dorm, floor);
+
+        return rooms.stream()
+                .map(this::toRoomListDto)
+                .toList();
     }
 
     // 특정 Dorm의 모든 방 조회 (층 목록 등)
     @Override
-    public List<Room> getRoomsByDorm(Dorm dorm) {
-        return roomRepository.findByDorm(dorm);
+    public List<RoomListResponseDto> getRooms(String dormCode) {
+        Dorm dorm = dormRepository.findByDormCode(dormCode)
+                .orElseThrow(() -> new IllegalArgumentException("Dorm not found"));
+
+        List<Room> rooms = roomRepository.findByDorm(dorm);
+
+        return rooms.stream()
+                .map(this::toRoomListDto)
+                .toList();
+    }
+
+    private RoomListResponseDto toRoomListDto(Room r) {
+        return new RoomListResponseDto(
+                r.getDorm().getDormCode(),
+                r.getFloor(),
+                r.getRoomNumber(),
+                r.getStatus()
+        );
+    }
+
+    @Override
+    public List<Integer> getFloors(String dormCode) {
+        Dorm dorm = dormRepository.findByDormCode(dormCode)
+                .orElseThrow(() -> new IllegalArgumentException("Dorm not found"));
+
+        return roomRepository.findByDorm(dorm).stream()
+                .map(Room::getFloor)
+                .distinct()
+                .sorted()
+                .toList();
     }
 
     // 호실 상태 변경
