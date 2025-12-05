@@ -1,5 +1,6 @@
 package com.dormclean.dorm_cleaning_management.service;
 
+import com.dormclean.dorm_cleaning_management.dto.CreateRoomRequestDto;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
 import com.dormclean.dorm_cleaning_management.entity.Room;
 import com.dormclean.dorm_cleaning_management.entity.enums.RoomStatus;
@@ -20,18 +21,35 @@ public class RoomServiceImpl implements RoomService {
 
     // 방 생성
     @Override
-    public Room createRoom(String dormCode, Integer floor, String roomNumber) {
-        Dorm dorm = dormRepository.findByDormCode(dormCode)
+    public Room createRoom(CreateRoomRequestDto dto) {
+
+        Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
                 .orElseThrow(() -> new IllegalArgumentException("해당 dormCode의 기숙사가 없습니다."));
+
+        Integer floor = extractFloor(dto.roomNumber());
 
         Room room = Room.builder()
                 .dorm(dorm)
                 .floor(floor)
-                .roomNumber(roomNumber)
+                .roomNumber(dto.roomNumber())
                 .status(RoomStatus.READY)
                 .build();
 
         return roomRepository.save(room);
+    }
+
+    private Integer extractFloor(String roomNumber){
+        int cnt = 0, idx = roomNumber.length() - 1;
+        while (idx >= 0) {
+            char c = roomNumber.charAt(idx);
+            if (c >= '0' && c <= '9')
+                break;
+            cnt++;
+            idx--;
+        }
+        int floor = Integer.parseInt(roomNumber.substring(0, roomNumber.length() - (cnt + 2)));
+
+        return floor;
     }
 
     // 특정 Dorm + Floor의 방 목록 조회
