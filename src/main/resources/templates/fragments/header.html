@@ -4,7 +4,7 @@
     <div class="container d-flex flex-column align-items-start py-2 ps-0">
 
         <!-- 좌측 상단 제목 -->
-        <a class="navbar-brand mb-2 ms-3" th:href="@{/}">
+        <a class="navbar-brand mb-1 ms-3" th:href="@{/}">
             <img th:src="@{/img/koreatechDormLogo.png}" 
                 alt="Koreatech Dorm Logo" 
                 class="me-2" 
@@ -13,8 +13,8 @@
         </a>
 
         <!-- 가로 네비게이션 메뉴 -->
-        <ul class="nav flex-row">
-            <li class="nav-item me-3">
+        <ul class="nav nav-menu flex-row ps-0">
+            <li class="nav-item me-3" style="margin-left: 25px;">
                 <a class="nav-link text-dark" th:href="@{/rooms}">
                     생활관 상태 확인
                 </a>
