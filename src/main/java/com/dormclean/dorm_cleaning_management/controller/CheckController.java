@@ -20,7 +20,6 @@ import java.util.Map;
 @Tag(name = "방 상태 관리 API", description = "퇴실 확인 및 청소 완료 처리 API")
 public class CheckController {
     private final CheckService checkService;
-    private final DormRepository dormRepository;
 
     @PostMapping("/in")
     public ResponseEntity<Map<String, String>> checkIn(@RequestBody CheckRequestDto dto) {
@@ -38,8 +37,6 @@ public class CheckController {
 
     @PostMapping("/clean")
     public ResponseEntity<Map<String, String>> cleanCheck(@RequestBody CheckRequestDto dto) {
-        Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 기숙사입니다."));
         checkService.cleanCheck(dto);
 
         return ResponseEntity.ok(Map.of("message", "청소 처리가 완료되었습니다."));
