@@ -26,9 +26,11 @@ public class Room {
     private String roomNumber;
 
     @Enumerated(EnumType.STRING)
-    private RoomStatus roomStatus = RoomStatus.OCCUPIED;
+    private RoomStatus roomStatus = RoomStatus.READY;
 
     private Instant cleanedAt;
+    private Instant checkInAt;
+    private Instant checkOutAt;
 
     @OneToOne(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private QrCode qrCode;
@@ -38,13 +40,15 @@ public class Room {
             Integer floor,
             String roomNumber,
             RoomStatus status,
-            Instant cleanedAt) {
+            Instant cleanedAt, Instant checkInAt, Instant checkOutAt) {
 
         this.dorm = dorm;
         this.floor = floor;
         this.roomNumber = roomNumber;
-        this.roomStatus = status != null ? status : RoomStatus.OCCUPIED;
+        this.roomStatus = status != null ? status : RoomStatus.READY;
         this.cleanedAt = cleanedAt;
+        this.checkInAt = checkInAt;
+        this.checkOutAt = checkOutAt;
     }
 
     public void updateStatus(RoomStatus status) {
@@ -54,6 +58,8 @@ public class Room {
     public void updateCleanedAt(Instant cleanedAt) {
         this.cleanedAt = cleanedAt;
     }
+    public void updateCheckInAt(Instant checkInAt) { this.checkInAt = checkInAt;}
+    public void updateCheckOutAt(Instant checkOutAt) { this.checkOutAt = checkOutAt;}
 
     public void assignQrCode(QrCode qrCode) {
         this.qrCode = qrCode;
@@ -65,8 +71,8 @@ public class Room {
                 return "OCCUPIED";
             case VACANT_DIRTY:
                 return "VACANT_DIRTY";
-            case VACANT_CLEAN:
-                return "VACANT_CLEAN";
+            case READY:
+                return "READY";
             default:
                 return "";
         }
@@ -78,7 +84,7 @@ public class Room {
                 return "재실";
             case VACANT_DIRTY:
                 return "공실 (청소 필요)";
-            case VACANT_CLEAN:
+            case READY:
                 return "공실 (청소 완료)";
             default:
                 return "";

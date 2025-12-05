@@ -16,7 +16,7 @@
             <div class="tab-item active" data-status="">전체</div>
             <div class="tab-item" data-status="OCCUPIED">재실</div>
             <div class="tab-item" data-status="VACANT_DIRTY">공실 (청소 필요)</div>
-            <div class="tab-item" data-status="VACANT_CLEAN">공실 (청소 완료)</div>
+            <div class="tab-item" data-status="READY">공실 (청소 완료)</div>
         </div>
 
         <!-- 필터 섹션 -->
@@ -68,7 +68,7 @@
                         <select id="bulkStatusSelect" class="form-select form-select-sm" style="display: none;">
                             <option value="OCCUPIED">재실</option>
                             <option value="VACANT_DIRTY">공실 (청소 필요)</option>
-                            <option value="VACANT_CLEAN">공실 (청소 완료)</option>
+                            <option value="READY">공실 (청소 완료)</option>
                         </select>
                     </div>
                     <button id="applyBulkBtn" class="btn btn-primary position-absolute end-0" style="display: none;">적용</button>
@@ -96,7 +96,7 @@
                     <select class="form-select" id="modalRoomStatus">
                     <option value="OCCUPIED">재실</option>
                     <option value="VACANT_DIRTY">공실 (청소 필요)</option>
-                    <option value="VACANT_CLEAN">공실 (청소 완료)</option>
+                    <option value="READY">공실 (청소 완료)</option>
                     </select>
                 </div>
                 <div class="modal-footer">
@@ -511,7 +511,7 @@
                 const cardStatus = 
                     card.classList.contains('occupied') ? "OCCUPIED" :
                     card.classList.contains('vacant-dirty') ? "VACANT_DIRTY" :
-                    "VACANT_CLEAN";
+                    "READY";
 
                 if (status === "" || status === cardStatus) {
                     card.style.display = "flex";
