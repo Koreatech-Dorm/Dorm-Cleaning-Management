@@ -45,7 +45,7 @@ public class DormController {
 
     // 기숙사 삭제
     @DeleteMapping("/dorms/{dormCode}")
-    public ResponseEntity<Void> deleteDorm(@PathVariable String dormCode) {
+    public ResponseEntity<Void> deleteDorm(@PathVariable("dormCode") String dormCode) {
         dormService.deleteDorm(dormCode);
         return ResponseEntity.ok().build();
     }

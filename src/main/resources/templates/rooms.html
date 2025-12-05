@@ -36,10 +36,6 @@
                 <label for="floorSelect" class="form-label">층 선택</label>
                 <select class="form-select form-select-lg" id="floorSelect" required>
                     <option value="">층을 선택하세요</option>
-                    <option th:each="floor : ${floors}" 
-                            th:value="${floor}" 
-                            th:text="${floor} + '층'">
-                    </option>
                 </select>
             </div>
 
@@ -126,19 +122,9 @@
 
             // 층 드롭다운 초기화
             floorSelect.innerHTML = '<option value="" selected disabled>층을 선택하세요</option>';
-
-            // if (!dormCode) return;
-            
             // 갱신
             loadRooms(); 
             resetStatusTabs();
-
-            // // 일괄 선택 기능 표시
-            // if (bulkSection.style.display === 'none' || bulkSection.style.display === '') {
-            //     bulkSection.style.display = 'flex'; // 나타내기
-            // } else {
-            //     bulkSection.style.display = 'none'; // 숨기기
-            // }
 
             bulkMode = true;
             document.getElementById('bulkSelectBtn').click();
@@ -341,7 +327,7 @@
 
         // 초기 화면
         loadRooms();
-        resetStatusTabs() 
+        resetStatusTabs();
 
         // 모달에서 사용할 정보
         let selectedDormCode = null; 
