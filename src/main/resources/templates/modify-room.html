@@ -90,6 +90,52 @@
         // 조회 버튼 클릭 시 호실 정보 갱신
         async function loadRooms() {
 
+            if (!dormCode) return;
+
+            roomGrid.innerHTML = '<p>로딩 중...</p>';
+            emptyState.style.display = 'none';
+
+            try {
+                const res = await fetch(`/api/rooms/info?dormCode=${dormCode}`);
+                let rooms = await res.json();
+
+                // 테이블 요소 선택
+                const tbody = document.getElementById('roomTableBody');
+                tbody.innerHTML = '';
+                emptyState.style.display = 'none';
+
+                // 방 번호 기준 오름차순 정렬
+                rooms.sort((a, b) => a.number.localeCompare(b.number));
+
+                if (!rooms || rooms.length === 0) {
+                    emptyState.style.display = 'block';
+                    return;
+                }
+
+                rooms.forEach(room => {
+                    const row = document.createElement('tr');
+
+                    // 상태별 배경색 클래스 설정
+                    let statusClass = '';
+                    if (room.status === 'OCCUPIED') statusClass = 'occupied';
+                    else if (room.status === 'VACANT') statusClass = 'vacant';
+                    else statusClass = 'clean';
+
+                    row.classList.add('room-row', statusClass);
+
+                    row.onclick = () => openStatusModal(room.id, room.number, room.status);
+
+                    row.innerHTML = `
+                        <td class="fw-bold">${room.number}</td>
+                        <td>${room.statusLabel}</td>
+                    `;
+
+                    tbody.appendChild(row);
+                });
+            } catch (err) {
+                console.error(err);
+                roomGrid.innerHTML = '<p>호실 정보를 불러오는데 실패했습니다.</p>';
+            }
         }
 
 

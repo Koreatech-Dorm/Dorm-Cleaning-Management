@@ -28,7 +28,7 @@ public class RoomServiceImpl implements RoomService {
                 .dorm(dorm)
                 .floor(floor)
                 .roomNumber(roomNumber)
-                .status(RoomStatus.OCCUPIED)
+                .status(RoomStatus.READY)
                 .build();
 
         return roomRepository.save(room);
@@ -57,10 +57,10 @@ public class RoomServiceImpl implements RoomService {
 
         if (newRoomStatus.equals("OCCUPIED"))
             room.updateStatus(RoomStatus.OCCUPIED);
-        else if (newRoomStatus.equals("VACANT_CLEAN"))
-            room.updateStatus(RoomStatus.VACANT_CLEAN);
+        else if (newRoomStatus.equals("READY"))
+            room.updateStatus(RoomStatus.READY);
         else
-            room.updateStatus(RoomStatus.VACANT_DIRTY);
+            room.updateStatus(RoomStatus.VACANT);
     }
 
     // 호실 삭제

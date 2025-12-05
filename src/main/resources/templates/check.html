@@ -9,22 +9,22 @@
     <title>QR 체크인 확인</title>
     <style>
         :root {
-            --primary-color: #FFB366; /* 주요 색상 */
-            --primary-dark: #E69545; /* 버튼 호버용 어두운 주황색 */
+            --primary-color: #FFB366;
+            --primary-dark: #E69545;
             --text-color: #333;
-            --bg-light: #FFF5E6; /* 연한 주황색 배경 */
+            --bg-light: #FFF5E6;
         }
 
         body {
             font-family: 'Noto Sans KR', sans-serif;
             margin: 0;
-            background-color: #f0f2f5; /* 깔끔한 회색 배경 */
+            background-color: #f0f2f5;
             display: flex;
-            align-items: center;     /* 수직 중앙 정렬 */
-            justify-content: center; /* 수평 중앙 정렬 */
-            min-height: 100vh;       /* 화면 전체 높이 사용 */
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
             color: var(--text-color);
-            padding: 20px;           /* 모바일 좌우 여백 확보 */
+            padding: 20px;
             box-sizing: border-box;
         }
 
@@ -32,13 +32,12 @@
             background: white;
             padding: 2.5rem 2rem;
             border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08); /* 그림자 부드럽게 */
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
             width: 100%;
             max-width: 400px;
             text-align: center;
         }
 
-        /* 상단 아이콘 */
         .card-icon {
             font-size: 3.5rem;
             color: var(--primary-color);
@@ -52,7 +51,6 @@
             font-weight: 700;
         }
 
-        /* 정보 라벨 */
         .info-label {
             font-size: 0.9rem;
             font-weight: 500;
@@ -63,10 +61,9 @@
             padding-left: 0.5rem;
         }
 
-        /* 정보 박스 */
         .info-box {
-            background-color: var(--bg-light); /* 연한 주황색 배경 */
-            color: #D97706; /* 진한 주황색 글씨 */
+            background-color: var(--bg-light);
+            color: #D97706;
             padding: 16px;
             border-radius: 12px;
             margin-bottom: 1.2rem;
@@ -83,7 +80,6 @@
             line-height: 1.5;
         }
 
-        /* 버튼 스타일 */
         .btn-container {
             display: flex;
             gap: 12px;
@@ -105,6 +101,15 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
+        }
+
+        /* 입실 버튼 (파란 계열 추천, 혹은 Primary) */
+        .btn-in {
+            background-color: #4285F4; /* 구글 블루 느낌으로 구분 */
+        }
+        .btn-in:hover {
+            background-color: #3367D6;
+            transform: translateY(-2px);
         }
 
         /* 퇴실 버튼 */
@@ -156,13 +161,27 @@
     </p>
 
     <div class="btn-container">
-        <!-- 퇴실 버튼 -->
-        <button class="btn btn-out"
-                th:classappend="${!isOccupied} ? 'btn-disabled'"
-                th:onclick="${isOccupied} ? 'sendRequest(\'out\')' : 'return false;'"
-                th:disabled="${!isOccupied}">
-            <span th:text="${isOccupied} ? '👋 퇴실 하기' : '퇴실 완료'"></span>
-        </button>
+
+        <th:block th:switch="${status}">
+            <button th:case="'READY'"
+                    class="btn btn-in"
+                    onclick="sendRequest('in')">
+                <span>👋 입실 하기</span>
+            </button>
+
+            <button th:case="'OCCUPIED'"
+                    class="btn btn-out"
+                    onclick="sendRequest('out')">
+                <span>🚪 퇴실 하기</span>
+            </button>
+
+            <button th:case="*"
+                    class="btn btn-disabled"
+                    disabled>
+                <span>✅ 퇴실 완료</span>
+            </button>
+        </th:block>
+
 
         <button class="btn" style="background-color: #6c757d;"
                 th:if="${session.cleaningCode == null}"
@@ -172,10 +191,16 @@
 
         <button class="btn btn-clean"
                 th:if="${session.cleaningCode != null}"
-                th:classappend="${!isVacantDirty and !isOccupied} ? 'btn-disabled'"
-                th:onclick="${isVacantDirty or isOccupied} ? 'sendRequest(\'clean\')' : 'return false;'"
-                th:disabled="${!isVacantDirty and !isOccupied}">
-            <span th:text="${isVacantDirty or isOccupied} ? '✨ 청소 완료' : '청소 완료됨'"></span>
+                th:classappend="${status != 'VACANT'} ? 'btn-disabled'"
+                th:onclick="${status == 'VACANT'} ? 'sendRequest(\'clean\')' : 'return false;'"
+                th:disabled="${status != 'VACANT'}">
+
+            <span th:if="${status == 'VACANT'}">✨ 청소 완료</span>
+
+            <span th:if="${status == 'READY'}">청결한 상태</span>
+
+            <span th:unless="${status == 'VACANT' or status == 'READY'}">재실 중</span>
+
         </button>
     </div>
 </div>
@@ -187,10 +212,7 @@
 
     function requestAuth() {
         const code = prompt("청소 관리자 코드를 입력해주세요:");
-
         if (code === null || code.trim() === "") return;
-
-        const cleanedDormCode = currentDormCode.trim().replace(/["']/g, "");
 
         axios.post('/api/cleaning-code/use-code', { cleaningCode: code})
             .then(response => {
@@ -203,30 +225,39 @@
     }
 
     function sendRequest(type) {
-        // URL 및 액션 이름 결정
-        const url = type === 'out' ? '/api/check/out' : '/api/check/clean';
-        const actionName = type === 'out' ? "퇴실" : "청소 완료";
+        let url = '';
+        let actionName = '';
+
+        // [변경됨] 타입에 따른 URL 및 메시지 분기 처리
+        if (type === 'in') {
+            url = '/api/check/in'; // 입실 API (구현 필요)
+            actionName = '입실';
+        } else if (type === 'out') {
+            url = '/api/check/out';
+            actionName = '퇴실';
+        } else if (type === 'clean') {
+            url = '/api/check/clean';
+            actionName = '청소 완료';
+        }
 
         const cleanedDormCode = currentDormCode.trim().replace(/["']/g, "");
         const cleanedRoomNumber = currentRoomNumber.trim().replace(/["']/g, "");
 
-        // 보낼 데이터 (자동으로 JSON으로 변환됨)
         const data = {
             dormCode: cleanedDormCode,
             roomNumber: cleanedRoomNumber
         };
 
-        // 확인 창 띄우기
         if (!confirm(`${currentDormCode} 생활관 ${currentRoomNumber}호 ${actionName} 처리를 하시겠습니까?`)) {
             return;
         }
 
-        // POST 요청 전송
         axios.post(url, data)
             .then(response => {
-                const resultMessage = response.data.message;
+                // 성공 메시지가 response.data.message에 있다고 가정
+                const resultMessage = response.data && response.data.message ? response.data.message : "처리가 완료되었습니다.";
                 alert(resultMessage);
-                location.reload(); // 처리가 끝나면 상태 반영을 위해 페이지 새로고침
+                location.reload();
             })
             .catch(error => {
                 const errorMessage = error.response && error.response.data ? error.response.data.message : "알 수 없는 오류가 발생했습니다.";

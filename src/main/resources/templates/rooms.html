@@ -15,8 +15,8 @@
         <div class="status-tabs mb-0">
             <div class="tab-item active" data-status="">전체</div>
             <div class="tab-item" data-status="OCCUPIED">재실</div>
-            <div class="tab-item" data-status="VACANT_DIRTY">공실 (청소 필요)</div>
-            <div class="tab-item" data-status="VACANT_CLEAN">공실 (청소 완료)</div>
+            <div class="tab-item" data-status="VACANT">공실 (청소 필요)</div>
+            <div class="tab-item" data-status="READY">공실 (청소 완료)</div>
         </div>
 
         <!-- 필터 섹션 -->
@@ -51,10 +51,10 @@
                     <span class="legend-color occupied"></span> 재실
                 </div>
                 <div class="legend-item d-flex align-items-center gap-1">
-                    <span class="legend-color vacant-dirty"></span> 공실 (청소 필요)
+                    <span class="legend-color vacant"></span> 공실 (청소 필요)
                 </div>
                 <div class="legend-item d-flex align-items-center gap-1">
-                    <span class="legend-color vacant-clean"></span> 공실 (청소 완료)
+                    <span class="legend-color ready"></span> 공실 (청소 완료)
                 </div>
             </div>
 
@@ -67,8 +67,8 @@
                     <div class="bulk-status-group align-items-center">
                         <select id="bulkStatusSelect" class="form-select form-select-sm" style="display: none;">
                             <option value="OCCUPIED">재실</option>
-                            <option value="VACANT_DIRTY">공실 (청소 필요)</option>
-                            <option value="VACANT_CLEAN">공실 (청소 완료)</option>
+                            <option value="VACANT">공실 (청소 필요)</option>
+                            <option value="READY">공실 (청소 완료)</option>
                         </select>
                     </div>
                     <button id="applyBulkBtn" class="btn btn-primary position-absolute end-0" style="display: none;">적용</button>
@@ -95,8 +95,8 @@
                     <p id="modalRoomNumber"></p>
                     <select class="form-select" id="modalRoomStatus">
                     <option value="OCCUPIED">재실</option>
-                    <option value="VACANT_DIRTY">공실 (청소 필요)</option>
-                    <option value="VACANT_CLEAN">공실 (청소 완료)</option>
+                    <option value="VACANT">공실 (청소 필요)</option>
+                    <option value="READY">공실 (청소 완료)</option>
                     </select>
                 </div>
                 <div class="modal-footer">
@@ -122,6 +122,7 @@
 
             // 층 드롭다운 초기화
             floorSelect.innerHTML = '<option value="" selected disabled>층을 선택하세요</option>';
+            
             // 갱신
             loadRooms(); 
             resetStatusTabs();
@@ -188,8 +189,8 @@
                             div.classList.add('room-card', 'col-2', 'mb-3', 'p-2');
 
                             if (room.status === 'OCCUPIED') div.classList.add('occupied');
-                            else if (room.status === 'VACANT_DIRTY') div.classList.add('vacant-dirty');
-                            else div.classList.add('vacant-clean');
+                            else if (room.status === 'VACANT') div.classList.add('vacant');
+                            else div.classList.add('ready');
 
                             div.onclick = () => {
                                 if (!bulkMode)
@@ -247,8 +248,8 @@
 
                                 // 상태별 색상 적용
                                 if (room.status === 'OCCUPIED') div.classList.add('occupied');
-                                else if (room.status === 'VACANT_DIRTY') div.classList.add('vacant-dirty');
-                                else div.classList.add('vacant-clean');
+                                else if (room.status === 'VACANT') div.classList.add('vacant');
+                                else div.classList.add('ready');
 
                                 // 클릭 이벤트
                                 div.onclick = () => {
@@ -296,8 +297,8 @@
                                 div.classList.add('room-card', 'col-2', 'mb-3', 'p-2');
 
                                 if (room.status === 'OCCUPIED') div.classList.add('occupied');
-                                else if (room.status === 'VACANT_DIRTY') div.classList.add('vacant-dirty');
-                                else div.classList.add('vacant-clean');
+                                else if (room.status === 'VACANT') div.classList.add('vacant');
+                                else div.classList.add('ready');
 
                                 div.onclick = () => {
                                     if (!bulkMode)
@@ -509,8 +510,8 @@
             cards.forEach(card => {
                 const cardStatus = 
                     card.classList.contains('occupied') ? "OCCUPIED" :
-                    card.classList.contains('vacant-dirty') ? "VACANT_DIRTY" :
-                    "VACANT_CLEAN";
+                    card.classList.contains('vacant') ? "VACANT" :
+                    "READY";
 
                 if (status === "" || status === cardStatus) {
                     card.style.display = "flex";

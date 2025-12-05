@@ -22,6 +22,15 @@ public class CheckController {
     private final CheckService checkService;
     private final DormRepository dormRepository;
 
+    @PostMapping("/in")
+    public ResponseEntity<Map<String, String>> checkIn(@RequestBody CheckRequestDto dto) {
+        Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 기숙사입니다."));
+        checkService.checkIn(dorm, dto.roomNumber());
+
+        return ResponseEntity.ok(Map.of("message", "입실 처리가 완료되었습니다."));
+    }
+
     @PostMapping("/out")
     public ResponseEntity<Map<String, String>> checkOut(@RequestBody CheckRequestDto dto) {
         Dorm dorm = dormRepository.findByDormCode(dto.dormCode())

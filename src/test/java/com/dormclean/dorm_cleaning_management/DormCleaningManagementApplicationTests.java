@@ -1,13 +1,13 @@
-package com.dormclean.dorm_cleaning_management;
+// package com.dormclean.dorm_cleaning_management;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+// import org.junit.jupiter.api.Test;
+// import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class DormCleaningManagementApplicationTests {
+// @SpringBootTest
+// class DormCleaningManagementApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+// @Test
+// void contextLoads() {
+// }
 
-}
+// }

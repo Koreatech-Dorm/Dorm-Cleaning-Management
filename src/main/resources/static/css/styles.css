@@ -243,8 +243,8 @@ main {
 }
 
 .legend-color.occupied { background: #4CAF50; }
-.legend-color.vacant-dirty { background: #E57373; }
-.legend-color.vacant-clean { background: #E0E0E0; }
+.legend-color.vacant { background: #E57373; }
+.legend-color.ready { background: #E0E0E0; }
 
 /* =========================================
    STATUS PAGE – ROOM GRID
@@ -275,8 +275,8 @@ main {
 }
 
 .room-card.occupied { background: #4CAF50 !important; color: #fff !important; }
-.room-card.vacant-dirty { background: #E57373 !important; color: #fff !important; }
-.room-card.vacant-clean { background: #E0E0E0 !important; color: #333 !important; }
+.room-card.vacant { background: #E57373 !important; color: #fff !important; }
+.room-card.ready { background: #E0E0E0 !important; color: #333 !important; }
 
 .room-number { font-size: 20px; font-weight: 700; }
 .room-status { font-size: 12px; }
