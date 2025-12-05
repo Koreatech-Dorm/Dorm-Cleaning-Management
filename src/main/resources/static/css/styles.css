@@ -68,6 +68,14 @@ main {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.navbar-custom .nav-menu {
+    width: 100vw !important;
+    background-color: white;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    margin: 0 -20px;
+}
+
+
 .navbar-custom .nav-link {
     color: #FF7F2A !important;
     transition: 0.3s;
