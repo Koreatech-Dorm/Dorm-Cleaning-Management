@@ -20,8 +20,10 @@ public class CheckServiceImpl implements CheckService {
         Room room = roomRepository.findByDormAndRoomNumber(dorm, roomNumber)
                 .orElseThrow(() -> new IllegalArgumentException("해당 호실이 존재하지 않습니다."));
         if (room.getRoomStatus() == RoomStatus.READY) {
-            room.updateStatus(RoomStatus.OCCUPIED);
-            room.updateCheckInAt(java.time.Instant.now());
+            room.updateStatus(RoomStatus.OCCUPIED); // 재실
+            room.updateCheckInAt(java.time.Instant.now()); // 체크인 시간 업데이트
+            room.updateCheckOutAt(null); // 퇴실 시간 초기화
+            room.updateCleanedAt(null); // 청소 시간 초기화
         }
     }
 
