@@ -513,3 +513,114 @@ main {
 .floor-separator td {
     border-bottom: 2px solid #ccc; /* 구분선 */
 }
+
+/* =========================================
+   QR PAGE - TABS & BULK DOWNLOAD STYLING
+   ========================================= */
+
+/* 1. 탭 네비게이션 커스텀 (기본 파란색 -> 오렌지 테마로 변경) */
+.nav-tabs {
+    border-bottom: 2px solid #dee2e6;
+}
+
+.nav-tabs .nav-link {
+    color: #6c757d; /* 비활성 탭: 회색 */
+    border: none;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+    background-color: transparent;
+    padding: 12px 0;
+}
+
+.nav-tabs .nav-link:hover {
+    color: #FFB366; /* 호버 시 연한 오렌지 */
+    border-color: transparent;
+    background-color: rgba(255, 179, 102, 0.05);
+}
+
+.nav-tabs .nav-link.active {
+    color: #FF7F2A !important; /* 활성 탭: 진한 오렌지 */
+    background-color: transparent !important;
+    border-color: transparent;
+    border-bottom: 3px solid #FFB366; /* 하단 강조선 */
+}
+
+/* 2. 일괄 다운로드 - 생활관 목록 컨테이너 */
+.dorm-list-container {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    /* 스크롤바 디자인 (Webkit 브라우저용) */
+    scrollbar-width: thin;
+    scrollbar-color: #FFB366 #f1f1f1;
+}
+
+.dorm-list-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dorm-list-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.dorm-list-container::-webkit-scrollbar-thumb {
+    background-color: #FFB366;
+    border-radius: 4px;
+    border: 2px solid #f1f1f1;
+}
+
+/* 3. 체크박스 리스트 아이템 스타일링 */
+.dorm-list-container .form-check {
+    padding: 10px 10px 10px 40px; /* 체크박스 공간 확보 */
+    margin-bottom: 0 !important; /* 마진 초기화 */
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s;
+    cursor: pointer;
+}
+
+.dorm-list-container .form-check:last-child {
+    border-bottom: none;
+}
+
+.dorm-list-container .form-check:hover {
+    background-color: #fff4e6; /* 호버 시 아주 연한 오렌지 배경 */
+}
+
+/* 4. 부트스트랩 체크박스 색상 오버라이딩 (파랑 -> 오렌지) */
+.form-check-input:checked {
+    background-color: #FFB366;
+    border-color: #FFB366;
+}
+
+.form-check-input:focus {
+    border-color: #FFB366;
+    box-shadow: 0 0 0 0.25rem rgba(255, 179, 102, 0.25);
+}
+
+.custom-check {
+    margin-left: 0 !important;
+}
+
+/* 5. 로딩 스피너 컨테이너 */
+.qr-display-area {
+    position: relative;
+    min-height: 260px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #fdfdfd;
+    border: 2px dashed #dee2e6;
+    border-radius: 12px;
+    margin-top: 20px;
+}
+
+/* 탭 전환 시 내용이 부드럽게 나타나도록 */
+.tab-content > .tab-pane {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}

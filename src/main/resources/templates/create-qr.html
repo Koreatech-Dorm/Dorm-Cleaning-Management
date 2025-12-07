@@ -1,56 +1,106 @@
 <!doctype html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-    <head th:replace="~{fragments/head :: headFragment}"></head>
+<head th:replace="~{fragments/head :: headFragment}"></head>
 <body>
 <header th:replace="~{fragments/header :: headerFragment}"></header>
 
 <div class="container d-flex justify-content-center mb-5">
     <div class="card qr-card w-100">
         <div class="card-header">
-            <h4 class="mb-0 fw-bold"><i class="bi bi-qr-code"></i> QR 코드 생성기</h4>
+            <h4 class="mb-0 fw-bold"><i class="bi bi-qr-code"></i> QR 코드 관리</h4>
             <p class="mb-0 small opacity-75">Dormitory QR Generator</p>
         </div>
         <div class="card-body p-4">
-            <form id="qrForm">
-                <div class="mb-3">
-                    <label for="dormSelect" class="form-label">생활관 선택</label>
-                    <select class="form-select form-select-lg" id="dormSelect" required>
-                        <option value="" selected disabled>생활관을 선택하세요</option>
 
-                        <option th:each="dorm : ${dorms}"
-                                th:value="${dorm.dormCode}"
-                                th:text="${dorm.dormCode} + '동(' + ${dorm.dormName} + ')'">
-                        </option>
+            <ul class="nav nav-tabs nav-fill mb-4" id="qrTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active fw-bold" id="single-tab" data-bs-toggle="tab" data-bs-target="#single" type="button" role="tab" aria-controls="single" aria-selected="true">
+                        <i class="bi bi-file-earmark-image"></i> 개별 생성
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold" id="bulk-tab" data-bs-toggle="tab" data-bs-target="#bulk" type="button" role="tab" aria-controls="bulk" aria-selected="false">
+                        <i class="bi bi-file-zip"></i> 일괄 다운로드 (ZIP)
+                    </button>
+                </li>
+            </ul>
 
-                    </select>
-                </div>
+            <div class="tab-content" id="qrTabsContent">
+                <div class="tab-pane fade show active" id="single" role="tabpanel" aria-labelledby="single-tab">
+                    <form id="qrForm">
+                        <div class="mb-3">
+                            <label for="dormSelect" class="form-label">생활관 선택</label>
+                            <select class="form-select form-select-lg" id="dormSelect" required>
+                                <option value="" selected disabled>생활관을 선택하세요</option>
+                                <option th:each="dorm : ${dorms}"
+                                        th:value="${dorm.dormCode}"
+                                        th:text="${dorm.dormCode} + '동(' + ${dorm.dormName} + ')'">
+                                </option>
+                            </select>
+                        </div>
 
-                <div class="mb-4">
-                    <label for="roomInput" class="form-label">호실 입력</label>
-                    <input type="text" class="form-control form-control-lg" id="roomInput" placeholder="예: 101" required>
-                </div>
+                        <div class="mb-4">
+                            <label for="roomInput" class="form-label">호실 입력</label>
+                            <input type="text" class="form-control form-control-lg" id="roomInput" placeholder="예: 101" required>
+                        </div>
 
-                <button type="submit" class="btn orange-btn w-100 py-3 fw-bold rounded-pill">
-                    QR 코드 생성하기
-                </button>
-            </form>
+                        <button type="submit" class="btn orange-btn w-100 py-3 fw-bold rounded-pill">
+                            QR 코드 생성하기
+                        </button>
+                    </form>
 
-            <div id="resultArea" class="mt-4" style="display: none;">
-                <hr class="my-4">
-                <h5 class="text-center mb-3 fw-bold text-dark">생성된 QR 코드</h5>
-                <div class="qr-display-area p-3">
-                    <img id="qrImage" alt="QR Code">
-                    <div id="loadingSpinner" class="spinner-border text-primary" role="status" style="display: none;">
-                        <span class="visually-hidden">Loading...</span>
+                    <div id="resultArea" class="mt-4" style="display: none;">
+                        <hr class="my-4">
+                        <h5 class="text-center mb-3 fw-bold text-dark">생성된 QR 코드</h5>
+                        <div class="qr-display-area p-3">
+                            <img id="qrImage" alt="QR Code" style="max-width: 100%; height: auto;">
+                            <div id="loadingSpinner" class="spinner-border text-primary" role="status" style="display: none;">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-center">
+                            <a id="downloadLink" href="#" class="btn btn-success w-100 py-2 fw-bold">
+                                <i class="bi bi-download"></i> 이미지 다운로드
+                            </a>
+                        </div>
                     </div>
                 </div>
 
-                <div class="mt-4 text-center">
-                    <a id="downloadLink" href="#" class="btn btn-success w-100 py-2 fw-bold">
-                        <i class="bi bi-download"></i> 이미지 다운로드
-                    </a>
+                <div class="tab-pane fade" id="bulk" role="tabpanel" aria-labelledby="bulk-tab">
+                    <form id="bulkForm">
+                        <div class="mb-3">
+                            <label class="form-label d-block mb-3">다운로드할 생활관 선택</label>
+
+                            <div class="form-check mb-2 p-3 border rounded bg-light">
+                                <input class="form-check-input custom-check me-2" type="checkbox" id="checkAll">
+                                <label class="form-check-label fw-bold" for="checkAll">
+                                    전체 선택
+                                </label>
+                            </div>
+
+                            <div class="dorm-list-container border rounded p-3" style="max-height: 300px; overflow-y: auto;">
+                                <div class="form-check mb-2" th:each="dorm : ${dorms}">
+                                    <input class="form-check-input dorm-checkbox" type="checkbox"
+                                           name="dormCodes"
+                                           th:value="${dorm.dormCode}"
+                                           th:id="'dorm-' + ${dorm.dormCode}">
+                                    <label class="form-check-label" th:for="'dorm-' + ${dorm.dormCode}"
+                                           th:text="${dorm.dormCode} + '동(' + ${dorm.dormName} + ')'">
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-text mt-2 text-muted">
+                                <i class="bi bi-info-circle"></i> 선택한 생활관의 모든 호실 QR 코드가 압축파일로 다운로드됩니다.
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn orange-btn w-100 py-3 fw-bold rounded-pill">
+                            <i class="bi bi-file-earmark-zip"></i> ZIP 파일 다운로드
+                        </button>
+                    </form>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
@@ -59,15 +109,46 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // 개별 생성 로직 ---
         document.getElementById('qrForm').addEventListener('submit', function(e) {
             e.preventDefault();
             generateQrCode();
         });
+
+        // 일괄 다운로드 로직 ---
+
+        // 전체 선택 기능
+        const checkAll = document.getElementById('checkAll');
+        const dormCheckboxes = document.querySelectorAll('.dorm-checkbox');
+
+        checkAll.addEventListener('change', function() {
+            dormCheckboxes.forEach(cb => cb.checked = checkAll.checked);
+        });
+
+        // 개별 체크박스 해제 시 전체 선택 해제
+        dormCheckboxes.forEach(cb => {
+            cb.addEventListener('change', function() {
+                if (!this.checked) {
+                    checkAll.checked = false;
+                } else {
+                    const allChecked = Array.from(dormCheckboxes).every(cb => cb.checked);
+                    checkAll.checked = allChecked;
+                }
+            });
+        });
+
+        // 다운로드 폼 제출
+        document.getElementById('bulkForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            downloadZip();
+        });
     });
 
+    // 개별 QR 생성 함수
     function generateQrCode() {
         const dormCode = document.getElementById('dormSelect').value;
         const roomNumber = document.getElementById('roomInput').value;
+        const dormName = document.getElementById('dormSelect').options[document.getElementById('dormSelect').selectedIndex].text;
 
         if (!dormCode || !roomNumber) {
             alert('생활관과 호실을 모두 입력해주세요.');
@@ -98,8 +179,33 @@
         };
 
         qrImage.src = apiUrl;
+
+        // 파일명 정제를 위해 괄호 등 제거 (선택사항)
+        const cleanDormName = dormName.replace(/[^a-zA-Z0-9가-힣]/g, "_");
         downloadLink.href = apiUrl;
-        downloadLink.download = `QR_${dormName}_${roomNumber}.png`;
+        downloadLink.download = `QR_${cleanDormName}_${roomNumber}.png`;
+    }
+
+    // 일괄 다운로드 함수
+    function downloadZip() {
+        const checkedBoxes = document.querySelectorAll('.dorm-checkbox:checked');
+
+        if (checkedBoxes.length === 0) {
+            alert('최소 하나 이상의 생활관을 선택해주세요.');
+            return;
+        }
+
+        // 선택된 생활관 코드 수집
+        const params = new URLSearchParams();
+        checkedBoxes.forEach(cb => {
+            params.append('dormCodes', cb.value);
+        });
+
+        // API 호출 (GET 방식, 파일 다운로드 트리거)
+        const apiUrl = `/api/qr/generate/zip?${params.toString()}`;
+
+        // 브라우저가 파일 다운로드로 인식하도록 location 변경
+        window.location.href = apiUrl;
     }
 </script>
 
