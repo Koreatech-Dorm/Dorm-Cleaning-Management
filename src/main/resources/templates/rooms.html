@@ -510,7 +510,7 @@
             }
             //갱신
             loadRooms();
-            resetStatusTabs() ;
+            resetStatusTabs();
         }
 
         // 일괄 변경 적용 버튼 
@@ -536,7 +536,19 @@
 
         // 상태 필터 적용 함수
         function applyStatusFilter(status) {
-            const cards = document.querySelectorAll('.room-card');
+            const cards = Array.from(document.querySelectorAll('.room-card'));
+
+            // cards 배열을 dataset.roomNumber 기준으로 정렬
+            cards.sort((a, b) => {
+                const A = parseRoomNumber(a.dataset.roomNumber);
+                const B = parseRoomNumber(b.dataset.roomNumber);
+
+                // 1) 숫자 비교
+                if (A.num !== B.num) return A.num - B.num;
+
+                // 2) 알파벳 비교
+                return A.suffix.localeCompare(B.suffix);
+            });
 
             cards.forEach(card => {
                 const cardStatus = 
@@ -553,6 +565,7 @@
         }
 
         // 상태 기준으로 검색 탭 초기화
+        
         function resetStatusTabs() {
             const tabs = document.querySelectorAll('.status-tabs .tab-item');
 
