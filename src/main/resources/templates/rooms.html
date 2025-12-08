@@ -390,15 +390,17 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ newRoomStatus: newStatus, dormCode: selectedDormCode})
             })
-            .then(res => {
+            .then(async (res) => {
                 if (res.ok) {
                     const modalEl = document.getElementById('statusModal');
                     const modal = bootstrap.Modal.getInstance(modalEl);
                     modal.hide();
 
                     // 갱신
-                    loadRooms(); 
-                    resetStatusTabs();
+                    floorDiv.style.visibility = 'hidden';
+                    await loadRooms(); 
+                    applyStatusFilter(selectedStatus);
+                    floorDiv.style.visibility = 'visible';
                 } else {
                     alert('상태 변경 실패');
                 }
@@ -509,8 +511,10 @@
                 }
             }
             //갱신
-            loadRooms();
-            resetStatusTabs();
+            floorDiv.style.visibility = 'hidden';
+            await loadRooms();
+            applyStatusFilter(selectedStatus);
+            floorDiv.style.visibility = 'visible';
         }
 
         // 일괄 변경 적용 버튼 
@@ -528,13 +532,14 @@
                 statusTabs.forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
 
-                const selectedStatus = tab.dataset.status; 
+                selectedStatus = tab.dataset.status; 
 
                 applyStatusFilter(selectedStatus);
             });
         });
 
         // 상태 필터 적용 함수
+        let selectedStatus = "";
         function applyStatusFilter(status) {
             const cards = Array.from(document.querySelectorAll('.room-card'));
 
