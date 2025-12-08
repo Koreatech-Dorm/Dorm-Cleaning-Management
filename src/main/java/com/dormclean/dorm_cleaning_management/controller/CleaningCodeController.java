@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/cleaning-code")
+@RequestMapping("/admin/api/cleaning-code")
 @Tag(name = "청소 인증 코드 API", description = "청소 인증 코드 등록 및 검증 관련 API")
 public class CleaningCodeController {
     private final CleaningCodeService cleaningCodeService;

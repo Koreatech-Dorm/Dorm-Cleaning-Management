@@ -4,7 +4,7 @@
     <div class="container d-flex flex-column align-items-start py-2 ps-0">
 
         <!-- 좌측 상단 제목 -->
-        <a class="navbar-brand mb-1 ms-3" th:href="@{/}">
+        <a class="navbar-brand mb-1 ms-3" th:href="@{/admin}">
             <img th:src="@{/img/koreatechDormLogo.png}" 
                 alt="Koreatech Dorm Logo" 
                 class="me-2" 
@@ -15,22 +15,22 @@
         <!-- 가로 네비게이션 메뉴 -->
         <ul class="nav nav-menu flex-row ps-0">
             <li class="nav-item me-3" style="margin-left: 25px;">
-                <a class="nav-link text-dark" th:href="@{/rooms}">
+                <a class="nav-link text-dark" th:href="@{/admin/rooms}">
                     생활관 상태 확인
                 </a>
             </li>
             <li class="nav-item me-3">
-                <a class="nav-link text-dark" th:href="@{/dorm-manager}">
+                <a class="nav-link text-dark" th:href="@{/admin/dorm-manager}">
                     생활관/호실 관리
                 </a>
             </li>
             <li class="nav-item me-3">
-                <a class="nav-link text-dark" th:href="@{/create-qr}">
+                <a class="nav-link text-dark" th:href="@{/admin/create-qr}">
                     QR 코드 생성
                 </a>
             </li>
             <li class="nav-item me-3">
-                <a class="nav-link text-dark" th:href="@{/key-manager}">
+                <a class="nav-link text-dark" th:href="@{/admin/key-manager}">
                     인증코드 생성
                 </a>
             </li>

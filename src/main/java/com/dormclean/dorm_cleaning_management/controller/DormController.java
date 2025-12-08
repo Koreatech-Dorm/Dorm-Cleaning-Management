@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/admin/api")
 @Tag(name = "기숙사 건물 관리 API", description = "기숙사 관련 API")
 public class DormController {
 

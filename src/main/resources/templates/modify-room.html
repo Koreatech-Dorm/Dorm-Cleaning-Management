@@ -139,7 +139,7 @@
 
                     const dormCode = dormSelect.value;
 
-                    const roomRes = await fetch(`/api/rooms/info/byDorm?dormCode=${dormCode}`);
+                    const roomRes = await fetch(`/admin/api/rooms/info/byDorm?dormCode=${dormCode}`);
                     const rooms = await roomRes.json();
 
                     const table = document.createElement('table');
@@ -213,7 +213,7 @@
             }
 
             try {
-                const res = await axios.post('/api/rooms/create', {
+                const res = await axios.post('/admin/api/rooms/create', {
                     dormCode: dormCode,
                     roomNumber: roomNumber
                 });
@@ -242,7 +242,7 @@
             }
 
             try {
-                await axios.delete(`/api/rooms/delete`,{
+                await axios.delete(`/admin/api/rooms/delete`,{
                     params: {
                         dormCode: dormCode,
                         roomNumber: roomNumber

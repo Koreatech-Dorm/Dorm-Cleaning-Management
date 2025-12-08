@@ -16,7 +16,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/admin/api")
 @Tag(name = "호실(방) 관리 API", description = "호실(방) 관련 API")
 public class RoomController {
         private final RoomService roomService;

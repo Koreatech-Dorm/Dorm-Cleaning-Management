@@ -165,7 +165,7 @@
         loadingSpinner.style.display = 'block';
 
         const params = new URLSearchParams({ dormCode: dormCode, roomNumber: roomNumber });
-        const apiUrl = `/api/qr/generate?${params.toString()}`;
+        const apiUrl = `/admin/api/qr/generate?${params.toString()}`;
 
         qrImage.onload = function() {
             loadingSpinner.style.display = 'none';
@@ -202,7 +202,7 @@
         });
 
         // API 호출 (GET 방식, 파일 다운로드 트리거)
-        const apiUrl = `/api/qr/generate/zip?${params.toString()}`;
+        const apiUrl = `/admin/api/qr/generate/zip?${params.toString()}`;
 
         // 브라우저가 파일 다운로드로 인식하도록 location 변경
         window.location.href = apiUrl;

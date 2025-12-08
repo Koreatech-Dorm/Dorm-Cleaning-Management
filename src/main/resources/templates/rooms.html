@@ -159,7 +159,7 @@
 
             // 층 목록 갱신
             try {
-                const res = await fetch(`/api/floors?dormCode=${dormCode}`);
+                const res = await fetch(`/admin/api/floors?dormCode=${dormCode}`);
                 const floors = await res.json();
 
                 if (!floors || floors.length === 0) return;
@@ -195,7 +195,7 @@
                         bulkMode = true;
                         document.getElementById('bulkSelectBtn').click();
 
-                        const res = await fetch(`/api/rooms/info/byFloor?dormCode=${dormCode}&floor=${floor}`);
+                        const res = await fetch(`/admin/api/rooms/info/byFloor?dormCode=${dormCode}&floor=${floor}`);
                         const rooms = await res.json();
 
                         floorDiv.innerHTML = ``;
@@ -239,7 +239,7 @@
                     }
                     else
                     {
-                        const res = await fetch(`/api/rooms/info/byDorm?dormCode=${dormCode}`);
+                        const res = await fetch(`/admin/api/rooms/info/byDorm?dormCode=${dormCode}`);
                         const rooms = await res.json();
 
                         floorDiv.innerHTML = ``;
@@ -271,7 +271,7 @@
                             const roomGrid = document.createElement('div');
                             roomGrid.classList.add('room-grid', 'row');
 
-                            const sortedRooms = sortRooms(floors[floor]);
+                            const sortedRooms = sortRooms(rooms);
                             sortedRooms.forEach(room => {
                                 const div = document.createElement('div');
                                 div.classList.add('room-card', 'col-2', 'mb-3', 'p-2');
@@ -303,7 +303,7 @@
                 }
                 else
                 {
-                    const res = await fetch("/api/dorms");
+                    const res = await fetch("/admin/api/dorms");
                     const dorms = await res.json();
 
                     floorDiv.innerHTML = ``;
@@ -316,7 +316,7 @@
                         title.textContent = `${dorm.dormCode}동(${dorm.dormName})`;
                         floorDiv.appendChild(title)
 
-                        const roomRes = await fetch(`/api/rooms/info/byDorm?dormCode=${dorm.dormCode}`);
+                        const roomRes = await fetch(`/admin/api/rooms/info/byDorm?dormCode=${dorm.dormCode}`);
                         const rooms = await roomRes.json();
 
                         const roomGrid = document.createElement('div');
@@ -385,7 +385,7 @@
 
             if (!selectedDormCode || !selectedRoomNumber) return;
 
-            fetch(`/api/rooms/${selectedRoomNumber}/status`, {
+            fetch(`/admin/api/rooms/${selectedRoomNumber}/status`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ newRoomStatus: newStatus, dormCode: selectedDormCode})
@@ -495,7 +495,7 @@
                 const [dormCode, roomNumber] = roomInfo;
 
                 try {
-                    const res = await fetch(`/api/rooms/${roomNumber}/status`, {
+                    const res = await fetch(`/admin/api/rooms/${roomNumber}/status`, {
                         method: 'PATCH',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ newRoomStatus: newStatus, dormCode: dormCode })
