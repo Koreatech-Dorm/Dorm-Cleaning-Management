@@ -54,7 +54,7 @@
         currentKey.value = "";
 
         try{
-            const res = await axios.get("/api/cleaning-code/get-code");
+            const res = await axios.get("/admin/api/cleaning-code/get-code");
             let cleaningCode = res.data.cleaningCode;
 
             if (cleaningCode) {
@@ -77,7 +77,7 @@
         const statusEl = document.getElementById("createKeyStatus");
 
         try {
-            await axios.post("/api/cleaning-code/registration", {
+            await axios.post("/admin/api/cleaning-code/registration", {
                 cleaningCode: keyValue
             });
 

@@ -104,7 +104,7 @@
         tbody.innerHTML = ''; // 기존 목록 비우기
 
         try {
-            const res = await axios.get('/api/dorms'); // 전체 생활관 조회 API 필요
+            const res = await axios.get('/admin/api/dorms'); // 전체 생활관 조회 API 필요
             let dorms = res.data;
 
             // 코드 기준으로 오름차순 정렬
@@ -136,7 +136,7 @@
         const statusEl = document.getElementById('dormStatus');
 
         try {
-            const res = await axios.post('/api/dorms/create', { 
+            const res = await axios.post('/admin/api/dorms/create', { 
                 dormCode:dormCode, 
                 dormName :dormName
             });
@@ -159,7 +159,7 @@
         const statusEl = document.getElementById('modifyDormStatus');
 
         try {
-            const res = await axios.post('/api/dorms/update', {
+            const res = await axios.post('/admin/api/dorms/update', {
                 dormCode: dormCode,
                 dormName: newDormName
             });
@@ -181,7 +181,7 @@
         const statusEl = document.getElementById('deleteDormStatus');
 
         try {
-            await axios.delete(`/api/dorms/${dormCode}`);
+            await axios.delete(`/admin/api/dorms/${dormCode}`);
             statusEl.textContent = `✅ ${dormCode}동이 삭제되었습니다.`;
             statusEl.style.color = 'blue';
             e.target.reset();

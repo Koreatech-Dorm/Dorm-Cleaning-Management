@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/qr")
+@RequestMapping("/admin/api/qr")
 @RequiredArgsConstructor
 @Tag(name = "QR 코드 API", description = "인증용 보안 QR 코드 생성 API")
 public class QrCodeController {

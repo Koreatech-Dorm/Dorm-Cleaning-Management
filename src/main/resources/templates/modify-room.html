@@ -14,13 +14,13 @@
         <p>호실을 추가/삭제합니다.</p>
     </div>
 
-    <!-- 생활관 선택 -->           
+    <!-- 생활관 선택 -->
     <div class="filter-section d-flex gap-3 mb-4">
         <div class="filter-group flex-fill">
             <label for="dormSelect" class="form-label">생활관 선택</label>
                 <select class="form-select form-select-lg" id="dormSelect" required>
                 <option value="" selected disabled>생활관을 선택하세요</option>
-                <option th:each="dorm : ${dorms}" 
+                <option th:each="dorm : ${dorms}"
                         th:value="${dorm.dormCode}"
                         th:text="${dorm.dormCode} + '동{' + ${dorm.dormName} + '}'"></option>
             </select>
@@ -42,7 +42,7 @@
                             <div class="empty-state" id="emptyState" style="margin-top: 120px;">
                                 <p>생활관을 선택하여 호실을 조회하세요.</p>
                             </div>
-                        </div> 
+                        </div>
                     </div>
                 </div>
             </div>
@@ -61,7 +61,7 @@
                             <div class="form-bottom mt-auto">
                                 <button type="submit" class="btn btn-primary">호실 추가</button>
                                 <p id="roomStatus" class="status-msg text-muted">호실을 추가하려면 세부 정보를 입력하십시오.</p>
-                            </div>    
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -91,7 +91,7 @@
                         <div class="form-bottom mt-1">
                             <!-- 파일 업로드 -->
                             <input type="file" id="roomExcelFile" accept=".xlsx, .xls" class="form-control mb-3">
-                            
+
                             <!-- 양식 다운로드 -->
                             <button class="btn btn-secondary" onclick="downloadExcelTemplate()">
                                 양식 받기
@@ -104,7 +104,7 @@
 
                             <p id="allRoomStatus" class="status-msg text-muted mt-2">
                                 엑셀 파일을 업로드하여 호실을 등록하십시오.
-                            </p>                            
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -129,7 +129,7 @@
     <div class="modal fade" id="confirmDeleteAllModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-            
+
             <div class="modal-header">
                 <h5 class="modal-title">호실 일괄 삭제</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -202,8 +202,8 @@
 
             const dormCode = dormSelect.value;
 
-            const roomRes = await fetch(`/api/rooms/info/byDorm?dormCode=${dormCode}`);
-            const rooms = await roomRes.json();
+                    const roomRes = await fetch(`/admin/api/rooms/info/byDorm?dormCode=${dormCode}`);
+                    const rooms = await roomRes.json();
 
             const table = document.createElement('table');
             table.classList.add('room-table');
@@ -219,7 +219,7 @@
 
             Object.keys(floors).sort().forEach(floor => {
                 let row = document.createElement('tr');
-                
+
                 const sortedRooms = sortRooms(floors[floor]);
                 sortedRooms.forEach((room, index) => {
 
@@ -243,7 +243,7 @@
                 if (row.children.length > 0) {
                     table.appendChild(row);
                 }
-                
+
                 //구분선
                 const seperator = document.createElement('tr');
                 const sepCell = document.createElement('td');
@@ -267,7 +267,7 @@
         const dormCode = dormSelect.value;
         const roomNumber = document.getElementById('roomNumber').value;
         const statusEl = document.getElementById('roomStatus');
-        
+
 
         if (!dormCode) {
             statusEl.textContent = '⚠️ 생활관을 먼저 선택하세요.';
@@ -275,21 +275,21 @@
             return;
         }
 
-        try {
-            const res = await axios.post('/api/rooms/create', {
-                dormCode: dormCode,
-                roomNumber: roomNumber
-            });
-            statusEl.textContent = `✅ ${roomNumber}호가 추가되었습니다.`;
-            statusEl.style.color = 'blue';
-            e.target.reset();
-            loadRooms(); // 갱신
-        } catch (err) {
-            const message = err.response.data.message;
-            statusEl.textContent = `⚠️ ${roomNumber}호 추가 실패: ${message}`;
-            statusEl.style.color = 'red';
-        }
-    });
+            try {
+                const res = await axios.post('/admin/api/rooms/create', {
+                    dormCode: dormCode,
+                    roomNumber: roomNumber
+                });
+                statusEl.textContent = `✅ ${roomNumber}호가 추가되었습니다.`;
+                statusEl.style.color = 'blue';
+                e.target.reset();
+                loadRooms(); // 갱신
+            } catch (err) {
+                const message = err.response.data.message;
+                statusEl.textContent = `⚠️ ${roomNumber}호 추가 실패: ${message}`;
+                statusEl.style.color = 'red';
+            }
+        });
 
     // 호실 삭제
     document.getElementById('deleteRoomForm').addEventListener('submit', async (e) => {
@@ -304,13 +304,13 @@
             return;
         }
 
-        try {
-            await axios.delete(`/api/rooms/delete`,{
-                params: {
-                    dormCode: dormCode,
-                    roomNumber: roomNumber
-                }
-            });
+            try {
+                await axios.delete(`/admin/api/rooms/delete`,{
+                    params: {
+                        dormCode: dormCode,
+                        roomNumber: roomNumber
+                    }
+                });
 
             statusEl.textContent = `✅ ${roomNumber}호가 삭제되었습니다.`;
             statusEl.style.color = 'blue';
@@ -370,7 +370,7 @@
         }
 
         const modal = new bootstrap.Modal(document.getElementById('confirmDeleteAllModal'));
-        modal.show();    
+        modal.show();
     });
 
     document.getElementById('confirmDeleteAllBtn').addEventListener('click', async () => {
