@@ -7,8 +7,6 @@ import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -51,44 +49,61 @@ public class ExcelServiceImpl implements ExcelService {
         headerStyle.setAlignment(HorizontalAlignment.CENTER);
         headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
+        // Header Font Style
+        XSSFFont bodyFont = (XSSFFont) workbook.createFont();
+        bodyFont.setColor(new XSSFColor(new byte[] { (byte) 255, (byte) 255, (byte) 255 }));
+
         // Body Cell Style
         XSSFCellStyle bodyStyle = (XSSFCellStyle) workbook.createCellStyle();
         bodyStyle.setBorderLeft(BorderStyle.THIN);
         bodyStyle.setBorderRight(BorderStyle.THIN);
         bodyStyle.setBorderTop(BorderStyle.THIN);
         bodyStyle.setBorderBottom(BorderStyle.THIN);
+        bodyStyle.setFillForegroundColor(new XSSFColor(new byte[] { 70, 75, 80 }));
+        bodyStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        bodyStyle.setFont(bodyFont);
         bodyStyle.setAlignment(HorizontalAlignment.CENTER);
         bodyStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
-        XSSFCellStyle alignStyle = (XSSFCellStyle) workbook.createCellStyle();
-        alignStyle.setAlignment(HorizontalAlignment.CENTER);
-        alignStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-
         // Header 생성
         int rowCount = 0;
-        String[] headerNames = { "건물 명", "호실 번호", "**반드시 텍스트로 입력**" };
+        String[] headerNames = { "건물 명", "호실 번호" };
         Row headerRow = sheet.createRow(rowCount++);
 
         for (int i = 0; i < headerNames.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headerNames[i]);
-            if (i < headerNames.length - 1) {
-                cell.setCellStyle(headerStyle);
-            }
+            cell.setCellStyle(headerStyle);
         }
 
         // Body 데이터 예시
-        String[][] bodyData = {
-                { "101", "201" },
+        Integer[][] bodyData = {
+                { 101, 201 },
         };
 
-        for (String[] rowArr : bodyData) {
+        for (Integer[] rowArr : bodyData) {
             Row row = sheet.createRow(rowCount++);
             for (int i = 0; i < rowArr.length; i++) {
                 Cell cell = row.createCell(i);
                 cell.setCellValue(rowArr[i]);
                 cell.setCellStyle(bodyStyle);
             }
+        }
+
+        // 설명
+        String[] description = {
+                "**2행의 서식에 맞게 작성**",
+                "예시"
+        };
+
+        XSSFCellStyle alignStyle = (XSSFCellStyle) workbook.createCellStyle();
+        alignStyle.setAlignment(HorizontalAlignment.CENTER);
+        alignStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        for (int i = 0; i < description.length; i++) {
+            Row row = sheet.getRow(i);
+            Cell cell = row.createCell(2); // C열
+            cell.setCellValue(description[i]);
+            cell.setCellStyle(alignStyle);
         }
 
         // 조건부 서식
@@ -121,7 +136,7 @@ public class ExcelServiceImpl implements ExcelService {
             try (Workbook workbook = new XSSFWorkbook(inputStream)) {
                 Sheet sheet = workbook.getSheetAt(0);
 
-                for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                for (int i = 2; i <= sheet.getLastRowNum(); i++) {
                     Row row = sheet.getRow(i);
                     if (row == null)
                         continue;
@@ -130,8 +145,6 @@ public class ExcelServiceImpl implements ExcelService {
 
                     String dormCode = formatter.formatCellValue(row.getCell(0));
                     String roomNumber = formatter.formatCellValue(row.getCell(1));
-
-                    System.out.println(dormCode + ", " + roomNumber);
 
                     if (dormCode.isEmpty() || roomNumber.isEmpty())
                         continue;
