@@ -225,6 +225,22 @@ main {
     background: #FFE4CC;
 }
 
+.btn-danger {
+    background: #c62828;
+    color: #fff;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-danger:hover {
+    background: #b71c1c;
+}
+
 /* =========================================
    STATUS PAGE – LEGEND
    ========================================= */

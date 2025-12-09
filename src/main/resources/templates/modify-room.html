@@ -7,210 +7,273 @@
 <header th:replace="~{fragments/header :: headerFragment}"></header>
 
 <main class="container-fluid px-4 mt-4">
-    <!-- 메인 컨텐츠 -->
-    <div class="container">
-        <div class="page-header">
-            <h2>호실 관리</h2>
-            <p>호실을 추가/삭제합니다.</p>
+<!-- 메인 컨텐츠 -->
+<div class="container">
+    <div class="page-header">
+        <h2>호실 관리</h2>
+        <p>호실을 추가/삭제합니다.</p>
+    </div>
+
+    <!-- 생활관 선택 -->
+    <div class="filter-section d-flex gap-3 mb-4">
+        <div class="filter-group flex-fill">
+            <label for="dormSelect" class="form-label">생활관 선택</label>
+                <select class="form-select form-select-lg" id="dormSelect" required>
+                <option value="" selected disabled>생활관을 선택하세요</option>
+                <option th:each="dorm : ${dorms}"
+                        th:value="${dorm.dormCode}"
+                        th:text="${dorm.dormCode} + '동{' + ${dorm.dormName} + '}'"></option>
+            </select>
         </div>
 
-        <!-- 생활관 선택 -->           
-        <div class="filter-section d-flex gap-3 mb-4">
-            <div class="filter-group flex-fill">
-                <label for="dormSelect" class="form-label">생활관 선택</label>
-                    <select class="form-select form-select-lg" id="dormSelect" required>
-                    <option value="" selected disabled>생활관을 선택하세요</option>
-                    <option th:each="dorm : ${dorms}" 
-                            th:value="${dorm.dormCode}"
-                            th:text="${dorm.dormCode} + '동{' + ${dorm.dormName} + '}'"></option>
-                </select>
-            </div>
-
-            <div class="d-flex align-items-end">
-                <button class="btn btn-primary" onclick="loadRooms()">조회</button>
-            </div>
+        <div class="d-flex align-items-end">
+            <button class="btn btn-primary" onclick="loadRooms()">조회</button>
         </div>
+    </div>
 
-        <div class="row">
-            <div class="col-md-5">
-                <div class="row g-4">
-                    <div class="col-md-12">
-                        <div class="card p-4 h-100" style="height: 400px !important;">
-                            <h4 class="mb-3">호실 목록</h4>
-                            <!-- 호실 그리드 -->
-                            <div class="floor-div col" id="floorDiv" style="overflow-x: hidden; overflow-y: auto; height: 300px !important;">
-                                <div class="empty-state" id="emptyState" style="margin-top: 70px;">
-                                    <p>생활관을 선택하여 호실을 조회하세요.</p>
-                                </div>
-                            </div> 
+    <div class="row">
+        <div class="col-md-5">
+            <div class="row g-4">
+                <div class="col-md-12">
+                    <div class="card p-4 h-100" style="height: 560px !important;">
+                        <h4 class="mb-3">호실 목록</h4>
+                        <!-- 호실 그리드 -->
+                        <div class="floor-div col" id="floorDiv" style="overflow-x: hidden; overflow-y: auto; height: 400px !important;">
+                            <div class="empty-state" id="emptyState" style="margin-top: 120px;">
+                                <p>생활관을 선택하여 호실을 조회하세요.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-7">
-                <div class="row g-4">
-                    <!-- 호실 추가 -->
-                    <div class="col-md-6">
-                        <div class="card p-4 h-100">
-                            <h4 class="mb-3">호실 추가</h4>
-                            <form id="createRoomForm">
-                                <div class="mb-3">
-                                    <label for="roomNumber" class="form-label">호실 번호</label>
-                                    <input type="text" class="form-control" id="roomNumber" required>
-                                </div>
-                                <div class="form-bottom mt-auto">
-                                    <button type="submit" class="btn btn-primary">호실 추가하기</button>
-                                    <p id="roomStatus" class="status-msg text-muted">호실을 추가하려면 세부 정보를 입력하십시오.</p>
-                                </div>    
-                            </form>
+        </div>
+        <div class="col-md-7">
+            <div class="row g-4">
+                <!-- 호실 추가 -->
+                <div class="col-md-6">
+                    <div class="card p-4 h-100">
+                        <h4 class="mb-3">호실 추가</h4>
+                        <form id="createRoomForm">
+                            <div class="mb-3">
+                                <label for="roomNumber" class="form-label">호실 번호</label>
+                                <input type="text" class="form-control" id="roomNumber" required>
+                            </div>
+                            <div class="form-bottom mt-auto">
+                                <button type="submit" class="btn btn-primary">호실 추가</button>
+                                <p id="roomStatus" class="status-msg text-muted">호실을 추가하려면 세부 정보를 입력하십시오.</p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 호실 삭제 -->
+                <div class="col-md-6">
+                    <div class="card p-4 h-100">
+                        <h4 class="mb-3">호실 삭제</h4>
+                        <form id="deleteRoomForm">
+                            <div class="mb-3">
+                                <label for="deleteRoomNumber" class="form-label">삭제할 호실 번호</label>
+                                <input type="text" class="form-control" id="deleteRoomNumber" required>
+                            </div>
+                            <div class="form-bottom mt-auto">
+                                <button type="submit" class="btn btn-primary">호실 삭제</button>
+                                <p id="deleteRoomStatus" class="status-msg text-muted">호실을 삭제하려면 세부 정보를 입력하십시오.</p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-4 mt-1">
+                <!-- 호실 일괄 추가 -->
+                <div class="col-md-6">
+                    <div class="card p-4 h-100">
+                        <h4 class="mb-3">호실 일괄 추가</h4>
+                        <div class="form-bottom mt-1">
+                            <!-- 파일 업로드 -->
+                            <input type="file" id="roomExcelFile" accept=".xlsx, .xls" class="form-control mb-3">
+
+                            <!-- 양식 다운로드 -->
+                            <button class="btn btn-secondary" onclick="downloadExcelTemplate()">
+                                양식 받기
+                            </button>
+
+                            <!-- 등록 버튼 -->
+                            <button class="btn btn-primary" onclick="uploadExcelRooms()">
+                                일괄 등록
+                            </button>
+
+                            <p id="allRoomStatus" class="status-msg text-muted mt-2">
+                                엑셀 파일을 업로드하여 호실을 등록하십시오.
+                            </p>
                         </div>
                     </div>
+                </div>
 
-                    <!-- 호실 삭제 -->
-                    <div class="col-md-6">
-                        <div class="card p-4 h-100">
-                            <h4 class="mb-3">호실 삭제</h4>
-                            <form id="deleteRoomForm">
-                                <div class="mb-3">
-                                    <label for="deleteRoomNumber" class="form-label">삭제할 호실 번호</label>
-                                    <input type="text" class="form-control" id="deleteRoomNumber" required>
-                                </div>
-                                <div class="form-bottom mt-auto">
-                                    <button type="submit" class="btn btn-primary">호실 삭제</button>
-                                    <p id="deleteRoomStatus" class="status-msg text-muted">호실을 삭제하려면 세부 정보를 입력하십시오.</p>
-                                </div>
-                            </form>
-                        </div>
+                <!-- 호실 일괄 삭제 -->
+                <div class="col-md-6">
+                    <div class="card p-4 h-100">
+                        <h4 class="mb-3">호실 일괄 삭제</h4>
+                        <p class="mt-2 mb-2" style="font-size: 14px;">생활관을 선택하고 호실을 일괄 삭제하십시오.</p>
+                        <form id="deleteAllRoomForm">
+                            <div class="form-bottom mt-3 mb-3">
+                                <button type="submit" class="btn btn-primary">일괄 삭제</button>
+                                <p id="deleteAllRoomStatus" class="status-msg text-muted mt-2">호실을 일괄 삭제합니다.</p>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <!-- 일괄 삭제 확인 모달 -->
+    <div class="modal fade" id="confirmDeleteAllModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+            <div class="modal-header">
+                <h5 class="modal-title">호실 일괄 삭제</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
 
-    <script>
-        const dormSelect = document.getElementById('dormSelect');
-        const emptyState = document.getElementById('emptyState');
-        const floorDiv = document.getElementById('floorDiv');
+            <div class="modal-body">
+                정말 해당 생활관의 모든 호실을 삭제하시겠습니까?<br>
+                이 작업은 되돌릴 수 없습니다.
+            </div>
 
-        // 방 번호(숫자 + 알파벳) 파싱 함수
-        function parseRoomNumber(roomNumber) {
-            // 숫자 + 선택적 알파벳 1글자 (예: 805, 805A)
-            const match = roomNumber.match(/^(\d+)([A-Za-z]?)$/);
-            if (!match) return { num: Infinity, suffix: "" };
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                <button type="button" id="confirmDeleteAllBtn" class="btn btn-danger">예, 삭제합니다</button>
+            </div>
 
-            return {
-                num: Number(match[1]),     // 숫자
-                suffix: match[2] || ""     // 알파벳 또는 빈 문자열
-            };
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<script>
+    const dormSelect = document.getElementById('dormSelect');
+    const emptyState = document.getElementById('emptyState');
+    const floorDiv = document.getElementById('floorDiv');
+
+    // 방 번호(숫자 + 알파벳) 파싱 함수
+    function parseRoomNumber(roomNumber) {
+        // 숫자 + 선택적 알파벳 1글자 (예: 805, 805A)
+        const match = roomNumber.match(/^(\d+)([A-Za-z]?)$/);
+        if (!match) return { num: Infinity, suffix: "" };
+
+        return {
+            num: Number(match[1]),     // 숫자
+            suffix: match[2] || ""     // 알파벳 또는 빈 문자열
+        };
+    }
+
+    // 정렬 함수
+    function sortRooms(rooms) {
+        return rooms.sort((a, b) => {
+            const A = parseRoomNumber(a.roomNumber);
+            const B = parseRoomNumber(b.roomNumber);
+
+            // 1️⃣ 숫자 먼저 비교
+            if (A.num !== B.num) return A.num - B.num;
+
+            // 2️⃣ 알파벳 비교
+            return A.suffix.localeCompare(B.suffix);
+        });
+    }
+
+
+    // 조회 버튼 클릭 시 호실 정보 갱신
+    async function loadRooms() {
+
+        if (!emptyState) {
+            console.warn('emptyState 요소가 없음');
+            return;
         }
 
-        // 정렬 함수
-        function sortRooms(rooms) {
-            return rooms.sort((a, b) => {
-                const A = parseRoomNumber(a.roomNumber);
-                const B = parseRoomNumber(b.roomNumber);
+        floorDiv.innerHTML = '<p>로딩 중...</p>';
+        emptyState.style.display = 'none';
 
-                // 1️⃣ 숫자 먼저 비교
-                if (A.num !== B.num) return A.num - B.num;
+        try {
+            floorDiv.innerHTML = ``;
+            floorDiv.style.marginTop = "1rem";
 
-                // 2️⃣ 알파벳 비교
-                return A.suffix.localeCompare(B.suffix);
-            });
-        }
-
-
-        // 조회 버튼 클릭 시 호실 정보 갱신
-        async function loadRooms() {
-
-            if (!emptyState) {
-                console.warn('emptyState 요소가 없음');
-                return;
-            }
-
-            floorDiv.innerHTML = '<p>로딩 중...</p>';
-            emptyState.style.display = 'none';
-
-            try {
-                    floorDiv.innerHTML = ``;
-                    floorDiv.style.marginTop = "1rem";
-
-                    const dormCode = dormSelect.value;
+            const dormCode = dormSelect.value;
 
                     const roomRes = await fetch(`/admin/api/rooms/info/byDorm?dormCode=${dormCode}`);
                     const rooms = await roomRes.json();
 
-                    const table = document.createElement('table');
-                    table.classList.add('room-table');
+            const table = document.createElement('table');
+            table.classList.add('room-table');
 
-                    // rooms 배열을 층별로 그룹핑
-                    const floors = {};
+            // rooms 배열을 층별로 그룹핑
+            const floors = {};
 
-                    rooms.forEach(room => {
-                        const floor = room.floor;    // 1, 2, 3 같은 층 정보
-                        if (!floors[floor]) floors[floor] = [];
-                        floors[floor].push(room);
-                    });
+            rooms.forEach(room => {
+                const floor = room.floor;    // 1, 2, 3 같은 층 정보
+                if (!floors[floor]) floors[floor] = [];
+                floors[floor].push(room);
+            });
 
-                    Object.keys(floors).sort().forEach(floor => {
-                        let row = document.createElement('tr');
-                        
-                        const sortedRooms = sortRooms(floors[floor]);
-                        sortedRooms.forEach((room, index) => {
+            Object.keys(floors).sort().forEach(floor => {
+                let row = document.createElement('tr');
 
-                            // td 생성
-                            const td = document.createElement('td');
-                            td.classList.add('room-cell');
-                            td.innerHTML = `
-                                <div class="room-number fw-bold">${room.roomNumber}</div>
-                            `;
+                const sortedRooms = sortRooms(floors[floor]);
+                sortedRooms.forEach((room, index) => {
 
-                            row.appendChild(td);
+                    // td 생성
+                    const td = document.createElement('td');
+                    td.classList.add('room-cell');
+                    td.innerHTML = `
+                        <div class="room-number fw-bold">${room.roomNumber}</div>
+                    `;
 
-                            // 10개마다 줄바꿈
-                            if ((index + 1) % 5 === 0) {
-                                table.appendChild(row);
-                                row = document.createElement('tr');
-                            }
-                        });
+                    row.appendChild(td);
 
-                        // 남은 셀 추가
-                        if (row.children.length > 0) {
-                            table.appendChild(row);
-                        }
-                        
-                        //구분선
-                        const seperator = document.createElement('tr');
-                        const sepCell = document.createElement('td');
-                        sepCell.colSpan = 5;
-                        sepCell.classList.add('floor-separator');
-                        seperator.appendChild(sepCell);
-                        table.appendChild(seperator);
-                    });
-                    floorDiv.appendChild(table);
-            } catch (err) {
-                console.error(err);
-                emptyState.innerHTML = `<p>생활관을 선택하여 호실을 조회하세요.</p>`;
-                emptyState.style.display = 'flex';
-            }
+                    // 10개마다 줄바꿈
+                    if ((index + 1) % 5 === 0) {
+                        table.appendChild(row);
+                        row = document.createElement('tr');
+                    }
+                });
+
+                // 남은 셀 추가
+                if (row.children.length > 0) {
+                    table.appendChild(row);
+                }
+
+                //구분선
+                const seperator = document.createElement('tr');
+                const sepCell = document.createElement('td');
+                sepCell.colSpan = 5;
+                sepCell.classList.add('floor-separator');
+                seperator.appendChild(sepCell);
+                table.appendChild(seperator);
+            });
+            floorDiv.appendChild(table);
+        } catch (err) {
+            console.error(err);
+            emptyState.innerHTML = `<p>생활관을 선택하여 호실을 조회하세요.</p>`;
+            emptyState.style.display = 'flex';
         }
+    }
 
 
-        // 호실 추가
-        document.getElementById('createRoomForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const dormCode = dormSelect.value;
-            const roomNumber = document.getElementById('roomNumber').value;
-            const statusEl = document.getElementById('roomStatus');
-            
+    // 호실 추가
+    document.getElementById('createRoomForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const dormCode = dormSelect.value;
+        const roomNumber = document.getElementById('roomNumber').value;
+        const statusEl = document.getElementById('roomStatus');
 
-            if (!dormCode) {
-                statusEl.textContent = '⚠️ 생활관을 먼저 선택하세요.';
-                statusEl.style.color = 'red';
-                return;
-            }
+
+        if (!dormCode) {
+            statusEl.textContent = '⚠️ 생활관을 먼저 선택하세요.';
+            statusEl.style.color = 'red';
+            return;
+        }
 
             try {
                 const res = await axios.post('/admin/api/rooms/create', {
@@ -228,18 +291,18 @@
             }
         });
 
-        // 호실 삭제
-        document.getElementById('deleteRoomForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const dormCode = dormSelect.value;
-            const roomNumber = document.getElementById('deleteRoomNumber').value;
-            const statusEl = document.getElementById('deleteRoomStatus');
+    // 호실 삭제
+    document.getElementById('deleteRoomForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const dormCode = dormSelect.value;
+        const roomNumber = document.getElementById('deleteRoomNumber').value;
+        const statusEl = document.getElementById('deleteRoomStatus');
 
-            if (!dormCode) {
-                statusEl.textContent = '⚠️ 생활관을 먼저 선택하세요.';
-                statusEl.style.color = 'red';
-                return;
-            }
+        if (!dormCode) {
+            statusEl.textContent = '⚠️ 생활관을 먼저 선택하세요.';
+            statusEl.style.color = 'red';
+            return;
+        }
 
             try {
                 await axios.delete(`/admin/api/rooms/delete`,{
@@ -249,16 +312,99 @@
                     }
                 });
 
-                statusEl.textContent = `✅ ${roomNumber}호가 삭제되었습니다.`;
-                statusEl.style.color = 'blue';
-                e.target.reset();
-                loadRooms(); // 갱신
-            } catch (err) {
-                statusEl.textContent = `⚠️ ${roomNumber}호 삭제에 실패하였습니다.`;
-                statusEl.style.color = 'red';
+            statusEl.textContent = `✅ ${roomNumber}호가 삭제되었습니다.`;
+            statusEl.style.color = 'blue';
+            e.target.reset();
+            loadRooms(); // 갱신
+        } catch (err) {
+            statusEl.textContent = `⚠️ ${roomNumber}호 삭제에 실패하였습니다.`;
+            statusEl.style.color = 'red';
+        }
+    });
+
+    // 호실 등록 양식 다운로드
+    function downloadExcelTemplate() {
+        window.location.href = '/api/Excel/download';
+    }
+
+    // 호실 일괄 등록
+    async function uploadExcelRooms() {
+        const dormCode = dormSelect.value;
+        const statusEl = document.getElementById('allRoomStatus');
+        const fileInput = document.getElementById('roomExcelFile');
+
+        if (!fileInput.files.length) {
+            statusEl.textContent = "⚠️ Excel 파일을 업로드하세요.";
+            statusEl.style.color = "red";
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+
+        try {
+            await axios.post('/api/Excel/register', formData, {
+                headers: { "Content-Type": "multipart/form-data" }
+            });
+
+            statusEl.textContent = "✅ 호실 일괄 등록 완료!";
+            statusEl.style.color = "blue";
+
+            loadRooms();
+        } catch (err) {
+            statusEl.textContent = "⚠️ 업로드 중 오류 발생!";
+            statusEl.style.color = "red";
+        }
+    }
+
+    // 호실 일괄 삭제
+    document.getElementById('deleteAllRoomForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const dormCode = dormSelect.value;
+        const statusEl = document.getElementById('deleteAllRoomStatus');
+
+        if (!dormCode) {
+            statusEl.textContent = '⚠️ 생활관을 먼저 선택하세요.';
+            statusEl.style.color = 'red';
+            return;
+        }
+
+        const modal = new bootstrap.Modal(document.getElementById('confirmDeleteAllModal'));
+        modal.show();
+    });
+
+    document.getElementById('confirmDeleteAllBtn').addEventListener('click', async () => {
+        const dormCode = dormSelect.value;
+        const statusEl = document.getElementById('deleteAllRoomStatus');
+
+        try {
+            const res = await fetch(`/api/rooms/info/byDorm?dormCode=${dormCode}`);
+            const rooms = await res.json();
+
+            for (const room of rooms) {
+                await axios.delete(`/api/rooms/delete`, {
+                    params: {
+                        dormCode: dormCode,
+                        roomNumber: room.roomNumber
+                    }
+                });
             }
-        });
-    </script>
+
+            statusEl.textContent = `✅ 호실이 일괄 삭제되었습니다.`;
+            statusEl.style.color = 'blue';
+
+            loadRooms();
+
+            // 모달 닫기
+            bootstrap.Modal.getInstance(document.getElementById('confirmDeleteAllModal')).hide();
+
+        } catch (err) {
+            statusEl.textContent = `⚠️ 호실 일괄 삭제에 실패하였습니다.`;
+            statusEl.style.color = 'red';
+        }
+    });
+
+</script>
 </main>
 
 <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
