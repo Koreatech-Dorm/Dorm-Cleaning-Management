@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: dorm-cleaning-management
+
+  profiles:
+    active: dev
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+    show-sql: true
+
+    properties:
+      hibernate:
+        format_sql: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui/index.html
+  api-docs:
+    path: /v3/api-docs
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
