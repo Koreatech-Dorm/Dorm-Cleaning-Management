@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/admin/api")
 @Tag(name = "Excel 관리 API", description = "Excel 관련 API")
 public class ExcelController {
 
