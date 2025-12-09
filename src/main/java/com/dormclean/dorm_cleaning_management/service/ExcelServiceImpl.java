@@ -2,18 +2,31 @@ package com.dormclean.dorm_cleaning_management.service;
 
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.dormclean.dorm_cleaning_management.entity.Dorm;
+import com.dormclean.dorm_cleaning_management.entity.Room;
+import com.dormclean.dorm_cleaning_management.entity.enums.RoomStatus;
+import com.dormclean.dorm_cleaning_management.repository.DormRepository;
+import com.dormclean.dorm_cleaning_management.repository.RoomRepository;
 
 @Service
 @RequiredArgsConstructor
 public class ExcelServiceImpl implements ExcelService {
+    private final DormRepository dormRepository;
+    private final RoomRepository roomRepository;
 
     @Override
     public void downloadExcel(HttpServletResponse res) throws IOException {
@@ -101,4 +114,72 @@ public class ExcelServiceImpl implements ExcelService {
         out.close();
     }
 
+    @Override
+    @Transactional
+    public void registerByExcel(MultipartFile file) throws Exception {
+        try (InputStream inputStream = file.getInputStream()) {
+            try (Workbook workbook = new XSSFWorkbook(inputStream)) {
+                Sheet sheet = workbook.getSheetAt(0);
+
+                for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                    Row row = sheet.getRow(i);
+                    if (row == null)
+                        continue;
+
+                    DataFormatter formatter = new DataFormatter();
+
+                    String dormCode = formatter.formatCellValue(row.getCell(0));
+                    String roomNumber = formatter.formatCellValue(row.getCell(1));
+
+                    System.out.println(dormCode + ", " + roomNumber);
+
+                    if (dormCode.isEmpty() || roomNumber.isEmpty())
+                        continue;
+
+                    // 1. 기숙사 존재 확인
+                    Dorm dorm = dormRepository.findByDormCode(dormCode)
+                            .orElseGet(() -> Dorm.builder()
+                                    .dormCode(dormCode)
+                                    .dormName(dormCode)
+                                    .build());
+                    if (dorm.getId() == null) {
+                        dorm = dormRepository.save(dorm);
+                    }
+
+                    // 2. 호실 존재 체크
+                    boolean exists = roomRepository.existsByDormAndRoomNumber(dorm, roomNumber);
+
+                    if (exists) {
+                        continue; // 이미 존재 → PASS
+                    }
+
+                    Integer floor = extractFloor(roomNumber);
+
+                    // 3. 신규 호실 저장
+                    Room room = Room.builder()
+                            .dorm(dorm)
+                            .floor(floor)
+                            .roomNumber(roomNumber)
+                            .status(RoomStatus.READY)
+                            .build();
+
+                    roomRepository.save(room);
+                }
+            }
+        }
+    }
+
+    private Integer extractFloor(String roomNumber) {
+        int cnt = 0, idx = roomNumber.length() - 1;
+        while (idx >= 0) {
+            char c = roomNumber.charAt(idx);
+            if (c >= '0' && c <= '9')
+                break;
+            cnt++;
+            idx--;
+        }
+        int floor = Integer.parseInt(roomNumber.substring(0, roomNumber.length() - (cnt + 2)));
+
+        return floor;
+    }
 }

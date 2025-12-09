@@ -35,7 +35,7 @@
         <div class="col-md-5">
             <div class="row g-4">
                 <div class="col-md-12">
-                    <div class="card p-4 h-100" style="height: 500px !important;">
+                    <div class="card p-4 h-100" style="height: 550px !important;">
                         <h4 class="mb-3">호실 목록</h4>
                         <!-- 호실 그리드 -->
                         <div class="floor-div col" id="floorDiv" style="overflow-x: hidden; overflow-y: auto; height: 400px !important;">
@@ -94,12 +94,12 @@
                             <input type="file" id="roomExcelFile" accept=".xlsx, .xls" class="form-control mb-3">
                             
                             <!-- 양식 다운로드 -->
-                            <button class="btn btn-secondary mb-3" onclick="downloadExcelTemplate()">
+                            <button class="btn btn-secondary" onclick="downloadExcelTemplate()">
                                 양식 받기
                             </button>
 
                             <!-- 등록 버튼 -->
-                            <button class="btn btn-primary mb-3" onclick="uploadExcelRooms()">
+                            <button class="btn btn-primary" onclick="uploadExcelRooms()">
                                 일괄 등록
                             </button>
 
@@ -115,9 +115,9 @@
                     <div class="card p-4 h-100">
                         <h4 class="mb-3">호실 일괄 삭제</h4>
                         <form id="deleteAllRoomForm">
-                            <div class="form-bottom mb-3">
+                            <div class="form-bottom mb-3 mt-0">
                                 <button type="submit" class="btn btn-primary">일괄 삭제</button>
-                                <p id="deleteAllRoomStatus" class="status-msg text-muted">호실을 일괄 삭제합니다.</p>
+                                <p id="deleteAllRoomStatus" class="status-msg text-muted mt-2">호실을 일괄 삭제합니다.</p>
                             </div>
                         </form>
                     </div>
@@ -328,34 +328,34 @@
     }
 
     // 호실 일괄 등록
-    document.getElementById('registerRoomForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
+    async function uploadExcelRooms() {
         const dormCode = dormSelect.value;
-        const roomNumber = document.getElementById('roomNumber').value;
-        const statusEl = document.getElementById('roomStatus');
-        
+        const statusEl = document.getElementById('allRoomStatus');
+        const fileInput = document.getElementById('roomExcelFile');
 
-        if (!dormCode) {
-            statusEl.textContent = '⚠️ 생활관을 먼저 선택하세요.';
-            statusEl.style.color = 'red';
+        if (!fileInput.files.length) {
+            statusEl.textContent = "⚠️ Excel 파일을 업로드하세요.";
+            statusEl.style.color = "red";
             return;
         }
 
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+
         try {
-            const res = await axios.post('/api/rooms/create', {
-                dormCode: dormCode,
-                roomNumber: roomNumber
+            await axios.post('/api/Excel/register', formData, {
+                headers: { "Content-Type": "multipart/form-data" }
             });
-            statusEl.textContent = `✅ ${roomNumber}호가 추가되었습니다.`;
-            statusEl.style.color = 'blue';
-            e.target.reset();
-            loadRooms(); // 갱신
+
+            statusEl.textContent = "✅ 호실 일괄 등록 완료!";
+            statusEl.style.color = "blue";
+
+            loadRooms();
         } catch (err) {
-            const message = err.response.data.message;
-            statusEl.textContent = `⚠️ ${roomNumber}호 추가 실패: ${message}`;
-            statusEl.style.color = 'red';
+            statusEl.textContent = "⚠️ 업로드 중 오류 발생!";
+            statusEl.style.color = "red";
         }
-    });
+    }
 
     // 호실 일괄 삭제
     document.getElementById('deleteAllRoomForm').addEventListener('submit', async (e) => {

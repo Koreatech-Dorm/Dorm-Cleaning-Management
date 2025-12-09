@@ -1,14 +1,18 @@
 package com.dormclean.dorm_cleaning_management.controller;
 
 import com.dormclean.dorm_cleaning_management.service.ExcelService;
+
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,5 +35,18 @@ public class ExcelController {
         excelService.downloadExcel(res);
 
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/Excel/register")
+    public ResponseEntity<?> uploadRooms(
+            @RequestParam("file") MultipartFile file) {
+
+        try {
+            excelService.registerByExcel(file);
+            return ResponseEntity.ok("Success");
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Excel parsing error: " + e.getMessage());
+        }
     }
 }
