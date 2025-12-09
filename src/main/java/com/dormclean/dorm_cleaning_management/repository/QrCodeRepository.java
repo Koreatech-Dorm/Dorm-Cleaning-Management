@@ -7,5 +7,6 @@ import java.util.Optional;
 
 public interface QrCodeRepository extends JpaRepository<QrCode, Long> {
     Optional<QrCode> findByRoom(Room room);
+
     Optional<QrCode> findByUuid(String uuid);
 }

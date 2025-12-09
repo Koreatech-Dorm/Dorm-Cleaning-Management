@@ -32,7 +32,6 @@ public class CheckPageController {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 호실입니다."));
 
         // HTML(뷰)에 데이터 전달
-        model.addAttribute("dormName", dorm.getDormName());
         model.addAttribute("dormCode", dorm.getDormCode());
         model.addAttribute("roomNumber", room.getRoomNumber());
         model.addAttribute("status", room.getRoomStatus().name());

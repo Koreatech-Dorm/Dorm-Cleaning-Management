@@ -34,7 +34,7 @@
                                 <option value="" selected disabled>생활관을 선택하세요</option>
                                 <option th:each="dorm : ${dorms}"
                                         th:value="${dorm.dormCode}"
-                                        th:text="${dorm.dormCode} + '동(' + ${dorm.dormName} + ')'">
+                                        th:text="${dorm.dormCode} + '동'">
                                 </option>
                             </select>
                         </div>
@@ -85,7 +85,7 @@
                                            th:value="${dorm.dormCode}"
                                            th:id="'dorm-' + ${dorm.dormCode}">
                                     <label class="form-check-label" th:for="'dorm-' + ${dorm.dormCode}"
-                                           th:text="${dorm.dormCode} + '동(' + ${dorm.dormName} + ')'">
+                                           th:text="${dorm.dormCode} + '동'">
                                     </label>
                                 </div>
                             </div>
@@ -148,7 +148,6 @@
     function generateQrCode() {
         const dormCode = document.getElementById('dormSelect').value;
         const roomNumber = document.getElementById('roomInput').value;
-        const dormName = document.getElementById('dormSelect').options[document.getElementById('dormSelect').selectedIndex].text;
 
         if (!dormCode || !roomNumber) {
             alert('생활관과 호실을 모두 입력해주세요.');
@@ -181,9 +180,8 @@
         qrImage.src = apiUrl;
 
         // 파일명 정제를 위해 괄호 등 제거 (선택사항)
-        const cleanDormName = dormName.replace(/[^a-zA-Z0-9가-힣]/g, "_");
         downloadLink.href = apiUrl;
-        downloadLink.download = `QR_${cleanDormName}_${roomNumber}.png`;
+        downloadLink.download = `QR_${dormCode}동_${roomNumber}호.png`;
     }
 
     // 일괄 다운로드 함수

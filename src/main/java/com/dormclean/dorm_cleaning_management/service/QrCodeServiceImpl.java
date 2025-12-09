@@ -35,8 +35,10 @@ public class QrCodeServiceImpl implements QrCodeService {
     @Override
     @Transactional
     public byte[] createSecureQr(QrRequestDto dto) {
-        Dorm dorm = dormRepository.findByDormCode(dto.dormCode()).orElseThrow(() -> new RuntimeException("해당 기숙사의 정보를 찾을 수 없습니다."));
-        Room room = roomRepository.findByDormAndRoomNumber(dorm, dto.roomNumber()).orElseThrow(() -> new RuntimeException("해당 호실의 정보를 찾을 수 없습니다."));
+        Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
+                .orElseThrow(() -> new RuntimeException("해당 기숙사의 정보를 찾을 수 없습니다."));
+        Room room = roomRepository.findByDormAndRoomNumber(dorm, dto.roomNumber())
+                .orElseThrow(() -> new RuntimeException("해당 호실의 정보를 찾을 수 없습니다."));
 
         QrCode qrCode = qrCodeRepository.findByRoom(room).orElse(null);
 
@@ -60,8 +62,8 @@ public class QrCodeServiceImpl implements QrCodeService {
     }
 
     @Override
-    public byte[] generateQrCode(String content, int width, int height){
-        try{
+    public byte[] generateQrCode(String content, int width, int height) {
+        try {
             QRCodeWriter qrCodeWriter = new QRCodeWriter();
 
             BitMatrix bitMatrix = qrCodeWriter.encode(content, BarcodeFormat.QR_CODE, width, height);
@@ -70,7 +72,7 @@ public class QrCodeServiceImpl implements QrCodeService {
                 MatrixToImageWriter.writeToStream(bitMatrix, "png", byteArrayOutputStream);
                 return byteArrayOutputStream.toByteArray();
             }
-        } catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("QR 코드 생성 중 오류 발생", e);
         }
@@ -81,8 +83,8 @@ public class QrCodeServiceImpl implements QrCodeService {
     public byte[] generateZipForDorms(List<String> dormCodes) {
         ByteArrayOutputStream zipOutputStream = new ByteArrayOutputStream();
 
-        try(ZipOutputStream zip = new ZipOutputStream(zipOutputStream)){
-            for(String dormCode: dormCodes){
+        try (ZipOutputStream zip = new ZipOutputStream(zipOutputStream)) {
+            for (String dormCode : dormCodes) {
                 Dorm dorm = dormRepository.findByDormCode(dormCode)
                         .orElseThrow(() -> new IllegalArgumentException("기숙사의 정보를 찾을 수 없습니다."));
 
@@ -90,7 +92,7 @@ public class QrCodeServiceImpl implements QrCodeService {
 
                 String dormFolder = dormCode + "/";
 
-                for(Room room: rooms){
+                for (Room room : rooms) {
                     QrRequestDto dto = new QrRequestDto(dormCode, room.getRoomNumber());
                     byte[] qrImages = createSecureQr(dto);
 
@@ -100,7 +102,7 @@ public class QrCodeServiceImpl implements QrCodeService {
                     zip.closeEntry();
                 }
             }
-        } catch(Exception e){
+        } catch (Exception e) {
             throw new RuntimeException("다중 생활관 QR ZIP 생성 중 오류 발생", e);
         }
 

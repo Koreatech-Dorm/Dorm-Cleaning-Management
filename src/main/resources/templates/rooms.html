@@ -28,7 +28,7 @@
                     <option value="">전체</option>
                     <option th:each="dorm : ${dorms}" 
                             th:value="${dorm.dormCode}"
-                            th:text="${dorm.dormCode} + '동(' + ${dorm.dormName} + ')'"></option>
+                            th:text="${dorm.dormCode} + '동'"></option>
                 </select>
             </div>
 
@@ -313,7 +313,7 @@
                     {
                         const title = document.createElement('h3');
                         title.classList.add('section-title');
-                        title.textContent = `${dorm.dormCode}동(${dorm.dormName})`;
+                        title.textContent = `${dorm.dormCode}동`;
                         floorDiv.appendChild(title)
 
                         const roomRes = await fetch(`/admin/api/rooms/info/byDorm?dormCode=${dorm.dormCode}`);

@@ -13,7 +13,5 @@ public interface DormService {
 
     Dorm createDorm(CreateDormRequestDto dto);
 
-    void updateDorm(DormUpdateRequestDto dto);
-
     void deleteDorm(DormDeleteRequestDto dto);
 }

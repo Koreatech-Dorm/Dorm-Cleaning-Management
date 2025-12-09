@@ -12,5 +12,5 @@ public interface QrCodeService {
 
     QrResponseDto getQrData(String token);
 
-    byte[] generateZipForDorms(List<String>dormCodes);
+    byte[] generateZipForDorms(List<String> dormCodes);
 }

@@ -19,18 +19,11 @@ public class Dorm {
     @Column(nullable = false, unique = true)
     private String dormCode;
 
-    private String dormName;
-
     @OneToMany(mappedBy = "dorm", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Room> rooms = new ArrayList<>();
 
     @Builder
-    public Dorm(String dormCode, String dormName) {
+    public Dorm(String dormCode) {
         this.dormCode = dormCode;
-        this.dormName = dormName;
-    }
-
-    public void setDormName(String newName) {
-        this.dormName = newName;
     }
 }

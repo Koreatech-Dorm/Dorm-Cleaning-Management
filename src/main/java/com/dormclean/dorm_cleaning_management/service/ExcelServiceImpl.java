@@ -153,7 +153,6 @@ public class ExcelServiceImpl implements ExcelService {
                     Dorm dorm = dormRepository.findByDormCode(dormCode)
                             .orElseGet(() -> Dorm.builder()
                                     .dormCode(dormCode)
-                                    .dormName(dormCode)
                                     .build());
                     if (dorm.getId() == null) {
                         dorm = dormRepository.save(dorm);

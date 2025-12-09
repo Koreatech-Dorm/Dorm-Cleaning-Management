@@ -46,11 +46,4 @@ public class DormController {
         return ResponseEntity.ok().build();
     }
 
-    // 기숙사 정보 업데이트
-    @PostMapping("/dorms/update")
-    public ResponseEntity<?> updateDorm(@RequestBody DormUpdateRequestDto dto) {
-        dormService.updateDorm(dto);
-
-        return ResponseEntity.ok("updated");
-    }
 }

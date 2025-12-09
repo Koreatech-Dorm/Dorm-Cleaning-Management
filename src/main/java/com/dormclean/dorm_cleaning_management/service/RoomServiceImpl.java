@@ -18,114 +18,113 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class RoomServiceImpl implements RoomService {
-    private final RoomRepository roomRepository;
-    private final DormRepository dormRepository;
+        private final RoomRepository roomRepository;
+        private final DormRepository dormRepository;
 
-    // 방 생성
-    @Override
-    public Room createRoom(CreateRoomRequestDto dto) {
+        // 방 생성
+        @Override
+        public Room createRoom(CreateRoomRequestDto dto) {
 
-        Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
-                .orElseThrow(() -> new IllegalArgumentException("해당 dormCode의 기숙사가 없습니다."));
+                Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
+                                .orElseThrow(() -> new IllegalArgumentException("해당 dormCode의 기숙사가 없습니다."));
 
-        Integer floor = extractFloor(dto.roomNumber());
+                Integer floor = extractFloor(dto.roomNumber());
 
-        Room room = Room.builder()
-                .dorm(dorm)
-                .floor(floor)
-                .roomNumber(dto.roomNumber())
-                .status(RoomStatus.READY)
-                .build();
+                Room room = Room.builder()
+                                .dorm(dorm)
+                                .floor(floor)
+                                .roomNumber(dto.roomNumber())
+                                .status(RoomStatus.READY)
+                                .build();
 
-        return roomRepository.save(room);
-    }
-
-    private Integer extractFloor(String roomNumber){
-        int cnt = 0, idx = roomNumber.length() - 1;
-        while (idx >= 0) {
-            char c = roomNumber.charAt(idx);
-            if (c >= '0' && c <= '9')
-                break;
-            cnt++;
-            idx--;
+                return roomRepository.save(room);
         }
-        int floor = Integer.parseInt(roomNumber.substring(0, roomNumber.length() - (cnt + 2)));
 
-        return floor;
-    }
+        private Integer extractFloor(String roomNumber) {
+                int cnt = 0, idx = roomNumber.length() - 1;
+                while (idx >= 0) {
+                        char c = roomNumber.charAt(idx);
+                        if (c >= '0' && c <= '9')
+                                break;
+                        cnt++;
+                        idx--;
+                }
+                int floor = Integer.parseInt(roomNumber.substring(0, roomNumber.length() - (cnt + 2)));
 
-    // 특정 Dorm + Floor의 방 목록 조회
-    @Override
-    public List<RoomListResponseDto> getRooms(String dormCode, Integer floor) {
-        Dorm dorm = dormRepository.findByDormCode(dormCode)
-                .orElseThrow(() -> new RuntimeException("Dorm not found"));
-        List<Room> rooms = roomRepository.findByDormAndFloor(dorm, floor);
+                return floor;
+        }
 
-        return rooms.stream()
-                .map(this::toRoomListDto)
-                .toList();
-    }
+        // 특정 Dorm + Floor의 방 목록 조회
+        @Override
+        public List<RoomListResponseDto> getRooms(String dormCode, Integer floor) {
+                Dorm dorm = dormRepository.findByDormCode(dormCode)
+                                .orElseThrow(() -> new RuntimeException("Dorm not found"));
+                List<Room> rooms = roomRepository.findByDormAndFloor(dorm, floor);
 
-    // 특정 Dorm의 모든 방 조회 (층 목록 등)
-    @Override
-    public List<RoomListResponseDto> getRooms(String dormCode) {
-        Dorm dorm = dormRepository.findByDormCode(dormCode)
-                .orElseThrow(() -> new IllegalArgumentException("Dorm not found"));
+                return rooms.stream()
+                                .map(this::toRoomListDto)
+                                .toList();
+        }
 
-        List<Room> rooms = roomRepository.findByDorm(dorm);
+        // 특정 Dorm의 모든 방 조회 (층 목록 등)
+        @Override
+        public List<RoomListResponseDto> getRooms(String dormCode) {
+                Dorm dorm = dormRepository.findByDormCode(dormCode)
+                                .orElseThrow(() -> new IllegalArgumentException("Dorm not found"));
 
-        return rooms.stream()
-                .map(this::toRoomListDto)
-                .toList();
-    }
+                List<Room> rooms = roomRepository.findByDorm(dorm);
 
-    private RoomListResponseDto toRoomListDto(Room r) {
-        return new RoomListResponseDto(
-                r.getDorm().getDormCode(),
-                r.getFloor(),
-                r.getRoomNumber(),
-                r.getStatus()
-        );
-    }
+                return rooms.stream()
+                                .map(this::toRoomListDto)
+                                .toList();
+        }
 
-    @Override
-    public List<Integer> getFloors(String dormCode) {
-        Dorm dorm = dormRepository.findByDormCode(dormCode)
-                .orElseThrow(() -> new IllegalArgumentException("Dorm not found"));
+        private RoomListResponseDto toRoomListDto(Room r) {
+                return new RoomListResponseDto(
+                                r.getDorm().getDormCode(),
+                                r.getFloor(),
+                                r.getRoomNumber(),
+                                r.getStatus());
+        }
 
-        return roomRepository.findByDorm(dorm).stream()
-                .map(Room::getFloor)
-                .distinct()
-                .sorted()
-                .toList();
-    }
+        @Override
+        public List<Integer> getFloors(String dormCode) {
+                Dorm dorm = dormRepository.findByDormCode(dormCode)
+                                .orElseThrow(() -> new IllegalArgumentException("Dorm not found"));
 
-    // 호실 상태 변경
-    @Override
-    @Transactional
-    public void updateRoomStatus(String roomNumber, RoomStatusUpdateDto dto) {
-        Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
-                .orElseThrow(() -> new IllegalArgumentException("해당 생활관을 찾을 수 없습니다."));
-        Room room = roomRepository.findByDormAndRoomNumber(dorm, roomNumber)
-                .orElseThrow(() -> new IllegalArgumentException("해당 호실을 찾을 수 없습니다."));
+                return roomRepository.findByDorm(dorm).stream()
+                                .map(Room::getFloor)
+                                .distinct()
+                                .sorted()
+                                .toList();
+        }
 
-        if (dto.newRoomStatus().equals("OCCUPIED"))
-            room.updateStatus(RoomStatus.OCCUPIED);
-        else if (dto.newRoomStatus().equals("READY"))
-            room.updateStatus(RoomStatus.READY);
-        else
-            room.updateStatus(RoomStatus.VACANT);
-    }
+        // 호실 상태 변경
+        @Override
+        @Transactional
+        public void updateRoomStatus(String roomNumber, RoomStatusUpdateDto dto) {
+                Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
+                                .orElseThrow(() -> new IllegalArgumentException("해당 생활관을 찾을 수 없습니다."));
+                Room room = roomRepository.findByDormAndRoomNumber(dorm, roomNumber)
+                                .orElseThrow(() -> new IllegalArgumentException("해당 호실을 찾을 수 없습니다."));
 
-    // 호실 삭제
-    @Override
-    @Transactional
-    public void deleteRoom(String dormCode, String roomNumber) {
-        Dorm dorm = dormRepository.findByDormCode(dormCode)
-                .orElseThrow(() -> new IllegalArgumentException("해당 상활관을 찾을 수 없습니다."));
-        Room room = roomRepository.findByDormAndRoomNumber(dorm, roomNumber)
-                .orElseThrow(() -> new IllegalArgumentException("해당 호실을 찾을 수 없습니다."));
+                if (dto.newRoomStatus().equals("OCCUPIED"))
+                        room.updateStatus(RoomStatus.OCCUPIED);
+                else if (dto.newRoomStatus().equals("READY"))
+                        room.updateStatus(RoomStatus.READY);
+                else
+                        room.updateStatus(RoomStatus.VACANT);
+        }
 
-        roomRepository.delete(room);
-    }
+        // 호실 삭제
+        @Override
+        @Transactional
+        public void deleteRoom(String dormCode, String roomNumber) {
+                Dorm dorm = dormRepository.findByDormCode(dormCode)
+                                .orElseThrow(() -> new IllegalArgumentException("해당 상활관을 찾을 수 없습니다."));
+                Room room = roomRepository.findByDormAndRoomNumber(dorm, roomNumber)
+                                .orElseThrow(() -> new IllegalArgumentException("해당 호실을 찾을 수 없습니다."));
+
+                roomRepository.delete(room);
+        }
 }

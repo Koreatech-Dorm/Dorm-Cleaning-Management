@@ -22,24 +22,16 @@ public class DormServiceImpl implements DormService {
 
     public List<DormListResponseDto> findAllDorms() {
         return dormRepository.findAll().stream()
-                .map(d -> new DormListResponseDto(d.getDormCode(), d.getDormName()))
+                .map(d -> new DormListResponseDto(d.getDormCode()))
                 .toList();
     }
 
     public Dorm createDorm(CreateDormRequestDto dto) {
         Dorm dorm = Dorm.builder()
                 .dormCode(dto.dormCode())
-                .dormName(dto.dormName())
                 .build();
 
         return dormRepository.save(dorm);
-    }
-
-    @Transactional
-    public void updateDorm(DormUpdateRequestDto dto) {
-        Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
-                .orElseThrow(() -> new IllegalAccessError("해당 생활관을 찾을 수 없습니다."));
-        dorm.setDormName(dto.dormName());
     }
 
     @Transactional
