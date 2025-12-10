@@ -35,14 +35,6 @@ public class CleaningCodeServiceImpl implements CleaningCodeService {
     }
 
     @Override
-    public void useCleaningCode(CleaningCodeDto dto) {
-        CleaningCode checkCode = cleaningCodeRepository.findByCleaningCode(dto.cleaningCode())
-                .orElseThrow(() -> new IllegalArgumentException("코드가 유효하지 않습니다."));
-
-        session.setAttribute("cleaningCode", checkCode.getCleaningCode());
-    }
-
-    @Override
     public GetCleaningCodeResponseDto getCleaningCode() {
         CleaningCode cleaningCode = cleaningCodeRepository.findById(1L)
                 .orElse(null);

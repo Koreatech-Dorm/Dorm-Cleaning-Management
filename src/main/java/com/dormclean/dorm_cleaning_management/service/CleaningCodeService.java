@@ -7,7 +7,5 @@ import com.dormclean.dorm_cleaning_management.dto.RegistrationCleaningCodeReques
 public interface CleaningCodeService {
     void registration(RegistrationCleaningCodeRequestDto dto);
 
-    void useCleaningCode(CleaningCodeDto dto);
-
     GetCleaningCodeResponseDto getCleaningCode();
 }
