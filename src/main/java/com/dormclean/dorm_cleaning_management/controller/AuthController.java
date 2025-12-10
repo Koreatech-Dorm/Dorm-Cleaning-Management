@@ -29,4 +29,11 @@ public class AuthController {
 
         return ResponseEntity.ok(adminLoginResponseDto);
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpSession session) {
+        session.removeAttribute("ADMIN_ID");
+
+        return ResponseEntity.ok("로그아웃 되었습니다.");
+    }
 }
