@@ -1,12 +1,16 @@
 package com.dormclean.dorm_cleaning_management.service;
 
 import com.dormclean.dorm_cleaning_management.dto.CheckRequestDto;
+import com.dormclean.dorm_cleaning_management.dto.CleaningCodeDto;
+import com.dormclean.dorm_cleaning_management.entity.CleaningCode;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
 import com.dormclean.dorm_cleaning_management.entity.Room;
 import com.dormclean.dorm_cleaning_management.entity.enums.RoomStatus;
+import com.dormclean.dorm_cleaning_management.repository.CleaningCodeRepository;
 import com.dormclean.dorm_cleaning_management.repository.DormRepository;
 import com.dormclean.dorm_cleaning_management.repository.RoomRepository;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,8 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 public class CheckServiceImpl implements CheckService {
+    private final HttpSession session;
     private final RoomRepository roomRepository;
     private final DormRepository dormRepository;
+    private final CleaningCodeRepository cleaningCodeRepository;
 
     @Override
     public void checkIn(CheckRequestDto dto) {
@@ -58,5 +64,13 @@ public class CheckServiceImpl implements CheckService {
         } else {
             throw new IllegalStateException("퇴실하지 않은 상태에서는 청소할 수 없습니다.");
         }
+    }
+
+    @Override
+    public void useCleaningCode(CleaningCodeDto dto) {
+        CleaningCode checkCode = cleaningCodeRepository.findByCleaningCode(dto.cleaningCode())
+                .orElseThrow(() -> new IllegalArgumentException("코드가 유효하지 않습니다."));
+
+        session.setAttribute("cleaningCode", checkCode.getCleaningCode());
     }
 }

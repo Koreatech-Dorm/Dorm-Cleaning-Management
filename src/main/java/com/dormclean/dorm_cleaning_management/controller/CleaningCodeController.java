@@ -26,13 +26,6 @@ public class CleaningCodeController {
         cleaningCodeService.registration(dto);
     }
 
-    @PostMapping("/use-code")
-    public ResponseEntity<String> useCode(@RequestBody CleaningCodeDto dto) {
-        cleaningCodeService.useCleaningCode(dto);
-
-        return ResponseEntity.ok("코드 인증되었습니다.");
-    }
-
     @GetMapping("/get-code")
     public ResponseEntity<GetCleaningCodeResponseDto> getAllCleaningCode() {
         GetCleaningCodeResponseDto dto = cleaningCodeService.getCleaningCode();

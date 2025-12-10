@@ -214,7 +214,7 @@
         const code = prompt("청소 관리자 코드를 입력해주세요:");
         if (code === null || code.trim() === "") return;
 
-        axios.post('/api/cleaning-code/use-code', { cleaningCode: code})
+        axios.post('/api/check/use-code', { cleaningCode: code})
             .then(response => {
                 alert("인증되었습니다.");
                 location.reload();
