@@ -111,12 +111,16 @@ public class RoomServiceImpl implements RoomService {
                 Room room = roomRepository.findByDormAndRoomNumber(dorm, roomNumber)
                                 .orElseThrow(() -> new IllegalArgumentException("해당 호실을 찾을 수 없습니다."));
 
-                if (dto.newRoomStatus().equals("OCCUPIED"))
+                if (dto.newRoomStatus().equals("OCCUPIED")) {
                         room.updateStatus(RoomStatus.OCCUPIED);
-                else if (dto.newRoomStatus().equals("READY"))
+                        room.updateCheckInAt(java.time.Instant.now());
+                } else if (dto.newRoomStatus().equals("READY")) {
                         room.updateStatus(RoomStatus.READY);
-                else
+                        room.updateCleanedAt(java.time.Instant.now());
+                } else {
                         room.updateStatus(RoomStatus.VACANT);
+                        room.updateCheckOutAt(java.time.Instant.now());
+                }
         }
 
         // 호실 삭제
