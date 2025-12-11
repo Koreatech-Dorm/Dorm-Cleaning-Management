@@ -64,7 +64,7 @@
                     <button id="bulkSelectBtn" class="btn btn-primary position-absolute end-0">편집</button>
                 </div>
                 <div class="align-items-center gap-3 position-absolute end-0" style="display: flex; flex-direction: row; margin-top: 10rem; margin-right: -1rem; width: 400px;">
-                    <button id="selectAllkBtn" class="btn btn-primary" style="display: flex; padding: 3%;">전체 선택</button>
+                    <button id="selectAllkBtn" class="btn btn-primary" style="display: none; padding: 3%;">전체 선택</button>
                     <div class="bulk-status-group align-items-center">
                         <select id="bulkStatusSelect" class="form-select form-select-sm" style="display: none;">
                             <option value="OCCUPIED">재실</option>
@@ -429,8 +429,10 @@
                 bulkSelectBtn.classList.add('btn-secondary');
                 bulkSelectBtn.textContent = '해제';
                 
+                const selectAllkBtn = document.getElementById('selectAllkBtn');
                 const bulkStatusSelect = document.getElementById('bulkStatusSelect');
                 const applyBulkBtn = document.getElementById('applyBulkBtn');
+                selectAllkBtn.style.display = 'flex';
                 bulkStatusSelect.style.display = 'flex';
                 applyBulkBtn.style.display = 'flex';
             }
@@ -451,8 +453,10 @@
                 bulkSelectBtn.classList.add('btn-primary');
                 bulkSelectBtn.textContent = '편집';
 
+                const selectAllkBtn = document.getElementById('selectAllkBtn');
                 const bulkStatusSelect = document.getElementById('bulkStatusSelect');
                 const applyBulkBtn = document.getElementById('applyBulkBtn');
+                selectAllkBtn.style.display = 'none';
                 bulkStatusSelect.style.display = 'none';
                 applyBulkBtn.style.display = 'none';
 
