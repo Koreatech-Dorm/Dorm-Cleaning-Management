@@ -324,7 +324,7 @@
 
     // 호실 등록 양식 다운로드
     function downloadExcelTemplate() {
-        window.location.href = '/api/Excel/download';
+        window.location.href = '/admin/api/Excel/download';
     }
 
     // 호실 일괄 등록
@@ -343,7 +343,7 @@
         formData.append("file", fileInput.files[0]);
 
         try {
-            await axios.post('/api/Excel/register', formData, {
+            await axios.post('/admin/api/Excel/register', formData, {
                 headers: { "Content-Type": "multipart/form-data" }
             });
 
