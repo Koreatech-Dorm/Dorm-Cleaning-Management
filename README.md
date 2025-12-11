@@ -4,10 +4,10 @@
 
 ## 팀 정보
 
-| 팀장 | 팀원 |
-|:----:|:----:|
+|                                   리더                                    | 팀원 |
+|:-----------------------------------------------------------------------:|:----:|
 | <img src="https://avatars.githubusercontent.com/Glory0206" width="100"> | <img src="https://avatars.githubusercontent.com/JangSeokyun" width="100"> |
-| 서영광 | 장석윤 |
+|                                   서영광                                   | 장석윤 |
 
 
 ## ✨ 주요 기능
