@@ -489,6 +489,41 @@
             }
         }
 
+        // 일괄 선택 버튼 
+        document.getElementById('selectAllkBtn').addEventListener('click', () => {
+            const cards = Array.from(document.querySelectorAll('.room-card'));
+
+            // 화면에 보이는 카드만 선택
+            const flexCards = cards.filter(card => {
+            const style = window.getComputedStyle(card);
+            return style.display === 'flex';
+            });
+
+            for (let i = 0; i < flexCards.length; i++) {
+                const room = flexCards[i];
+                const dormCode = room.dataset.dormCode;
+                const roomNumber = room.dataset.roomNumber;
+                // 이미 선택됐는지 확인
+                const isSelected = selectedRooms.some(
+                    r => r[0] === dormCode && r[1] === roomNumber
+                );
+
+                if (!isSelected) {
+                    room.classList.remove('select-mode');
+                    room.classList.add('selected');
+                    selectedRooms.push([dormCode, roomNumber]);
+                } else {
+                    room.classList.remove('selected');
+                    room.classList.add('select-mode');
+
+                    // 배열에서 제거
+                    selectedRooms = selectedRooms.filter(
+                        r => !(r[0] === dormCode && r[1] === roomNumber)
+                    );
+                }
+            }
+        });
+
         // 호실 상태 일괄 변경
         async function updateAllSelectedRoom() {
             const newStatus = document.getElementById('bulkStatusSelect').value;
