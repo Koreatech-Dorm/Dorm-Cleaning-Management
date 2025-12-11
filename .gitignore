@@ -49,7 +49,7 @@ HELP.md
 # 🔑 민감 정보 및 로컬 환경 설정
 # ----------------------------------------------------
 application-dev.properties
-application.yml
+application-dev.yml
 
 # 환경변수
 .env

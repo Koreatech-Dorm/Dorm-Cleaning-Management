@@ -1,6 +1,7 @@
 package com.dormclean.dorm_cleaning_management.controller;
 
 import com.dormclean.dorm_cleaning_management.dto.CheckRequestDto;
+import com.dormclean.dorm_cleaning_management.dto.CleaningCodeDto;
 import com.dormclean.dorm_cleaning_management.service.CheckService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -38,5 +39,12 @@ public class CheckController {
         checkService.cleanCheck(dto);
 
         return ResponseEntity.ok(Map.of("message", "청소 처리가 완료되었습니다."));
+    }
+
+    @PostMapping("/use-code")
+    public ResponseEntity<String> useCode(@RequestBody CleaningCodeDto dto) {
+        checkService.useCleaningCode(dto);
+
+        return ResponseEntity.ok("코드 인증되었습니다.");
     }
 }

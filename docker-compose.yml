@@ -3,6 +3,8 @@ version: '3.8'
 services:
   mysql:
     image: mysql:8.0
+#    networks:
+#      - db-net
     container_name: dorm-clean-management
     restart: always # 컨테이너가 종료되어도 항상 다시 시작
     environment:
@@ -17,7 +19,9 @@ services:
 
   nginx:
     image: nginx:latest
-    container_name: nginx_proxy
+#    networks:
+#      - web-net
+    container_name: nginx-proxy
     ports:
       - "80:80"
     volumes:
@@ -28,3 +32,19 @@ services:
       - .env
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
+  k6:
+    image: grafana/k6:latest
+#    networks:
+#      - web-net
+    container_name: k6-tester
+    volumes:
+      - ./k6:/scripts
+    profiles:
+      - testing # 평소(up -d)에는 실행 안 되게 프로필 설정
+
+#networks:
+#  web-net:
+#    driver: bridge
+#  db-net:
+#    driver: bridge

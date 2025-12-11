@@ -148,7 +148,11 @@
 
 <div class="card">
     <div class="card-icon">🏠</div>
-    <h1>QR 체크인 확인</h1>
+    <th:block th:switch="${status}">
+        <h1 th:case="'READY'">현재 상태 [공실]</h1>
+        <h1 th:case="'OCCUPIED'">현재 상태 [재실 중]</h1>
+        <h1 th:case="*">현재 상태 [청소 검토 필요]</h1> <!-- default -->
+    </th:block>
 
     <span class="info-label">생활관</span>
     <div class="info-box" th:text="${dormCode} + '동'">데이터 로딩중...</div>
@@ -214,7 +218,7 @@
         const code = prompt("청소 관리자 코드를 입력해주세요:");
         if (code === null || code.trim() === "") return;
 
-        axios.post('/api/cleaning-code/use-code', { cleaningCode: code})
+        axios.post('/api/check/use-code', { cleaningCode: code})
             .then(response => {
                 alert("인증되었습니다.");
                 location.reload();
