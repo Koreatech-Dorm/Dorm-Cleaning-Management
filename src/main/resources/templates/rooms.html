@@ -64,7 +64,7 @@
                     <button id="bulkSelectBtn" class="btn btn-primary position-absolute end-0">편집</button>
                 </div>
                 <div class="align-items-center gap-3 position-absolute end-0" style="display: flex; flex-direction: row; margin-top: 10rem; margin-right: -1rem; width: 400px;">
-                    <button id="selectAllkBtn" class="btn btn-primary" style="display: none; padding: 3%;">전체 선택</button>
+                    <button id="selectAllBtn" class="btn btn-primary">전체선택</button>
                     <div class="bulk-status-group align-items-center">
                         <select id="bulkStatusSelect" class="form-select form-select-sm" style="display: none;">
                             <option value="OCCUPIED">재실</option>
@@ -427,12 +427,12 @@
                 const bulkSelectBtn = document.getElementById('bulkSelectBtn');
                 bulkSelectBtn.classList.remove('btn-primary');
                 bulkSelectBtn.classList.add('btn-secondary');
-                bulkSelectBtn.textContent = '해제';
+                bulkSelectBtn.textContent = '취소';
                 
-                const selectAllkBtn = document.getElementById('selectAllkBtn');
+                const selectAllBtn = document.getElementById('selectAllBtn');
                 const bulkStatusSelect = document.getElementById('bulkStatusSelect');
                 const applyBulkBtn = document.getElementById('applyBulkBtn');
-                selectAllkBtn.style.display = 'flex';
+                selectAllBtn.style.display = 'flex';
                 bulkStatusSelect.style.display = 'flex';
                 applyBulkBtn.style.display = 'flex';
             }
@@ -453,10 +453,10 @@
                 bulkSelectBtn.classList.add('btn-primary');
                 bulkSelectBtn.textContent = '편집';
 
-                const selectAllkBtn = document.getElementById('selectAllkBtn');
+                const selectAllBtn = document.getElementById('selectAllBtn');
                 const bulkStatusSelect = document.getElementById('bulkStatusSelect');
                 const applyBulkBtn = document.getElementById('applyBulkBtn');
-                selectAllkBtn.style.display = 'none';
+                selectAllBtn.style.display = 'none';
                 bulkStatusSelect.style.display = 'none';
                 applyBulkBtn.style.display = 'none';
 
@@ -467,6 +467,14 @@
         // 선택모드에서 호실 선택
         let selectedRooms = []
         function selectRoom(dormCode, roomNumber) {
+            const cards = Array.from(document.querySelectorAll('.room-card'));
+
+            // 화면에 보이는 카드만 선택
+            const flexCards = cards.filter(card => {
+                const style = window.getComputedStyle(card);
+                return style.display === 'flex';
+            });
+
             const room = document.querySelector(`.room-card[data-dorm-code="${dormCode}"][data-room-number="${roomNumber}"]`);
             
             // 이미 선택됐는지 확인
@@ -478,6 +486,12 @@
                 room.classList.remove('select-mode');
                 room.classList.add('selected');
                 selectedRooms.push([dormCode, roomNumber]);
+                if (flexCards.length === selectedRooms.length) {
+                    selectAll = true;
+                    selectAllBtn.classList.remove("btn-primary");
+                    selectAllBtn.classList.add("btn-secondary");
+                    selectAllBtn.innerHTML = "선택해제";
+                }
             } else {
                 room.classList.remove('selected');
                 room.classList.add('select-mode');
@@ -486,11 +500,17 @@
                 selectedRooms = selectedRooms.filter(
                     r => !(r[0] === dormCode && r[1] === roomNumber)
                 );
+                selectAll = false;
+                selectAllBtn.classList.remove("btn-secondary");
+                selectAllBtn.classList.add("btn-primary");
+                selectAllBtn.innerHTML = "전체선택";
             }
         }
 
         // 일괄 선택 버튼 
-        document.getElementById('selectAllkBtn').addEventListener('click', () => {
+        let selectAll = false;
+        const selectAllBtn = document.getElementById('selectAllBtn');
+        document.getElementById('selectAllBtn').addEventListener('click', () => {
             const cards = Array.from(document.querySelectorAll('.room-card'));
 
             // 화면에 보이는 카드만 선택
@@ -499,20 +519,53 @@
                 return style.display === 'flex';
             });
 
-            for (let i = 0; i < flexCards.length; i++) {
-                const room = flexCards[i];
-                const dormCode = room.dataset.dormCode;
-                const roomNumber = room.dataset.roomNumber;
-                // 이미 선택됐는지 확인
-                const isSelected = selectedRooms.some(
-                    r => r[0] === dormCode && r[1] === roomNumber
-                );
+            if (!selectAll) {
+                for (let i = 0; i < flexCards.length; i++) {
+                    const room = flexCards[i];
+                    const dormCode = room.dataset.dormCode;
+                    const roomNumber = room.dataset.roomNumber;
 
-                if (!isSelected) {
-                    room.classList.remove('select-mode');
-                    room.classList.add('selected');
-                    selectedRooms.push([dormCode, roomNumber]);
+                    // 이미 선택됐는지 확인
+                    const isSelected = selectedRooms.some(
+                        r => r[0] === dormCode && r[1] === roomNumber
+                    );
+
+                    if (!isSelected) {
+                        room.classList.remove('select-mode');
+                        room.classList.add('selected');
+                        selectedRooms.push([dormCode, roomNumber]);
+                    }
                 }
+                selectAll = true;
+                selectAllBtn.classList.remove("btn-primary");
+                selectAllBtn.classList.add("btn-secondary");
+                selectAllBtn.innerHTML = "선택해제";
+            }
+            else {
+                for (let i = 0; i < flexCards.length; i++) {
+                    const room = flexCards[i];
+                    const dormCode = room.dataset.dormCode;
+                    const roomNumber = room.dataset.roomNumber;
+
+                    // 이미 선택됐는지 확인
+                    const isSelected = selectedRooms.some(
+                        r => r[0] === dormCode && r[1] === roomNumber
+                    );
+
+                    if (isSelected) {
+                        room.classList.remove('selected');
+                        room.classList.add('select-mode');
+
+                        // 배열에서 제거
+                        selectedRooms = selectedRooms.filter(
+                            r => !(r[0] === dormCode && r[1] === roomNumber)
+                        );
+                    }
+                }
+                selectAll = false;
+                selectAllBtn.classList.remove("btn-secondary");
+                selectAllBtn.classList.add("btn-primary");
+                selectAllBtn.innerHTML = "전체선택";
             }
         });
 

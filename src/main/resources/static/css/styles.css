@@ -640,3 +640,11 @@ main {
     from { opacity: 0; transform: translateY(5px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+#selectAllBtn {
+    display: none; 
+    padding: 3% !important; 
+    width: 85px; 
+    text-align: center; 
+    justify-content: center;
+}
