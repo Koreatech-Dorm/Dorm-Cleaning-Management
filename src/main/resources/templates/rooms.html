@@ -142,6 +142,24 @@
             });
         }
 
+        // 시간 포멧 함수
+        function formatTime(raw) {
+            if (!raw) return "";  // null 대응
+            
+            // "2025-12-09 06:46:55.089332" → "2025-12-09T06:46:55.089332"
+            const iso = raw.replace(" ", "T");
+
+            const date = new Date(iso);
+            if (isNaN(date)) return raw; // 파싱 실패하면 원본 출력
+
+            const MM = String(date.getMonth()).padStart(2, "0");
+            const dd = String(date.getDate()).padStart(2, "0");
+            const hh = String(date.getHours()).padStart(2, "0");
+            const mm = String(date.getMinutes()).padStart(2, "0");
+
+            return `${MM}/${dd} ${hh}:${mm}`;
+        }
+
         // 생활관 선택 시 층 드롭다운만 갱신
         dormSelect.addEventListener('change', async () => {
             const dormCode = dormSelect.value;
@@ -216,9 +234,20 @@
                             const div = document.createElement('div');
                             div.classList.add('room-card', 'col-2', 'mb-3', 'p-2');
 
-                            if (room.status === 'OCCUPIED') div.classList.add('occupied');
-                            else if (room.status === 'VACANT') div.classList.add('vacant');
-                            else div.classList.add('ready');
+                            let time = null;
+                            // 상태별 색상 적용
+                            if (room.status === 'OCCUPIED') {
+                                div.classList.add('occupied');
+                                time = formatTime(room.checkInAt);
+                            }
+                            else if (room.status === 'VACANT') {
+                                div.classList.add('vacant');
+                                time = formatTime(room.checkOutAt);
+                            }
+                            else {
+                                div.classList.add('ready');
+                                time = formatTime(room.cleanedAt);
+                            }
 
                             div.onclick = () => {
                                 if (!bulkMode)
@@ -229,9 +258,11 @@
 
                             div.dataset.dormCode = dormCode;
                             div.dataset.roomNumber = room.roomNumber;
+                            div.dataset.time = time;
 
                             div.innerHTML = `
-                                <div class="room-number fw-bold">${room.roomNumber}</div>
+                                <div class="room-number fw-bold">${div.dataset.roomNumber}</div>
+                                <div class="room-time fw-bold">${div.dataset.time}</div>
                             `;
                             roomGrid.appendChild(div);
                         });
@@ -276,10 +307,20 @@
                                 const div = document.createElement('div');
                                 div.classList.add('room-card', 'col-2', 'mb-3', 'p-2');
 
+                                let time = null;
                                 // 상태별 색상 적용
-                                if (room.status === 'OCCUPIED') div.classList.add('occupied');
-                                else if (room.status === 'VACANT') div.classList.add('vacant');
-                                else div.classList.add('ready');
+                                if (room.status === 'OCCUPIED') {
+                                    div.classList.add('occupied');
+                                    time = formatTime(room.checkInAt);
+                                }
+                                else if (room.status === 'VACANT') {
+                                    div.classList.add('vacant');
+                                    time = formatTime(room.checkOutAt);
+                                }
+                                else {
+                                    div.classList.add('ready');
+                                    time = formatTime(room.cleanedAt);
+                                }
 
                                 // 클릭 이벤트
                                 div.onclick = () => {
@@ -291,9 +332,11 @@
                                 
                                 div.dataset.dormCode = dormCode;
                                 div.dataset.roomNumber = room.roomNumber;
+                                div.dataset.time = time;
 
                                 div.innerHTML = `
-                                    <div class="room-number fw-bold">${room.roomNumber}</div>
+                                    <div class="room-number fw-bold">${div.dataset.roomNumber}</div>
+                                    <div class="room-time fw-bold">${div.dataset.time}</div>
                                 `;
                                 roomGrid.appendChild(div);
                             });
@@ -326,10 +369,21 @@
                             sortedRooms.forEach(room => {
                                 const div = document.createElement('div');
                                 div.classList.add('room-card', 'col-2', 'mb-3', 'p-2');
-
-                                if (room.status === 'OCCUPIED') div.classList.add('occupied');
-                                else if (room.status === 'VACANT') div.classList.add('vacant');
-                                else div.classList.add('ready');
+                                
+                                let time = null;
+                                // 상태별 색상 적용
+                                if (room.status === 'OCCUPIED') {
+                                    div.classList.add('occupied');
+                                    time = formatTime(room.checkInAt);
+                                }
+                                else if (room.status === 'VACANT') {
+                                    div.classList.add('vacant');
+                                    time = formatTime(room.checkOutAt);
+                                }
+                                else {
+                                    div.classList.add('ready');
+                                    time = formatTime(room.cleanedAt);
+                                }
 
                                 div.onclick = () => {
                                     if (!bulkMode)
@@ -340,9 +394,11 @@
 
                                 div.dataset.dormCode = dorm.dormCode;
                                 div.dataset.roomNumber = room.roomNumber;
+                                div.dataset.time = time;
 
                                 div.innerHTML = `
-                                    <div class="room-number fw-bold">${room.roomNumber}</div>
+                                    <div class="room-number fw-bold">${div.dataset.roomNumber}</div>
+                                    <div class="room-time fw-bold">${div.dataset.time}</div>
                                 `;
                                 roomGrid.appendChild(div);
                             });
