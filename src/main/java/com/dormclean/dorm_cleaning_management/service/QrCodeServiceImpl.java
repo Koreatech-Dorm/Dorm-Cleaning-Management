@@ -25,10 +25,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -41,6 +38,7 @@ public class QrCodeServiceImpl implements QrCodeService {
     private final QrCodeRepository qrCodeRepository;
     private final RoomRepository roomRepository;
     private final DormRepository dormRepository;
+    private final QrDataProcessor qrDataProcessor;
 
     @Override
     @Transactional
@@ -131,10 +129,9 @@ public class QrCodeServiceImpl implements QrCodeService {
     }
 
     @Override
-    @Transactional(readOnly = true) // 전체 프로세스는 읽기 전용으로 시작하여 DB 락을 최소화한다.
     public byte[] generateZipForDorms(List<String> dormCodes) {
         // 데이터 준비 및 qrCode 업데이트/저장
-        List<QrGenerationData> qrDataList = prepareQrDataAndSaveBulk(dormCodes);
+        List<QrGenerationData> qrDataList = qrDataProcessor.prepareQrDataAndSaveBulk(dormCodes);
 
         // 순서가 섞이지 않도록 리스트 처리는 주의해야 하나, ZIP 내 파일명이 명확하므로 병렬 처리 결과 수집이 더 중요
         List<ZipFileEntry> zipEntries = qrDataList.parallelStream()
@@ -150,55 +147,6 @@ public class QrCodeServiceImpl implements QrCodeService {
                 .toList();
 
         return createZipFromEntries(zipEntries);
-    }
-
-    @Transactional
-    protected List<QrGenerationData> prepareQrDataAndSaveBulk(List<String> dormCodes) {
-        List<QrGenerationData> resultData = new ArrayList<>();
-        List<QrCode> qrCodesToSave = new ArrayList<>();
-
-        for (String dormCode : dormCodes) {
-            Dorm dorm = dormRepository.findByDormCode(dormCode)
-                    .orElseThrow(() -> new IllegalArgumentException("기숙사 정보 없음: " + dormCode));
-
-            // 해당 기숙사의 모든 방 조회
-            List<Room> rooms = roomRepository.findByDorm(dorm);
-
-            // rooms에 있는 room들을 대상으로 room을 참조하고 있는 QrCode entity 모두 조회
-            List<QrCode> existingQrCodes = qrCodeRepository.findByRoomIn(rooms);
-
-            // 룸 ID를 키로 하는 맵으로 변환하여 검색 속도 향상
-            Map<Long, QrCode> qrMap = existingQrCodes.stream()
-                    .collect(Collectors.toMap(qr -> qr.getRoom().getId(), qr -> qr));
-
-            String dormFolder = dormCode + "/";
-
-            for (Room room : rooms) {
-                QrCode qrCode = qrMap.get(room.getId());
-
-                if (qrCode != null) { // DB에 qrCode가 존재한다면,
-                    qrCode.refreshUuid(); // Dirty Checking에 의해 업데이트
-                } else {
-                    qrCode = QrCode.builder().room(room).build();
-                    // 새로 생성된 객체는 save 목록에 추가 필요하지만,
-                    // 여기서는 saveAll을 위해 리스트에 다 담는다.
-                }
-                qrCodesToSave.add(qrCode);
-
-                // 이미지 생성에 필요한 데이터 미리 준비 (DB 의존성 제거)
-                String uuid = qrCode.getUuid();
-                String content = String.format("%s/check?token=%s", host, uuid);
-                String labelText = String.format("%s동 %s호", dormCode, room.getRoomNumber());
-                String fileName = dormFolder + "QR_" + dormCode + "동_" + room.getRoomNumber() + "호.png";
-
-                resultData.add(new QrGenerationData(content, labelText, fileName));
-            }
-        }
-
-        // 일괄 저장 (Batch Insert/Update)
-        qrCodeRepository.saveAll(qrCodesToSave);
-
-        return resultData;
     }
 
     private byte[] createZipFromEntries(List<ZipFileEntry> entries) {
