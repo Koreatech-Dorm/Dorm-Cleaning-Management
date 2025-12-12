@@ -72,5 +72,6 @@ public class CheckServiceImpl implements CheckService {
                 .orElseThrow(() -> new IllegalArgumentException("코드가 유효하지 않습니다."));
 
         session.setAttribute("cleaningCode", checkCode.getCleaningCode());
+        session.setMaxInactiveInterval(21600); // 6시간
     }
 }
