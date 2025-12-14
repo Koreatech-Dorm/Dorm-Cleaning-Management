@@ -87,7 +87,8 @@
             e.target.reset();
             loadkey();
         } catch (err) {
-            statusEl.textContent = `⚠️ 인증코드를 생성하지 못했습니다.`;
+            const msg = err?.response?.data?.message || '생활관을 추가하지 못하였습니다.';
+            statusEl.textContent = `⚠️ ${msg}`;
             statusEl.style.color = "red";
         }
     });

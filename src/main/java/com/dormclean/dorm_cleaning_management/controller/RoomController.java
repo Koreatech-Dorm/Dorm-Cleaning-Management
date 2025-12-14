@@ -7,6 +7,7 @@ import com.dormclean.dorm_cleaning_management.entity.Room;
 import com.dormclean.dorm_cleaning_management.service.RoomService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,7 +38,7 @@ public class RoomController {
 
         // 호실 생성
         @PostMapping("/rooms/create")
-        public ResponseEntity<Long> createRoom(@RequestBody CreateRoomRequestDto dto) {
+        public ResponseEntity<Long> createRoom(@Valid @RequestBody CreateRoomRequestDto dto) {
             Room room = roomService.createRoom(dto);
 
             return ResponseEntity.ok(room.getId());
@@ -47,7 +48,7 @@ public class RoomController {
         @PatchMapping("/rooms/{roomNumber}/status")
         public ResponseEntity<Void> updateRoomStatus(
                         @PathVariable("roomNumber") String roomNumber,
-                        @RequestBody RoomStatusUpdateDto dto) {
+                        @Valid @RequestBody RoomStatusUpdateDto dto) {
             roomService.updateRoomStatus(roomNumber, dto);
 
             return ResponseEntity.ok().build();

@@ -149,7 +149,7 @@ public class ExcelServiceImpl implements ExcelService {
                     if (dormCode.isEmpty() || roomNumber.isEmpty())
                         continue;
 
-                    // 1. 기숙사 존재 확인
+                    // 1. 생활관 존재 확인
                     Dorm dorm = dormRepository.findByDormCode(dormCode)
                             .orElseGet(() -> Dorm.builder()
                                     .dormCode(dormCode)
