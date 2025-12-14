@@ -1,9 +1,9 @@
 package com.dormclean.dorm_cleaning_management.service;
 
-import com.dormclean.dorm_cleaning_management.dto.QrGenerationData;
-import com.dormclean.dorm_cleaning_management.dto.QrRequestDto;
-import com.dormclean.dorm_cleaning_management.dto.QrResponseDto;
-import com.dormclean.dorm_cleaning_management.dto.ZipFileEntry;
+import com.dormclean.dorm_cleaning_management.dto.zipFile.QrGenerationData;
+import com.dormclean.dorm_cleaning_management.dto.qr.QrRequestDto;
+import com.dormclean.dorm_cleaning_management.dto.qr.QrResponseDto;
+import com.dormclean.dorm_cleaning_management.dto.zipFile.ZipFileEntry;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
 import com.dormclean.dorm_cleaning_management.entity.QrCode;
 import com.dormclean.dorm_cleaning_management.entity.Room;
@@ -44,7 +44,7 @@ public class QrCodeServiceImpl implements QrCodeService {
     @Transactional
     public byte[] createSecureQr(QrRequestDto dto) {
         Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
-                .orElseThrow(() -> new RuntimeException("해당 기숙사의 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new RuntimeException("해당 생활관의 정보를 찾을 수 없습니다."));
         Room room = roomRepository.findByDormAndRoomNumber(dorm, dto.roomNumber())
                 .orElseThrow(() -> new RuntimeException("해당 호실의 정보를 찾을 수 없습니다."));
 

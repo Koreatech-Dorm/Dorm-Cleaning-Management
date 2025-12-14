@@ -1,9 +1,10 @@
 package com.dormclean.dorm_cleaning_management.controller;
 
-import com.dormclean.dorm_cleaning_management.dto.CheckRequestDto;
-import com.dormclean.dorm_cleaning_management.dto.CleaningCodeDto;
+import com.dormclean.dorm_cleaning_management.dto.check.CheckRequestDto;
+import com.dormclean.dorm_cleaning_management.dto.cleaning.CleaningCodeDto;
 import com.dormclean.dorm_cleaning_management.service.CheckService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,7 +43,7 @@ public class CheckController {
     }
 
     @PostMapping("/use-code")
-    public ResponseEntity<String> useCode(@RequestBody CleaningCodeDto dto) {
+    public ResponseEntity<String> useCode(@Valid @RequestBody CleaningCodeDto dto) {
         checkService.useCleaningCode(dto);
 
         return ResponseEntity.ok("코드 인증되었습니다.");

@@ -1,7 +1,7 @@
 package com.dormclean.dorm_cleaning_management.service;
 
-import com.dormclean.dorm_cleaning_management.dto.CheckRequestDto;
-import com.dormclean.dorm_cleaning_management.dto.CleaningCodeDto;
+import com.dormclean.dorm_cleaning_management.dto.check.CheckRequestDto;
+import com.dormclean.dorm_cleaning_management.dto.cleaning.CleaningCodeDto;
 
 public interface CheckService {
     void checkIn(CheckRequestDto dto);

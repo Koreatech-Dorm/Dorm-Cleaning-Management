@@ -1,4 +1,4 @@
-package com.dormclean.dorm_cleaning_management.dto;
+package com.dormclean.dorm_cleaning_management.dto.zipFile;
 
 public record QrGenerationData(
         String content,    // QR 코드에 들어갈 URL (예: https://host/check?token=...)

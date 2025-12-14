@@ -18,7 +18,7 @@ public class SwaggerConfig {
 
     private Info apiInfo() {
         return new Info()
-                .title("기숙사 청소 관리 API")
+                .title("생활관 청소 관리 API")
                 .description("기숙사 청소 인증 및 관리 시스템 API 명세서입니다.")
                 .version("v1.0.0");
     }

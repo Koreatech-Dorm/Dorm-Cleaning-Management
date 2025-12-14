@@ -1,10 +1,10 @@
 package com.dormclean.dorm_cleaning_management.controller;
 
-import com.dormclean.dorm_cleaning_management.dto.CleaningCodeDto;
-import com.dormclean.dorm_cleaning_management.dto.GetCleaningCodeResponseDto;
-import com.dormclean.dorm_cleaning_management.dto.RegistrationCleaningCodeRequestDto;
+import com.dormclean.dorm_cleaning_management.dto.cleaning.GetCleaningCodeResponseDto;
+import com.dormclean.dorm_cleaning_management.dto.cleaning.RegistrationCleaningCodeRequestDto;
 import com.dormclean.dorm_cleaning_management.service.CleaningCodeService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
@@ -22,7 +22,7 @@ public class CleaningCodeController {
     private final CleaningCodeService cleaningCodeService;
 
     @PostMapping("/registration")
-    public void registration(@RequestBody RegistrationCleaningCodeRequestDto dto) {
+    public void registration(@Valid @RequestBody RegistrationCleaningCodeRequestDto dto) {
         cleaningCodeService.registration(dto);
     }
 

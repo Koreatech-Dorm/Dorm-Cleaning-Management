@@ -1,9 +1,8 @@
 package com.dormclean.dorm_cleaning_management.controller.pages;
 
-import com.dormclean.dorm_cleaning_management.dto.QrResponseDto;
+import com.dormclean.dorm_cleaning_management.dto.qr.QrResponseDto;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
 import com.dormclean.dorm_cleaning_management.entity.Room;
-import com.dormclean.dorm_cleaning_management.repository.CleaningCodeRepository;
 import com.dormclean.dorm_cleaning_management.repository.DormRepository;
 import com.dormclean.dorm_cleaning_management.repository.RoomRepository;
 import com.dormclean.dorm_cleaning_management.service.QrCodeService;
@@ -27,7 +26,7 @@ public class CheckPageController {
         QrResponseDto data = qrCodeService.getQrData(token);
 
         Dorm dorm = dormRepository.findByDormCode(data.dormCode())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 기숙사입니다."));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 생활관입니다."));
         Room room = roomRepository.findByDormAndRoomNumber(dorm, data.roomNumber())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 호실입니다."));
 

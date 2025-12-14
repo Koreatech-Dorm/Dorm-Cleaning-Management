@@ -1,6 +1,6 @@
 package com.dormclean.dorm_cleaning_management.service;
 
-import com.dormclean.dorm_cleaning_management.dto.QrGenerationData;
+import com.dormclean.dorm_cleaning_management.dto.zipFile.QrGenerationData;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
 import com.dormclean.dorm_cleaning_management.entity.QrCode;
 import com.dormclean.dorm_cleaning_management.entity.Room;
@@ -39,7 +39,7 @@ public class QrDataProcessor {
 
         for (String dormCode : dormCodes) {
             Dorm dorm = dormRepository.findByDormCode(dormCode)
-                    .orElseThrow(() -> new IllegalArgumentException("기숙사 정보 없음: " + dormCode));
+                    .orElseThrow(() -> new IllegalArgumentException("생활관 정보 없음: " + dormCode));
 
             List<Room> rooms = roomRepository.findByDorm(dorm);
 

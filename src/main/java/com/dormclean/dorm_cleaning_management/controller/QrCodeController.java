@@ -1,8 +1,9 @@
 package com.dormclean.dorm_cleaning_management.controller;
 
-import com.dormclean.dorm_cleaning_management.dto.QrRequestDto;
+import com.dormclean.dorm_cleaning_management.dto.qr.QrRequestDto;
 import com.dormclean.dorm_cleaning_management.service.QrCodeService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -19,7 +20,7 @@ public class QrCodeController {
     private final QrCodeService qrCodeService;
 
     @GetMapping("/generate")
-    public ResponseEntity<byte[]> generateQrCode(@ModelAttribute QrRequestDto dto) {
+    public ResponseEntity<byte[]> generateQrCode(@Valid @ModelAttribute QrRequestDto dto) {
         try {
             byte[] qrImage = qrCodeService.createSecureQr(dto);
 

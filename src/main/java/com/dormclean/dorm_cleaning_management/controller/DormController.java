@@ -1,12 +1,12 @@
 package com.dormclean.dorm_cleaning_management.controller;
 
-import com.dormclean.dorm_cleaning_management.dto.CreateDormRequestDto;
-import com.dormclean.dorm_cleaning_management.dto.DormDeleteRequestDto;
-import com.dormclean.dorm_cleaning_management.dto.DormListResponseDto;
-import com.dormclean.dorm_cleaning_management.dto.DormUpdateRequestDto;
+import com.dormclean.dorm_cleaning_management.dto.dorm.CreateDormRequestDto;
+import com.dormclean.dorm_cleaning_management.dto.dorm.DormDeleteRequestDto;
+import com.dormclean.dorm_cleaning_management.dto.dorm.DormListResponseDto;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
 import com.dormclean.dorm_cleaning_management.service.DormService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -32,7 +32,7 @@ public class DormController {
 
     // 기숙사 생성
     @PostMapping("/dorms/create")
-    public ResponseEntity<Long> createdorm(@RequestBody CreateDormRequestDto dto) {
+    public ResponseEntity<Long> createdorm(@Valid @RequestBody CreateDormRequestDto dto) {
         Dorm dorm = dormService.createDorm(dto);
 
         return ResponseEntity.ok(dorm.getId());
@@ -40,7 +40,7 @@ public class DormController {
 
     // 기숙사 삭제
     @DeleteMapping("/dorms/{dormCode}")
-    public ResponseEntity<Void> deleteDorm(@PathVariable("dormCode") DormDeleteRequestDto dto) {
+    public ResponseEntity<Void> deleteDorm(@Valid @PathVariable("dormCode") DormDeleteRequestDto dto) {
         dormService.deleteDorm(dto);
 
         return ResponseEntity.ok().build();

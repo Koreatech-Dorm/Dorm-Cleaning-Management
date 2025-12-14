@@ -1,7 +1,7 @@
 package com.dormclean.dorm_cleaning_management.service;
 
-import com.dormclean.dorm_cleaning_management.dto.AdminLoginRequestDto;
-import com.dormclean.dorm_cleaning_management.dto.AdminLoginResponseDto;
+import com.dormclean.dorm_cleaning_management.dto.admin.AdminLoginRequestDto;
+import com.dormclean.dorm_cleaning_management.dto.admin.AdminLoginResponseDto;
 import com.dormclean.dorm_cleaning_management.entity.AdminUser;
 import com.dormclean.dorm_cleaning_management.repository.AdminRepository;
 import lombok.RequiredArgsConstructor;

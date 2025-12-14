@@ -1,9 +1,8 @@
 package com.dormclean.dorm_cleaning_management.service;
 
-import com.dormclean.dorm_cleaning_management.dto.CreateDormRequestDto;
-import com.dormclean.dorm_cleaning_management.dto.DormDeleteRequestDto;
-import com.dormclean.dorm_cleaning_management.dto.DormListResponseDto;
-import com.dormclean.dorm_cleaning_management.dto.DormUpdateRequestDto;
+import com.dormclean.dorm_cleaning_management.dto.dorm.CreateDormRequestDto;
+import com.dormclean.dorm_cleaning_management.dto.dorm.DormDeleteRequestDto;
+import com.dormclean.dorm_cleaning_management.dto.dorm.DormListResponseDto;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
 import com.dormclean.dorm_cleaning_management.repository.DormRepository;
 

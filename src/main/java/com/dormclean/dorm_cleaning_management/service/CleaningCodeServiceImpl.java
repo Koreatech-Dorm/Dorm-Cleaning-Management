@@ -1,11 +1,11 @@
 package com.dormclean.dorm_cleaning_management.service;
 
-import com.dormclean.dorm_cleaning_management.dto.CleaningCodeDto;
-import com.dormclean.dorm_cleaning_management.dto.GetCleaningCodeResponseDto;
-import com.dormclean.dorm_cleaning_management.dto.RegistrationCleaningCodeRequestDto;
+import com.dormclean.dorm_cleaning_management.dto.cleaning.GetCleaningCodeResponseDto;
+import com.dormclean.dorm_cleaning_management.dto.cleaning.RegistrationCleaningCodeRequestDto;
 import com.dormclean.dorm_cleaning_management.entity.CleaningCode;
 import com.dormclean.dorm_cleaning_management.repository.CleaningCodeRepository;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +18,7 @@ public class CleaningCodeServiceImpl implements CleaningCodeService {
 
     @Override
     @Transactional
-    public void registration(RegistrationCleaningCodeRequestDto dto) {
+    public void registration(@Valid RegistrationCleaningCodeRequestDto dto) {
         CleaningCode existingCode = cleaningCodeRepository.findById(1L)
                 .orElse(null);
 
