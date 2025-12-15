@@ -276,7 +276,7 @@ main {
 .scroll-bar {
     scrollbar-gutter: stable;
     box-sizing: border-box;
-    padding: 0 12px;
+    padding: 0 16px;
     overflow-Y: auto;
     overflow-x: hidden;
     max-height: 300px;
