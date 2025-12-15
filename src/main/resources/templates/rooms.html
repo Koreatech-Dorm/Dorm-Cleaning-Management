@@ -362,6 +362,8 @@
             const dormCode = dormSelect.value;
             const floor = floorSelect.value;
             
+            bulkMode = true;
+            document.getElementById('bulkSelectBtn').click();
             applyDormFloorFilter(dormCode, floor);
         }
 
