@@ -13,62 +13,70 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin/api")
 @Tag(name = "호실(방) 관리 API", description = "호실(방) 관련 API")
 public class RoomController {
-        private final RoomService roomService;
+    private final RoomService roomService;
 
-        // 특정 생활관의 호실 정보 반환
-        @GetMapping("/rooms/info/byDorm")
-        public ResponseEntity<List<RoomListResponseDto>> getRoomsByDorm(@RequestParam("dormCode") String dormCode) {
+    // 모든 호실 정보 반환
+    @GetMapping("/rooms/all")
+    public ResponseEntity<List<RoomListResponseDto>> getAllRooms() {
+        return ResponseEntity.ok(roomService.getRooms());
+    }
 
-                return ResponseEntity.ok(roomService.getRooms(dormCode));
-        }
+    // 특정 생활관의 호실 정보 반환
+    @GetMapping("/rooms/info/byDorm")
+    public ResponseEntity<List<RoomListResponseDto>> getRoomsByDorm(@RequestParam("dormCode") String dormCode) {
 
-        @GetMapping("/rooms/info/byFloor")
-        public ResponseEntity<List<RoomListResponseDto>> getRoomsByDormAndFloor(
-                        @RequestParam("dormCode") String dormCode,
-                        @RequestParam("floor") Integer floor) {
+        return ResponseEntity.ok(roomService.getRooms(dormCode));
+    }
 
-            return ResponseEntity.ok(roomService.getRooms(dormCode, floor));
-        }
+    @GetMapping("/rooms/info/byFloor")
+    public ResponseEntity<List<RoomListResponseDto>> getRoomsByDormAndFloor(
+            @RequestParam("dormCode") String dormCode,
+            @RequestParam("floor") Integer floor) {
 
-        // 호실 생성
-        @PostMapping("/rooms/create")
-        public ResponseEntity<Long> createRoom(@RequestBody CreateRoomRequestDto dto) {
-            Room room = roomService.createRoom(dto);
+        return ResponseEntity.ok(roomService.getRooms(dormCode, floor));
+    }
 
-            return ResponseEntity.ok(room.getId());
-        }
+    // 호실 생성
+    @PostMapping("/rooms/create")
+    public ResponseEntity<Long> createRoom(@RequestBody CreateRoomRequestDto dto) {
+        Room room = roomService.createRoom(dto);
 
-        // 호실 상태 변경
-        @PatchMapping("/rooms/{roomNumber}/status")
-        public ResponseEntity<Void> updateRoomStatus(
-                        @PathVariable("roomNumber") String roomNumber,
-                        @RequestBody RoomStatusUpdateDto dto) {
-            roomService.updateRoomStatus(roomNumber, dto);
+        return ResponseEntity.ok(room.getId());
+    }
 
-            return ResponseEntity.ok().build();
-        }
+    // 호실 상태 변경
+    @PatchMapping("/rooms/{roomNumber}/status")
+    public ResponseEntity<Void> updateRoomStatus(
+            @PathVariable("roomNumber") String roomNumber,
+            @RequestBody RoomStatusUpdateDto dto) {
+        roomService.updateRoomStatus(roomNumber, dto);
 
-        // 생활관 층 목록 반환
-        @GetMapping("/floors")
-        public ResponseEntity<List<Integer>> getFloors(@RequestParam("dormCode") String dormCode) {
-            List<Integer> floors = roomService.getFloors(dormCode);
+        return ResponseEntity.ok().build();
+    }
 
-            return ResponseEntity.ok(floors);
-        }
+    // 생활관 층 목록 반환
+    @GetMapping("/floors")
+    public ResponseEntity<List<Integer>> getFloors(@RequestParam("dormCode") String dormCode) {
+        List<Integer> floors = roomService.getFloors(dormCode);
 
-        // 호실 삭제
-        @DeleteMapping("/rooms/delete")
-        public ResponseEntity<Void> deleteRoom(
-                        @RequestParam("dormCode") String dormCode,
-                        @RequestParam("roomNumber") String roomNumber) {
-                roomService.deleteRoom(dormCode, roomNumber);
+        return ResponseEntity.ok(floors);
+    }
 
-                return ResponseEntity.ok().build();
-        }
+    // 호실 삭제
+    @DeleteMapping("/rooms/delete")
+    public ResponseEntity<Void> deleteRoom(
+            @RequestParam("dormCode") String dormCode,
+            @RequestParam("roomNumber") String roomNumber) {
+        roomService.deleteRoom(dormCode, roomNumber);
+
+        return ResponseEntity.ok().build();
+    }
 }
