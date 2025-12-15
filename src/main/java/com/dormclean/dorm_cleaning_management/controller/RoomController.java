@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.List;
 
 @RestController
@@ -61,11 +62,11 @@ public class RoomController {
     @PatchMapping("/rooms/bulk-status")
     public ResponseEntity<BulkUpdateResponseDto> updateRoomsBulk(
             @RequestBody BulkRoomStatusUpdateDto dto) {
-        int updatedCount = roomService.updateRoomStatusBulk(dto);
+        Instant now = Instant.now();
+        int updatedCount = roomService.updateRoomStatusBulk(dto, now);
 
         return ResponseEntity.ok(
-            new BulkUpdateResponseDto(updatedCount)
-        );
+                new BulkUpdateResponseDto(updatedCount, now));
     }
 
     // 생활관 층 목록 반환

@@ -1,9 +1,9 @@
 package com.dormclean.dorm_cleaning_management.service;
 
+import java.time.Instant;
 import java.util.List;
 
 import com.dormclean.dorm_cleaning_management.dto.room.*;
-import com.dormclean.dorm_cleaning_management.dto.room.BulkRoomStatusUpdateDto;
 import com.dormclean.dorm_cleaning_management.entity.Room;
 
 public interface RoomService {
@@ -19,7 +19,7 @@ public interface RoomService {
 
     RoomListResponseDto updateRoomStatus(String roomNumber, RoomStatusUpdateDto dto);
 
-    int updateRoomStatusBulk(BulkRoomStatusUpdateDto dto);
+    int updateRoomStatusBulk(BulkRoomStatusUpdateDto dto, Instant now);
 
     void deleteRoom(String dormCode, String roomNumber);
 }

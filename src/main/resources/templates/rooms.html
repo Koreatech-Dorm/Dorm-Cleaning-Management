@@ -616,8 +616,6 @@
                 grouped[dormCode].push(roomNumber);
             });
 
-            const updatedRooms = [];
-
             await Promise.all(
                 Object.entries(grouped).map(async ([dormCode, roomNumbers]) => {
                     const res = await fetch(`/admin/api/rooms/bulk-status`, {
@@ -632,26 +630,22 @@
 
                     if (!res.ok) return;
 
-                    const {updatedCount} = await res.json();
+                    const {updatedCount, time} = await res.json();
                     console.log(`${dormCode}: ${updatedCount}개 방 상태 변경됨`);
+
+                    roomNumbers.forEach(roomNumber => {
+                        const card = document.querySelector(
+                            `.room-card[data-dorm-code="${dormCode}"][data-room-number="${roomNumber}"]`
+                        );
+
+                        if (!card) return;
+
+                        alert(formatTime(time));
+
+                        updateRoomCardUI(card, newStatus, formatTime(time));
+                    });
                 })
             );
-            initRooms();
-
-            updatedRooms.forEach(room => {
-                const card = document.querySelector(
-                    `.room-card[data-dorm-code="${room.dormCode}"][data-room-number="${room.roomNumber}"]`
-                );
-
-                if (!card) return;
-
-                let time = "";
-                if (room.status === "OCCUPIED") time = formatTime(room.checkInAt);
-                else if (room.status === "VACANT") time = formatTime(room.checkOutAt);
-                else time = formatTime(room.cleanedAt);
-
-                updateRoomCardUI(card, room.status, time);
-            });
 
             applyStatusFilter(selectedStatus);
         }

@@ -156,20 +156,18 @@ public class RoomServiceImpl implements RoomService {
 
         @Override
         @Transactional
-        public int updateRoomStatusBulk(BulkRoomStatusUpdateDto dto) {
+        public int updateRoomStatusBulk(BulkRoomStatusUpdateDto dto, Instant now) {
                 Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
                                 .orElseThrow(() -> new IllegalArgumentException("생활관 없음"));
 
-                Instant now = Instant.now();
                 RoomStatus status = RoomStatus.valueOf(dto.newRoomStatus());
 
                 // 일괄 업데이트
                 return roomRepository.bulkStatusUpdate(
-                        dorm,
-                        dto.roomNumbers(),
-                        status,
-                        now
-                );
+                                dorm,
+                                dto.roomNumbers(),
+                                status,
+                                now);
         }
 
         // 호실 삭제
