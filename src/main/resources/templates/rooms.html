@@ -118,6 +118,11 @@
         const dormDiv = document.getElementById('dormDiv');
         const emptyState = document.getElementById('emptyState');
         const bulkSection = document.getElementById('bulkSection');
+        const bulkSelectBtn   = document.getElementById('bulkSelectBtn');
+        const selectAllBtn    = document.getElementById('selectAllBtn');
+        const bulkStatusSelect = document.getElementById('bulkStatusSelect');
+        const applyBulkBtn    = document.getElementById('applyBulkBtn');
+
 
         // 방 번호(숫자 + 알파벳) 파싱 함수
         function parseRoomNumber(roomNumber) {
@@ -325,6 +330,8 @@
                     }
                 });
             });
+
+            syncSelectAllButton();
         }
 
         function updateRoomCardUI(card, newStatus, newTime = "") {
@@ -350,7 +357,6 @@
                 }
             }
         }
-
 
         async function loadRooms() {
             const dormCode = dormSelect.value;
@@ -467,139 +473,126 @@
                 document.getElementById('statusModal')
             ).hide();
         });
-        
+
+        // 보이는 카드만 가져오기
+        function getVisibleRoomCards() {
+            return Array.from(document.querySelectorAll('.room-card'))
+                .filter(card => card.offsetParent !== null);
+        }
+
+        // 전체 선택 판별
+        function isAllSelected(cards) {
+            return cards.length > 0 && cards.every(card =>
+                selectedRooms.has(roomKey(card.dataset.dormCode, card.dataset.roomNumber))
+            );
+        }
+
+        function syncSelectAllButton() {
+            const cards = getVisibleRoomCards();
+            updateSelectAllButton(isAllSelected(cards));
+        }
+
+        // 전체 선택/해제 
+        function toggleSelectAll() {
+            const cards = getVisibleRoomCards();
+            if (cards.length === 0) return;
+
+            const shouldSelectAll = !isAllSelected(cards);
+
+            cards.forEach(card => {
+                const key = roomKey(card.dataset.dormCode, card.dataset.roomNumber);
+
+                if (shouldSelectAll) {
+                    selectedRooms.add(key);
+                    card.classList.remove('select-mode');
+                    card.classList.add('selected');
+                } else {
+                    selectedRooms.delete(key);
+                    card.classList.remove('selected');
+                    card.classList.add('select-mode');
+                }
+            });
+
+            updateSelectAllButton(shouldSelectAll);
+        }
+
+        // UI 갱신
+        function updateSelectAllButton(isSelected) {
+            selectAll = isSelected;
+
+            if (isSelected) {
+                selectAllBtn.classList.replace("btn-primary", "btn-secondary");
+                selectAllBtn.textContent = "선택해제";
+            } else {
+                selectAllBtn.classList.replace("btn-secondary", "btn-primary");
+                selectAllBtn.textContent = "전체선택";
+            }
+        }
+        selectAllBtn.addEventListener('click', toggleSelectAll);
+
         let bulkMode = false;
-        document.getElementById('bulkSelectBtn').addEventListener('click', () =>{
-            if (bulkMode == false)
-            {
-                bulkMode = true;
+        function enableBulkMode() {
+            bulkMode = true;
 
-                const cards = document.querySelectorAll('.room-card');
-                cards.forEach(card =>{
-                    if (!card.classList.contains('select-mode'))
-                        card.classList.add('select-mode');
-                });
+            document.querySelectorAll('.room-card').forEach(card => {
+                card.classList.add('select-mode');
+            });
 
-                const bulkSelectBtn = document.getElementById('bulkSelectBtn');
-                bulkSelectBtn.classList.remove('btn-primary');
-                bulkSelectBtn.classList.add('btn-secondary');
-                bulkSelectBtn.textContent = '취소';
-                
-                const selectAllBtn = document.getElementById('selectAllBtn');
-                const bulkStatusSelect = document.getElementById('bulkStatusSelect');
-                const applyBulkBtn = document.getElementById('applyBulkBtn');
-                selectAllBtn.style.display = 'flex';
-                bulkStatusSelect.style.display = 'flex';
-                applyBulkBtn.style.display = 'flex';
-            }
-            else
-            {
-                bulkMode = false;
+            bulkSelectBtn.classList.replace('btn-primary', 'btn-secondary');
+            bulkSelectBtn.textContent = '취소';
 
-                const cards = document.querySelectorAll('.room-card');
-                cards.forEach(card =>{
-                    if (card.classList.contains('select-mode'))
-                        card.classList.remove('select-mode');
-                    else if (card.classList.contains('selected'))
-                        card.classList.remove('selected');
-                });
+            selectAllBtn.style.display = 'flex';
+            bulkStatusSelect.style.display = 'flex';
+            applyBulkBtn.style.display = 'flex';
 
-                const bulkSelectBtn = document.getElementById('bulkSelectBtn');
-                bulkSelectBtn.classList.remove('btn-secondary');
-                bulkSelectBtn.classList.add('btn-primary');
-                bulkSelectBtn.textContent = '편집';
+            syncSelectAllButton(); // 전체선택 상태 반영
+        }
 
-                const selectAllBtn = document.getElementById('selectAllBtn');
-                const bulkStatusSelect = document.getElementById('bulkStatusSelect');
-                const applyBulkBtn = document.getElementById('applyBulkBtn');
-                selectAllBtn.style.display = 'none';
-                bulkStatusSelect.style.display = 'none';
-                applyBulkBtn.style.display = 'none';
+        function disableBulkMode() {
+            bulkMode = false;
 
-                selectedRooms.clear();
-            }
+            document.querySelectorAll('.room-card').forEach(card => {
+                card.classList.remove('select-mode', 'selected');
+            });
+
+            bulkSelectBtn.classList.replace('btn-secondary', 'btn-primary');
+            bulkSelectBtn.textContent = '편집';
+
+            selectAllBtn.style.display = 'none';
+            bulkStatusSelect.style.display = 'none';
+            applyBulkBtn.style.display = 'none';
+
+            selectedRooms.clear();
+            syncSelectAllButton();
+        }
+
+        bulkSelectBtn.addEventListener('click', () => {
+            bulkMode ? disableBulkMode() : enableBulkMode();
         });
-
+        
         // 선택모드에서 호실 선택
         function selectRoom(dormCode, roomNumber) {
-            const cards = Array.from(document.querySelectorAll('.room-card'));
-
-            const flexCards = cards.filter(card => {
-                const style = window.getComputedStyle(card);
-                return style.display === 'flex';
-            });
+            if (!bulkMode) return;
 
             const room = document.querySelector(
                 `.room-card[data-dorm-code="${dormCode}"][data-room-number="${roomNumber}"]`
             );
+            if (!room || room.offsetParent === null) return;
 
             const key = roomKey(dormCode, roomNumber);
 
             if (!selectedRooms.has(key)) {
+                selectedRooms.add(key);
                 room.classList.remove('select-mode');
                 room.classList.add('selected');
-                selectedRooms.add(key);
-
-                if (flexCards.length === selectedRooms.size) {
-                    selectAll = true;
-                    selectAllBtn.classList.remove("btn-primary");
-                    selectAllBtn.classList.add("btn-secondary");
-                    selectAllBtn.innerHTML = "선택해제";
-                }
             } else {
+                selectedRooms.delete(key);
                 room.classList.remove('selected');
                 room.classList.add('select-mode');
-                selectedRooms.delete(key);
-
-                selectAll = false;
-                selectAllBtn.classList.remove("btn-secondary");
-                selectAllBtn.classList.add("btn-primary");
-                selectAllBtn.innerHTML = "전체선택";
             }
+
+            syncSelectAllButton();
         }
-
-
-        // 일괄 선택 버튼 
-        let selectAll = false;
-        const selectAllBtn = document.getElementById('selectAllBtn');
-        document.getElementById('selectAllBtn').addEventListener('click', () => {
-            const cards = Array.from(document.querySelectorAll('.room-card'));
-
-            const flexCards = cards.filter(card => {
-                const style = window.getComputedStyle(card);
-                return style.display === 'flex';
-            });
-
-            if (!selectAll) {
-                flexCards.forEach(room => {
-                    const key = roomKey(room.dataset.dormCode, room.dataset.roomNumber);
-
-                    if (!selectedRooms.has(key)) {
-                        room.classList.remove('select-mode');
-                        room.classList.add('selected');
-                        selectedRooms.add(key);
-                    }
-                });
-
-                selectAll = true;
-                selectAllBtn.classList.replace("btn-primary", "btn-secondary");
-                selectAllBtn.innerHTML = "선택해제";
-            } else {
-                flexCards.forEach(room => {
-                    const key = roomKey(room.dataset.dormCode, room.dataset.roomNumber);
-
-                    if (selectedRooms.has(key)) {
-                        room.classList.remove('selected');
-                        room.classList.add('select-mode');
-                        selectedRooms.delete(key);
-                    }
-                });
-
-                selectAll = false;
-                selectAllBtn.classList.replace("btn-secondary", "btn-primary");
-                selectAllBtn.innerHTML = "전체선택";
-            }
-        });
 
         // 선택된 방 목록
         let selectedRooms = new Set();
@@ -666,6 +659,7 @@
             updateAllSelectedRoom();
             document.getElementById('bulkSelectBtn').click();
             selectedRooms.clear();
+            syncSelectAllButton();
         });
 
         // 책갈피 상태 필터
@@ -693,12 +687,11 @@
                     card.classList.contains('vacant') ? "VACANT" :
                     "READY";
 
-                if (status === "" || status === cardStatus) {
-                    card.style.display = "flex";
-                } else {
-                    card.style.display = "none";
-                }
+                card.style.display =
+                    (status === "" || status === cardStatus) ? "flex" : "none";
             });
+
+            syncSelectAllButton();
         }
 
         // 상태 기준으로 검색 탭 초기화
