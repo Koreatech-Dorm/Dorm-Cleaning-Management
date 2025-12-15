@@ -1,14 +1,15 @@
 package com.dormclean.dorm_cleaning_management.service;
 
+import java.time.Instant;
 import java.util.List;
 
-import com.dormclean.dorm_cleaning_management.dto.room.CreateRoomRequestDto;
-import com.dormclean.dorm_cleaning_management.dto.room.RoomListResponseDto;
-import com.dormclean.dorm_cleaning_management.dto.room.RoomStatusUpdateDto;
+import com.dormclean.dorm_cleaning_management.dto.room.*;
 import com.dormclean.dorm_cleaning_management.entity.Room;
 
 public interface RoomService {
     Room createRoom(CreateRoomRequestDto dto);
+
+    List<RoomListResponseDto> getRooms();
 
     List<RoomListResponseDto> getRooms(String dormCode);
 
@@ -16,8 +17,9 @@ public interface RoomService {
 
     List<Integer> getFloors(String dormCode);
 
-    void updateRoomStatus(String roomNumber, RoomStatusUpdateDto dto);
+    RoomListResponseDto updateRoomStatus(String roomNumber, RoomStatusUpdateDto dto);
+
+    int updateRoomStatusBulk(BulkRoomStatusUpdateDto dto, Instant now);
 
     void deleteRoom(String dormCode, String roomNumber);
-
 }

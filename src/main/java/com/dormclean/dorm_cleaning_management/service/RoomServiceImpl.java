@@ -1,8 +1,6 @@
 package com.dormclean.dorm_cleaning_management.service;
 
-import com.dormclean.dorm_cleaning_management.dto.room.CreateRoomRequestDto;
-import com.dormclean.dorm_cleaning_management.dto.room.RoomListResponseDto;
-import com.dormclean.dorm_cleaning_management.dto.room.RoomStatusUpdateDto;
+import com.dormclean.dorm_cleaning_management.dto.room.*;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
 import com.dormclean.dorm_cleaning_management.entity.Room;
 import com.dormclean.dorm_cleaning_management.entity.enums.RoomStatus;
@@ -10,9 +8,12 @@ import com.dormclean.dorm_cleaning_management.repository.DormRepository;
 import com.dormclean.dorm_cleaning_management.repository.RoomRepository;
 
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -54,12 +55,10 @@ public class RoomServiceImpl implements RoomService {
                 return floor;
         }
 
-        // 특정 Dorm + Floor의 방 목록 조회
+        // 모든 방 조회 (층 목록 등)
         @Override
-        public List<RoomListResponseDto> getRooms(String dormCode, Integer floor) {
-                Dorm dorm = dormRepository.findByDormCode(dormCode)
-                                .orElseThrow(() -> new RuntimeException("Dorm not found"));
-                List<Room> rooms = roomRepository.findByDormAndFloor(dorm, floor);
+        public List<RoomListResponseDto> getRooms() {
+                List<Room> rooms = roomRepository.findAll();
 
                 return rooms.stream()
                                 .map(this::toRoomListDto)
@@ -73,6 +72,18 @@ public class RoomServiceImpl implements RoomService {
                                 .orElseThrow(() -> new IllegalArgumentException("Dorm not found"));
 
                 List<Room> rooms = roomRepository.findByDorm(dorm);
+
+                return rooms.stream()
+                                .map(this::toRoomListDto)
+                                .toList();
+        }
+
+        // 특정 Dorm + Floor의 방 목록 조회
+        @Override
+        public List<RoomListResponseDto> getRooms(String dormCode, Integer floor) {
+                Dorm dorm = dormRepository.findByDormCode(dormCode)
+                                .orElseThrow(() -> new RuntimeException("Dorm not found"));
+                List<Room> rooms = roomRepository.findByDormAndFloor(dorm, floor);
 
                 return rooms.stream()
                                 .map(this::toRoomListDto)
@@ -105,22 +116,58 @@ public class RoomServiceImpl implements RoomService {
         // 호실 상태 변경
         @Override
         @Transactional
-        public void updateRoomStatus(String roomNumber, RoomStatusUpdateDto dto) {
+        public RoomListResponseDto updateRoomStatus(
+                        String roomNumber,
+                        RoomStatusUpdateDto dto) {
+
                 Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
                                 .orElseThrow(() -> new IllegalArgumentException("해당 생활관을 찾을 수 없습니다."));
+
                 Room room = roomRepository.findByDormAndRoomNumber(dorm, roomNumber)
                                 .orElseThrow(() -> new IllegalArgumentException("해당 호실을 찾을 수 없습니다."));
 
-                if (dto.newRoomStatus().equals("OCCUPIED")) {
-                        room.updateStatus(RoomStatus.OCCUPIED);
-                        room.updateCheckInAt(java.time.Instant.now());
-                } else if (dto.newRoomStatus().equals("READY")) {
-                        room.updateStatus(RoomStatus.READY);
-                        room.updateCleanedAt(java.time.Instant.now());
-                } else {
-                        room.updateStatus(RoomStatus.VACANT);
-                        room.updateCheckOutAt(java.time.Instant.now());
+                Instant now = Instant.now();
+
+                switch (dto.newRoomStatus()) {
+                        case "OCCUPIED" -> {
+                                room.updateStatus(RoomStatus.OCCUPIED);
+                                room.updateCheckInAt(now);
+                        }
+                        case "READY" -> {
+                                room.updateStatus(RoomStatus.READY);
+                                room.updateCleanedAt(now);
+                        }
+                        case "VACANT" -> {
+                                room.updateStatus(RoomStatus.VACANT);
+                                room.updateCheckOutAt(now);
+                        }
+                        default -> throw new IllegalArgumentException("잘못된 상태값");
                 }
+
+                return new RoomListResponseDto(
+                                dorm.getDormCode(),
+                                room.getFloor(),
+                                room.getRoomNumber(),
+                                room.getStatus(),
+                                room.getCleanedAt(),
+                                room.getCheckInAt(),
+                                room.getCheckOutAt());
+        }
+
+        @Override
+        @Transactional
+        public int updateRoomStatusBulk(BulkRoomStatusUpdateDto dto, Instant now) {
+                Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
+                                .orElseThrow(() -> new IllegalArgumentException("생활관 없음"));
+
+                RoomStatus status = RoomStatus.valueOf(dto.newRoomStatus());
+
+                // 일괄 업데이트
+                return roomRepository.bulkStatusUpdate(
+                                dorm,
+                                dto.roomNumbers(),
+                                status,
+                                now);
         }
 
         // 호실 삭제
