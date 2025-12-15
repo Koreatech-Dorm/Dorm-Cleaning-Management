@@ -296,7 +296,6 @@
 
             // 4. 방 카드(grid)
             grids.forEach(grid => {
-                const timeEl = grid.querySelector(".room-card .room-time");
                 const d = grid.dataset.dormCode;
                 const f = grid.dataset.floor;
 
@@ -311,11 +310,20 @@
                 // 초기 상태 클래스 처리
                 if (isDormAll) {
                     grid.classList.add("initial");
-                    timeEl.style.display = "none";
                 } else {
                     grid.classList.remove("initial");
-                    timeEl.style.display = "flex";
                 }
+
+                const cards = grid.querySelectorAll(".room-card");
+                cards.forEach(card => {
+                    const timeEl = card.querySelector(".room-time");
+
+                    if (isDormAll) {
+                        timeEl.style.display = "none";
+                    } else {
+                        timeEl.style.display = "flex";
+                    }
+                });
             });
         }
 
