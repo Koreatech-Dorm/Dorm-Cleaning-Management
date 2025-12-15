@@ -273,7 +273,7 @@ main {
 /* =========================================
    STATUS PAGE – ROOM GRID
    ========================================= */
-.floor-div {
+.scroll-bar {
     scrollbar-gutter: stable;
     box-sizing: border-box;
     padding: 0 12px;

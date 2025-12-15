@@ -167,6 +167,7 @@
             const res = await fetch("/admin/api/rooms/all");
             allRooms = await res.json();
             renderAllGrids(allRooms);
+            applyDormFloorFilter("", "");
             emptyState.style.display = "none";
         }
 
@@ -187,18 +188,22 @@
 
             for (const dorm in grouped) {
                 const dormTitle = document.createElement('h3');
-                dormTitle.classList.add('section-title');
+                dormTitle.classList.add('dorm-title', 'section-title');
                 dormTitle.textContent = `${dorm}동`;
+                dormTitle.dataset.dormCode = dorm;
                 dormDiv.appendChild(dormTitle);
 
                 const floorDiv = document.createElement('div');
-                floorDiv.classList.add('floor-div');
+                floorDiv.classList.add('floor-div', 'scroll-bar');
+                floorDiv.dataset.dormCode = dorm;
                 for (const floor in grouped[dorm]) {
                     const floorTitle = document.createElement('h4');
-                    floorTitle.classList.add('section-title');
+                    floorTitle.classList.add('floor-title', 'section-title');
                     floorTitle.style.display = 'none';
                     floorTitle.textContent = `${floor}층`;
-                    dormDiv.appendChild(floorTitle);
+                    floorTitle.dataset.dormCode = dorm;
+                    floorTitle.dataset.floor = floor;
+                    floorDiv.appendChild(floorTitle);
 
                     const container = document.createElement("div");
                     container.classList.add('room-grid', 'initial','row');
@@ -254,25 +259,70 @@
         }
 
         function applyDormFloorFilter(dormCode, floor) {
-            const containers = document.querySelectorAll(".room-container");
+            const dormTitles  = document.querySelectorAll(".dorm-title");
+            const floorTitles = document.querySelectorAll(".floor-title");
+            const floorDivs   = document.querySelectorAll(".floor-div");
+            const grids       = document.querySelectorAll(".room-grid");
 
-            containers.forEach(c => {
-                const d = c.dataset.dormCode;
-                const f = c.dataset.floor;
+            const isDormAll  = dormCode === "";
+            const isFloorAll = floor === "";
 
-                if ((dormCode === "" || dormCode === d) &&
-                    (floor === "" || floor === f)) {
-                    c.style.display = "flex";
+            // 1. 기숙사 타이틀
+            dormTitles.forEach(dt => {
+                dt.style.display = isDormAll ? "flex" : "none";
+            });
+
+            // 2. floor-div 스크롤 처리
+            floorDivs.forEach(fd => {
+                if (isDormAll) {
+                    fd.classList.add("scroll-bar");
                 } else {
-                    c.style.display = "none";
+                    fd.classList.remove("scroll-bar");
+                }
+            });
+
+            // 3. 층 타이틀
+            floorTitles.forEach(ft => {
+                const d = ft.dataset.dormCode;
+                const f = ft.dataset.floor;
+
+                const visible =
+                    dormCode === d &&
+                    (isFloorAll || floor === f);
+
+                ft.style.display = visible ? "flex" : "none";
+            });
+
+            // 4. 방 카드(grid)
+            grids.forEach(grid => {
+                const timeEl = grid.querySelector(".room-card .room-time");
+                const d = grid.dataset.dormCode;
+                const f = grid.dataset.floor;
+
+                const visible =
+                    (isDormAll || dormCode === d) &&
+                    (isFloorAll || floor === f);
+
+                grid.style.display = visible ? "flex" : "none";
+
+                if (!visible) return;
+
+                // 초기 상태 클래스 처리
+                if (isDormAll) {
+                    grid.classList.add("initial");
+                    timeEl.style.display = "none";
+                } else {
+                    grid.classList.remove("initial");
+                    timeEl.style.display = "flex";
                 }
             });
         }
 
+
         async function loadRooms() {
             const dormCode = dormSelect.value;
             const floor = floorSelect.value;
-
+            
             applyDormFloorFilter(dormCode, floor);
         }
 
