@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -115,22 +116,42 @@ public class RoomServiceImpl implements RoomService {
         // 호실 상태 변경
         @Override
         @Transactional
-        public void updateRoomStatus(String roomNumber, RoomStatusUpdateDto dto) {
+        public RoomListResponseDto updateRoomStatus(
+                        String roomNumber,
+                        RoomStatusUpdateDto dto) {
+
                 Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
                                 .orElseThrow(() -> new IllegalArgumentException("해당 생활관을 찾을 수 없습니다."));
+
                 Room room = roomRepository.findByDormAndRoomNumber(dorm, roomNumber)
                                 .orElseThrow(() -> new IllegalArgumentException("해당 호실을 찾을 수 없습니다."));
 
-                if (dto.newRoomStatus().equals("OCCUPIED")) {
-                        room.updateStatus(RoomStatus.OCCUPIED);
-                        room.updateCheckInAt(java.time.Instant.now());
-                } else if (dto.newRoomStatus().equals("READY")) {
-                        room.updateStatus(RoomStatus.READY);
-                        room.updateCleanedAt(java.time.Instant.now());
-                } else {
-                        room.updateStatus(RoomStatus.VACANT);
-                        room.updateCheckOutAt(java.time.Instant.now());
+                Instant now = Instant.now();
+
+                switch (dto.newRoomStatus()) {
+                        case "OCCUPIED" -> {
+                                room.updateStatus(RoomStatus.OCCUPIED);
+                                room.updateCheckInAt(now);
+                        }
+                        case "READY" -> {
+                                room.updateStatus(RoomStatus.READY);
+                                room.updateCleanedAt(now);
+                        }
+                        case "VACANT" -> {
+                                room.updateStatus(RoomStatus.VACANT);
+                                room.updateCheckOutAt(now);
+                        }
+                        default -> throw new IllegalArgumentException("잘못된 상태값");
                 }
+
+                return new RoomListResponseDto(
+                                dorm.getDormCode(),
+                                room.getFloor(),
+                                room.getRoomNumber(),
+                                room.getStatus(),
+                                room.getCleanedAt(),
+                                room.getCheckInAt(),
+                                room.getCheckOutAt());
         }
 
         // 호실 삭제

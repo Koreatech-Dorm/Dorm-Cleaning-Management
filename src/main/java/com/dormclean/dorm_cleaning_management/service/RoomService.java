@@ -18,7 +18,7 @@ public interface RoomService {
 
     List<Integer> getFloors(String dormCode);
 
-    void updateRoomStatus(String roomNumber, RoomStatusUpdateDto dto);
+    RoomListResponseDto updateRoomStatus(String roomNumber, RoomStatusUpdateDto dto);
 
     void deleteRoom(String dormCode, String roomNumber);
 

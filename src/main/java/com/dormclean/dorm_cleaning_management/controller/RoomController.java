@@ -54,12 +54,12 @@ public class RoomController {
 
     // 호실 상태 변경
     @PatchMapping("/rooms/{roomNumber}/status")
-    public ResponseEntity<Void> updateRoomStatus(
+    public ResponseEntity<RoomListResponseDto> updateRoomStatus(
             @PathVariable("roomNumber") String roomNumber,
             @RequestBody RoomStatusUpdateDto dto) {
-        roomService.updateRoomStatus(roomNumber, dto);
+        RoomListResponseDto updatedRoom = roomService.updateRoomStatus(roomNumber, dto);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(updatedRoom);
     }
 
     // 생활관 층 목록 반환
