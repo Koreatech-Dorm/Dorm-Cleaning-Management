@@ -232,11 +232,11 @@
             div.classList.add('room-card', 'col-2', 'mb-3', 'p-2');
 
             let time = null;
-            if (room.status === 'OCCUPIED') {
+            if (room.roomStatus === 'OCCUPIED') {
                 div.classList.add('occupied');
                 time = formatTime(room.checkInAt);
             }
-            else if (room.status === 'VACANT') {
+            else if (room.roomStatus === 'VACANT') {
                 div.classList.add('vacant');
                 time = formatTime(room.checkOutAt);
             }
@@ -247,7 +247,7 @@
 
             div.dataset.dormCode = room.dormCode;
             div.dataset.roomNumber = room.roomNumber;
-            div.dataset.status = room.status;
+            div.dataset.roomStatus = room.roomStatus;
             div.dataset.time = time;
 
             div.innerHTML = `
@@ -258,7 +258,7 @@
             div.onclick = () => {
                 bulkMode
                     ? selectRoom(div.dataset.dormCode, div.dataset.roomNumber)
-                    : openStatusModal(div.dataset.dormCode, div.dataset.roomNumber, div.dataset.status, div.dataset.time);
+                    : openStatusModal(div.dataset.dormCode, div.dataset.roomNumber, div.dataset.roomStatus, div.dataset.time);
             };
 
             return div;
@@ -455,19 +455,19 @@
 
             if (card) {
                 // 상태
-                card.dataset.status = updatedRoom.status;
+                card.dataset.roomStatus = updatedRoom.roomStatus;
 
                 // 시간 선택
                 let time = "";
-                if (updatedRoom.status === "OCCUPIED")
+                if (updatedRoom.roomStatus === "OCCUPIED")
                     time = formatTime(updatedRoom.checkInAt);
-                else if (updatedRoom.status === "VACANT")
+                else if (updatedRoom.roomStatus === "VACANT")
                     time = formatTime(updatedRoom.checkOutAt);
                 else
                     time = formatTime(updatedRoom.cleanedAt);
 
                 // UI 반영
-                updateRoomCardUI(card, updatedRoom.status, time);
+                updateRoomCardUI(card, updatedRoom.roomStatus, time);
                 applyStatusFilter(selectedStatus);
             }
 
@@ -665,7 +665,7 @@
                 statusTabs.forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
 
-                selectedStatus = tab.dataset.status; 
+                selectedStatus = tab.dataset.status;
 
                 applyStatusFilter(selectedStatus);
             });
