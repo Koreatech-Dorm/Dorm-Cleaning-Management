@@ -35,7 +35,7 @@ public class QrCodeController {
         }
     }
 
-    @GetMapping("/qrgenerate/zip")
+    @GetMapping("/qr/generate/zip")
     public ResponseEntity<byte[]> generateQrCodeZip(@RequestParam("dormCodes") List<String> dormCodes) {
         byte[] zipFile = qrCodeService.generateZipForDorms(dormCodes);
 
