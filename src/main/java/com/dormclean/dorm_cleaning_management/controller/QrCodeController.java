@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin/api/qr")
+@RequestMapping("/admin/api")
 @RequiredArgsConstructor
 @Tag(name = "QR 코드 API", description = "인증용 보안 QR 코드 생성 API")
 public class QrCodeController {
     private final QrCodeService qrCodeService;
 
-    @GetMapping("/generate")
+    @GetMapping("/qr/generate")
     public ResponseEntity<byte[]> generateQrCode(@Valid @ModelAttribute QrRequestDto dto) {
         try {
             byte[] qrImage = qrCodeService.createSecureQr(dto);
@@ -35,7 +35,7 @@ public class QrCodeController {
         }
     }
 
-    @GetMapping("generate/zip")
+    @GetMapping("/qrgenerate/zip")
     public ResponseEntity<byte[]> generateQrCodeZip(@RequestParam("dormCodes") List<String> dormCodes) {
         byte[] zipFile = qrCodeService.generateZipForDorms(dormCodes);
 
