@@ -1,7 +1,7 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{fragments/head :: headFragment}"></head>
+<head th:replace="~{fragments/head :: headFragment}"> </head>
 
 <body>
 <header th:replace="~{fragments/header :: headerFragment}"></header>
@@ -10,41 +10,187 @@
     <!-- 메인 컨텐츠 -->
     <div class="container">
         <div class="page-header">
-            <h2>생활관∙호실 관리</h2>
-            <p>생활관∙호실을 추가/삭제/수정합니다.</p>
+            <h2>생활관 관리</h2>
+            <p>생활관을 추가/삭제/수정합니다.</p>
         </div>
 
-        <div class="card-grid">
-            <!-- 생활관 관리 -->
-            <a href="/admin/modify-dorm" class="main-card">
-                <div class="card-icon">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                    </svg>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="row g-4">
+                    <div class="card p-4 mb-4" style="height: 500px !important;">
+                        <h4 class="mb-3">현재 생활관 목록</h4>
+                        <label for="dormCode" class="form-label">생활관 이름</label>
+                        <!-- 호실 그리드 -->
+                        <div class="floor-div col" id="dormDiv" style="overflow-x: hidden; overflow-y: auto; height: 400px !important;">
+                            <div class="empty-state" id="emptyState" style="margin-top: 120px;">
+                                <p>생활관을 선택하여 호실을 조회하세요.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <h3>생활관 관리</h3>
-                <p>생활관 추가/삭제/수정</p>
-            </a>
+            </div>
+            <div class="col-md-8">
+                <div class="row g-4">
+                    <!-- 생활관 추가 -->
+                    <div class="col-md-6">
+                        <div class="card p-4 h-100">
+                            <h4 class="mb-3">생활관 추가</h4>
+                            <form id="createDormForm">
+                                <div class="mb-3">
+                                    <label for="dormCode" class="form-label">생활관 이름</label>
+                                    <input type="text" class="form-control" id="dormCode" required>
+                                </div>
+                                <div class="form-bottom mt-auto">
+                                    <button type="submit" class="btn btn-primary">생활관 추가하기</button>
+                                    <p id="dormStatus" class="status-msg text-muted">생활관을 추가하려면 세부 정보를 입력하십시오.</p>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
 
-            <!-- 호실 관리 -->
-            <a href="/admin/modify-room" class="main-card">
-                <div class="card-icon">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="3" width="7" height="7"></rect>
-                        <rect x="14" y="3" width="7" height="7"></rect>
-                        <rect x="3" y="14" width="7" height="7"></rect>
-                        <rect x="14" y="14" width="7" height="7"></rect>
-                    </svg>
+                    <!-- 생활관 삭제 -->
+                    <div class="col-md-6">
+                        <div class="card p-4 h-100">
+                            <h4 class="mb-3">생활관 삭제</h4>
+                            <form id="deleteDormForm">
+                                <div class="mb-3">
+                                    <label for="deleteDormCode" class="form-label">삭제할 생활관 이름</label>
+                                    <input type="text" class="form-control" id="deleteDormCode" required>
+                                </div>
+                                <div class="form-bottom mt-auto">
+                                    <button type="submit" class="btn btn-primary">생활관 삭제하기</button>
+                                    <p id="deleteDormStatus" class="status-msg text-muted">생활관을 삭제하려면 세부 정보를 입력하십시오.</p>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-                <h3>호실 관리</h3>
-                <p>호실 추가/삭제</p>
-            </a>
+            </div>
         </div>
     </div>
 </main>
 
-<footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
+<script>
+    const emptyState = document.getElementById('emptyState');
+    const dormDiv = document.getElementById('dormDiv');
+
+    // 생활관 목록 불러오기
+    async function loadDormList() {
+
+        dormDiv.innerHTML = '<p>로딩 중...</p>';
+        emptyState.style.display = 'none';
+
+        try {
+            dormDiv.innerHTML = ``;
+            dormDiv.style.marginTop = "1rem";
+
+            const res = await axios.get('/admin/api/dorms'); // 전체 생활관 조회 API 필요
+            let dorms = res.data;
+
+            const table = document.createElement('table');
+            table.classList.add('room-table');
+
+            // 코드 기준으로 오름차순 정렬
+            dorms.sort((a, b) => a.dormCode.localeCompare(b.dormCode));
+
+            const sepDorms = {};
+            
+            dorms.forEach(dorm => {
+                const sepDorm = Number(dorm.dormCode.slice(0,dorm.dormCode.length-2));
+                if (!sepDorms[sepDorm]) sepDorms[sepDorm] = [];
+                sepDorms[sepDorm].push(dorm);
+            });
+
+            Object.keys(sepDorms).sort().forEach(sepDorm => {
+                let row = document.createElement('tr');
+                sepDorms[sepDorm].forEach((dorm, index) => {
+
+                    // td 생성
+                    const td = document.createElement('td');
+                    td.classList.add('room-cell');
+                    td.innerHTML = `
+                        <div class="room-number fw-bold">${dorm.dormCode}</div>
+                    `;
+
+                    row.appendChild(td);
+
+                    // 10개마다 줄바꿈
+                    if ((index + 1) % 4 === 0) {
+                        table.appendChild(row);
+                        row = document.createElement('tr');
+                    }
+                });
+
+                // 남은 셀 추가
+                if (row.children.length > 0) {
+                    table.appendChild(row);
+                }
+
+                //구분선
+                const seperator = document.createElement('tr');
+                const sepCell = document.createElement('td');
+                sepCell.colSpan = 4;
+                sepCell.classList.add('floor-separator');
+                seperator.appendChild(sepCell);
+                table.appendChild(seperator);
+            });
+            dormDiv.appendChild(table);
+
+        } catch (err) {
+            tbody.innerHTML = `
+                <tr><td colspan="2" class="text-danger">⚠️ 생활관 정보를 불러오지 못했습니다.</td></tr>
+            `;
+        }
+    }
+
+    // 페이지 로드시 목록 불러오기
+    loadDormList();
+
+    // 생활관 추가
+    document.getElementById('createDormForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const dormCode = document.getElementById('dormCode').value;
+        const statusEl = document.getElementById('dormStatus');
+
+        try {
+            const res = await axios.post('/admin/api/dorms/create', { 
+                dormCode:dormCode
+            });
+            statusEl.textContent = `✅ ${dormCode}동이 추가되었습니다!`;
+            statusEl.style.color = 'blue';
+            e.target.reset();
+            loadDormList();
+        } catch (err) {
+            const msg = err?.response?.data?.message || '생활관을 추가하지 못하였습니다.';
+            statusEl.textContent = `⚠️ ${msg}`;
+            statusEl.style.color = 'red';
+        }
+    });
+
+    // 생활관 삭제
+    document.getElementById('deleteDormForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const dormCode = document.getElementById('deleteDormCode').value;
+        const statusEl = document.getElementById('deleteDormStatus');
+
+        try {
+            await axios.delete(`/admin/api/dorms/${dormCode}`);
+            statusEl.textContent = `✅ ${dormCode}동이 삭제되었습니다.`;
+            statusEl.style.color = 'blue';
+            e.target.reset();
+            loadDormList();
+        } catch (err) {
+            const msg = err?.response?.data?.message || `${dormCode}동을 삭제하지 못하였습니다.`;
+            statusEl.textContent = `⚠️ ${msg}`;
+            statusEl.style.color = 'red';
+        }
+    });
+
+</script>
+
+<footer th:replace="~{fragments/footer :: footerFragment}"></footer>
 </body>
 </html>

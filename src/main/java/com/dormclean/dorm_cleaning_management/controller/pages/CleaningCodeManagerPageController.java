@@ -15,14 +15,14 @@ import lombok.RequiredArgsConstructor;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/admin")
-public class KeyManagerPageController {
+public class CleaningCodeManagerPageController {
     private final DormRepository dormRepository;
 
-    @GetMapping("/key-manager")
+    @GetMapping("/cleaning-code-manager")
     public String dormManager(Model model) {
         List<Dorm> dormList = dormRepository.findAll();
 
         model.addAttribute("dorms", dormList);
-        return "key-manager";
+        return "cleaning-code-manager";
     }
 }
