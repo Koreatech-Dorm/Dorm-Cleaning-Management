@@ -1,4 +1,4 @@
-package com.dormclean.dorm_cleaning_management.service;
+package com.dormclean.dorm_cleaning_management.service.qr;
 
 import com.dormclean.dorm_cleaning_management.dto.zipFile.QrGenerationData;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;

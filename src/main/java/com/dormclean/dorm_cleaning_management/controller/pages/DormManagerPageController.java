@@ -23,6 +23,6 @@ public class DormManagerPageController {
         List<Dorm> dormList = dormRepository.findAll();
 
         model.addAttribute("dorms", dormList);
-        return "dorm-Manager";
+        return "dorm-manager";
     }
 }

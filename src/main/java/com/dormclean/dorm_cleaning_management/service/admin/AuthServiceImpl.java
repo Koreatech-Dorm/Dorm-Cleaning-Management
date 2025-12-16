@@ -1,4 +1,4 @@
-package com.dormclean.dorm_cleaning_management.service;
+package com.dormclean.dorm_cleaning_management.service.admin;
 
 import com.dormclean.dorm_cleaning_management.dto.admin.AdminLoginRequestDto;
 import com.dormclean.dorm_cleaning_management.dto.admin.AdminLoginResponseDto;
@@ -19,13 +19,12 @@ public class AuthServiceImpl implements AuthService {
         AdminUser adminUser = adminRepository.findByUserId(dto.userId())
                 .orElseThrow(() -> new IllegalArgumentException("해당되는 admin 계정이 존재하지 않습니다."));
 
-        if(!adminUser.getPassword().equals(dto.password())){
+        if (!adminUser.getPassword().equals(dto.password())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
         return new AdminLoginResponseDto(
                 adminUser.getUserId(),
-                "로그인 성공"
-        );
+                "로그인 성공");
     }
 }

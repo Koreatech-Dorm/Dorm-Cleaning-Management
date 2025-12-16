@@ -1,4 +1,4 @@
-package com.dormclean.dorm_cleaning_management.service;
+package com.dormclean.dorm_cleaning_management.service.room;
 
 import com.dormclean.dorm_cleaning_management.dto.room.*;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
@@ -59,21 +59,21 @@ public class RoomServiceImpl implements RoomService {
         @Override
         @Transactional(readOnly = true)
         public List<RoomListResponseDto> getRooms() {
-            return roomRepository.findAllRoomsDto();
+                return roomRepository.findAllRoomsDto();
         }
 
         // 특정 Dorm의 모든 방 조회 (층 목록 등)
         @Override
         @Transactional(readOnly = true)
         public List<RoomListResponseDto> getRooms(String dormCode) {
-            return roomRepository.findRoomByDormCode(dormCode);
+                return roomRepository.findRoomByDormCode(dormCode);
         }
 
         // 특정 Dorm + Floor의 방 목록 조회
         @Override
         @Transactional(readOnly = true)
         public List<RoomListResponseDto> getRooms(String dormCode, Integer floor) {
-            return roomRepository.findRoomByDormCodeAndFloor(dormCode, floor);
+                return roomRepository.findRoomByDormCodeAndFloor(dormCode, floor);
         }
 
         @Override

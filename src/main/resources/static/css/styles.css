@@ -417,6 +417,43 @@ main {
     color: #495057;
 }
 
+.qr-check-page {
+    --primary-color: #FFB366;
+    --primary-dark: #E69545;
+    --text-color: #333;
+    --bg-light: #FFF5E6;
+}
+
+.qr-check-page body {
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+/* card */
+.qr-check-page .card {
+    background: white;
+    padding: 2.5rem 2rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+/* 버튼 */
+.qr-check-page .btn {
+    flex: 1;
+    padding: 16px;
+    border-radius: 12px;
+    font-weight: 700;
+}
+
+/* 상태 메시지 */
+.qr-check-page .status-msg {
+    color: #888;
+    font-size: 0.95rem;
+}
+
+
 /* =========================================
    COLOR UTILITIES
    ========================================= */

@@ -1,4 +1,4 @@
-package com.dormclean.dorm_cleaning_management.service;
+package com.dormclean.dorm_cleaning_management.service.dorm;
 
 import com.dormclean.dorm_cleaning_management.dto.dorm.CreateDormRequestDto;
 import com.dormclean.dorm_cleaning_management.dto.dorm.DormDeleteRequestDto;

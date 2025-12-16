@@ -5,7 +5,8 @@ import com.dormclean.dorm_cleaning_management.entity.Dorm;
 import com.dormclean.dorm_cleaning_management.entity.Room;
 import com.dormclean.dorm_cleaning_management.repository.DormRepository;
 import com.dormclean.dorm_cleaning_management.repository.RoomRepository;
-import com.dormclean.dorm_cleaning_management.service.QrCodeService;
+import com.dormclean.dorm_cleaning_management.service.qr.QrCodeService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

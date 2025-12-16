@@ -13,15 +13,15 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/admin")
-public class QrPageConroller {
+public class QrManagerPageConroller {
     private final DormRepository dormRepository;
 
-    @GetMapping("/create-qr")
-    public String createQR(Model model){
+    @GetMapping("/qr-manager")
+    public String createQR(Model model) {
         List<Dorm> dormList = dormRepository.findAllByOrderByDormCodeAsc();
 
-        model.addAttribute("dorms",dormList);
+        model.addAttribute("dorms", dormList);
 
-        return "create-qr";
+        return "qr-manager";
     }
 }

@@ -4,7 +4,8 @@ import com.dormclean.dorm_cleaning_management.dto.dorm.CreateDormRequestDto;
 import com.dormclean.dorm_cleaning_management.dto.dorm.DormDeleteRequestDto;
 import com.dormclean.dorm_cleaning_management.dto.dorm.DormListResponseDto;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
-import com.dormclean.dorm_cleaning_management.service.DormService;
+import com.dormclean.dorm_cleaning_management.service.dorm.DormService;
+
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

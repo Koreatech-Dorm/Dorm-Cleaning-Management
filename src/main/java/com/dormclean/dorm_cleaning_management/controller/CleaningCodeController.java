@@ -1,8 +1,9 @@
 package com.dormclean.dorm_cleaning_management.controller;
 
-import com.dormclean.dorm_cleaning_management.dto.cleaning.GetCleaningCodeResponseDto;
-import com.dormclean.dorm_cleaning_management.dto.cleaning.RegistrationCleaningCodeRequestDto;
-import com.dormclean.dorm_cleaning_management.service.CleaningCodeService;
+import com.dormclean.dorm_cleaning_management.dto.cleaningCode.GetCleaningCodeResponseDto;
+import com.dormclean.dorm_cleaning_management.dto.cleaningCode.RegistrationCleaningCodeRequestDto;
+import com.dormclean.dorm_cleaning_management.service.cleaningCode.CleaningCodeService;
+
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,17 +17,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/admin/api/cleaning-code")
+@RequestMapping("/admin/api")
 @Tag(name = "청소 인증 코드 API", description = "청소 인증 코드 등록 및 검증 관련 API")
 public class CleaningCodeController {
     private final CleaningCodeService cleaningCodeService;
 
-    @PostMapping("/registration")
+    @PostMapping("/cleaning-code/registration")
     public void registration(@Valid @RequestBody RegistrationCleaningCodeRequestDto dto) {
         cleaningCodeService.registration(dto);
     }
 
-    @GetMapping("/get-code")
+    @GetMapping("/cleaning-code/get-code")
     public ResponseEntity<GetCleaningCodeResponseDto> getAllCleaningCode() {
         GetCleaningCodeResponseDto dto = cleaningCodeService.getCleaningCode();
 

@@ -1,4 +1,4 @@
-package com.dormclean.dorm_cleaning_management.service;
+package com.dormclean.dorm_cleaning_management.service.qr;
 
 import com.dormclean.dorm_cleaning_management.dto.zipFile.QrGenerationData;
 import com.dormclean.dorm_cleaning_management.dto.qr.QrRequestDto;
@@ -135,13 +135,12 @@ public class QrCodeServiceImpl implements QrCodeService {
 
         // 순서가 섞이지 않도록 리스트 처리는 주의해야 하나, ZIP 내 파일명이 명확하므로 병렬 처리 결과 수집이 더 중요
         List<ZipFileEntry> zipEntries = qrDataList.parallelStream()
-                .map(data ->{
+                .map(data -> {
                     byte[] imageBytes = generateQrCode(
                             data.content(),
                             250,
                             250,
-                            data.labelText()
-                    );
+                            data.labelText());
                     return new ZipFileEntry(data.fileName(), imageBytes);
                 })
                 .toList();
@@ -151,7 +150,7 @@ public class QrCodeServiceImpl implements QrCodeService {
 
     private byte[] createZipFromEntries(List<ZipFileEntry> entries) {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-             ZipOutputStream zip = new ZipOutputStream(baos)) {
+                ZipOutputStream zip = new ZipOutputStream(baos)) {
 
             for (ZipFileEntry entry : entries) {
                 ZipEntry zipEntry = new ZipEntry(entry.fileName());

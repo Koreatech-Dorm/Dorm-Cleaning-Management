@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: headFragment}"></head>
+
+<body>
+<header th:replace="~{fragments/header :: headerFragment}"></header>
+
+<main class="container-fluid px-4 mt-4">
+    <!-- 메인 컨텐츠 -->
+    <div class="container">
+        <div class="page-header">
+            <h2>생활관∙호실 관리</h2>
+            <p>생활관∙호실을 추가/삭제/수정합니다.</p>
+        </div>
+
+        <div class="card-grid">
+            <!-- 생활관 관리 -->
+            <a href="/admin/dorm-manager" class="main-card">
+                <div class="card-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                </div>
+                <h3>생활관 관리</h3>
+                <p>생활관 추가/삭제/수정</p>
+            </a>
+
+            <!-- 호실 관리 -->
+            <a href="/admin/room-manager" class="main-card">
+                <div class="card-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                    </svg>
+                </div>
+                <h3>호실 관리</h3>
+                <p>호실 추가/삭제</p>
+            </a>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+
+</body>
+</html>

@@ -2,7 +2,7 @@ package com.dormclean.dorm_cleaning_management.controller;
 
 import com.dormclean.dorm_cleaning_management.dto.room.*;
 import com.dormclean.dorm_cleaning_management.entity.Room;
-import com.dormclean.dorm_cleaning_management.service.RoomService;
+import com.dormclean.dorm_cleaning_management.service.room.RoomService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

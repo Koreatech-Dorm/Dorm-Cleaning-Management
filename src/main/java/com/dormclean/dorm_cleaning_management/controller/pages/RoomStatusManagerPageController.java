@@ -15,13 +15,13 @@ import lombok.RequiredArgsConstructor;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/admin")
-public class RoomsPageController {
+public class RoomStatusManagerPageController {
     private final DormRepository dormRepository;
 
-    @GetMapping("/rooms")
+    @GetMapping("/room-status-manager")
     public String roomManager(Model model) {
         List<Dorm> dormList = dormRepository.findAll();
         model.addAttribute("dorms", dormList);
-        return "rooms";
+        return "room-status-manager";
     }
 }
