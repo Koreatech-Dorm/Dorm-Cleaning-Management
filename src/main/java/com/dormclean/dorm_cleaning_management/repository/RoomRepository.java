@@ -99,4 +99,9 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
             Integer floor
     );
 
+    @Query("""
+    select r
+    from Room r join r.dorm d where d.dormCode = :dormCode and r.roomNumber = :roomNumber
+    """)
+    Room findRoomByDormCodeAndRoomNumber(String dormCode, String roomNumber);
 }
