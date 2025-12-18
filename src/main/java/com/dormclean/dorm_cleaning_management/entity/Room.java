@@ -67,22 +67,26 @@ public class Room {
         this.checkOutAt = checkOutAt;
     }
 
-    public void assignQrCode(QrCode qrCode) {
-        this.qrCode = qrCode;
-    }
-
-
-    public String getStatusLabel() {
-        switch (roomStatus) {
-            case OCCUPIED:
-                return "재실";
-            case VACANT:
-                return "공실 (청소 필요)";
-            case READY:
-                return "공실 (청소 완료)";
-            default:
-                return "";
+    public void checkIn() {
+        if (this.roomStatus == RoomStatus.READY) {
+            this.roomStatus = RoomStatus.OCCUPIED;
+            this.checkInAt = Instant.now();
+            this.checkOutAt = null;
+            this.cleanedAt = null;
         }
     }
 
+    public void checkOut() {
+        if (this.roomStatus == RoomStatus.OCCUPIED) {
+            this.roomStatus = RoomStatus.VACANT;
+            this.checkOutAt = Instant.now();
+        }
+    }
+
+    public void clean() {
+        if (this.getRoomStatus() == RoomStatus.VACANT) {
+            this.updateStatus(RoomStatus.READY);
+            this.cleanedAt = Instant.now();
+        }
+    }
 }

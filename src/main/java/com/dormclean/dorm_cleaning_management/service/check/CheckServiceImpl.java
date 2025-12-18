@@ -11,7 +11,6 @@ import com.dormclean.dorm_cleaning_management.repository.DormRepository;
 import com.dormclean.dorm_cleaning_management.repository.RoomRepository;
 
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,44 +26,38 @@ public class CheckServiceImpl implements CheckService {
 
     @Override
     public void checkIn(CheckRequestDto dto) {
-        Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 생활관입니다."));
-        Room room = roomRepository.findByDormAndRoomNumber(dorm, dto.roomNumber())
-                .orElseThrow(() -> new IllegalArgumentException("해당 호실이 존재하지 않습니다."));
-        if (room.getRoomStatus() == RoomStatus.READY) {
-            room.updateStatus(RoomStatus.OCCUPIED); // 재실
-            room.updateCheckInAt(java.time.Instant.now()); // 체크인 시간 업데이트
-            room.updateCheckOutAt(null); // 퇴실 시간 초기화
-            room.updateCleanedAt(null); // 청소 시간 초기화
+        Room room = findRoomStatus(dto);
+
+        if (room.getRoomStatus() != RoomStatus.READY) {
+            throw new IllegalStateException("준비된 방만 입실이 가능합니다.");
         }
+        room.checkIn();
     }
 
     @Override
     public void checkOut(CheckRequestDto dto) {
-        Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 생활관입니다."));
-        Room room = roomRepository.findByDormAndRoomNumber(dorm, dto.roomNumber())
-                .orElseThrow(() -> new IllegalArgumentException("해당 호실이 존재하지 않습니다."));
+        Room room = findRoomStatus(dto);
 
-        if (room.getRoomStatus() == RoomStatus.OCCUPIED) {
-            room.updateStatus(RoomStatus.VACANT);
-            room.updateCheckOutAt(java.time.Instant.now());
+        if (room.getRoomStatus() != RoomStatus.OCCUPIED) {
+            throw new IllegalStateException("재실 중인 방만 퇴실이 가능합니다.");
         }
+        room.checkOut();
     }
 
     @Override
     public void cleanCheck(CheckRequestDto dto) {
-        Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 생활관입니다."));
-        Room room = roomRepository.findByDormAndRoomNumber(dorm, dto.roomNumber())
-                .orElseThrow(() -> new IllegalArgumentException("해당 호실이 존재하지 않습니다."));
+        Room room = findRoomStatus(dto);
 
-        if (room.getRoomStatus() == RoomStatus.VACANT) {
-            room.updateStatus(RoomStatus.READY);
-            room.updateCleanedAt(java.time.Instant.now());
-        } else {
-            throw new IllegalStateException("퇴실하지 않은 상태에서는 청소할 수 없습니다.");
+        if (room.getRoomStatus() != RoomStatus.VACANT) {
+            throw new IllegalStateException("공실인 방만 청소가 가능합니다.");
         }
+        room.clean();
+    }
+
+    private Room findRoomStatus(CheckRequestDto dto){
+        Room room = roomRepository.findRoomByDormCodeAndRoomNumber(dto.dormCode(), dto.roomNumber());
+
+        return room;
     }
 
     @Override

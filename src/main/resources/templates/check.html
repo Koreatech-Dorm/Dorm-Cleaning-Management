@@ -256,7 +256,7 @@
             return;
         }
 
-        axios.post(url, data)
+        axios.patch(url, data)
             .then(response => {
                 // 성공 메시지가 response.data.message에 있다고 가정
                 const resultMessage = response.data && response.data.message ? response.data.message : "처리가 완료되었습니다.";
