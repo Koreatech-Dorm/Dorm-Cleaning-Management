@@ -29,7 +29,14 @@ public class SecurityConfig {
                                                 .loginPage("/login")
                                                 .loginProcessingUrl("/loginProc")
                                                 .defaultSuccessUrl("/", true)
-                                                .permitAll());
+                                                .permitAll())
+                                .logout(logout -> logout
+                                                .logoutUrl("/logout") // 로그아웃 처리 URL
+                                                .logoutSuccessUrl("/login?logout") // 로그아웃 성공 후 이동
+                                                .invalidateHttpSession(true) // 세션 무효화
+                                                .deleteCookies("JSESSIONID") // 쿠키 삭제
+                                );
+                ;
 
                 return http.build();
         }
