@@ -23,6 +23,10 @@ spring:
           order_updates: true # UPDATE 문을 모아서 처리
         format_sql: true
         generate_statistics: true
+  datasource:
+    hikari:
+       maximum-pool-size: 5
+       minimum-idle: 2
 
 springdoc:
   swagger-ui:
@@ -34,5 +38,13 @@ logging:
   level:
     org:
       hibernate:
-        SQL: DEBUG
+#        SQL: DEBUG
         type: trace
+        com.zaxxer.hikari: DEBUG
+
+server:
+  tomcat:
+    threads:
+      max: 10
+    accept-count: 50
+    max-connections: 100

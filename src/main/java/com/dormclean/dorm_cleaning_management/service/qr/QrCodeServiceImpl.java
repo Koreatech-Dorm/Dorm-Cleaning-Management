@@ -7,6 +7,7 @@ import com.dormclean.dorm_cleaning_management.dto.zipFile.ZipFileEntry;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
 import com.dormclean.dorm_cleaning_management.entity.QrCode;
 import com.dormclean.dorm_cleaning_management.entity.Room;
+import com.dormclean.dorm_cleaning_management.entity.enums.RoomStatus;
 import com.dormclean.dorm_cleaning_management.repository.DormRepository;
 import com.dormclean.dorm_cleaning_management.repository.QrCodeRepository;
 import com.dormclean.dorm_cleaning_management.repository.RoomRepository;
@@ -168,14 +169,8 @@ public class QrCodeServiceImpl implements QrCodeService {
     @Override
     @Transactional(readOnly = true)
     public QrResponseDto getQrData(String token) {
-        // UUID(토큰)로 DB에서 찾기
-        QrCode qrCode = qrCodeRepository.findByUuid(token)
-                .orElseThrow(() -> new IllegalArgumentException("유효하지 않거나 만료된 QR 코드입니다."));
-
-        String dormCode = qrCode.getRoom().getDorm().getDormCode();
-        String roomNumber = qrCode.getRoom().getRoomNumber();
-
         // 찾은 정보를 DTO로 변환해서 반환
-        return new QrResponseDto(dormCode, roomNumber);
+        return qrCodeRepository.findByToken(token)
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 QR입니다."));
     }
 }
