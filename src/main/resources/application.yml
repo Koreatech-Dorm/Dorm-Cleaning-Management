@@ -25,8 +25,8 @@ spring:
         generate_statistics: true
   datasource:
     hikari:
-       maximum-pool-size: 25
-       minimum-idle: 10
+       maximum-pool-size: 5
+       minimum-idle: 2
 
 springdoc:
   swagger-ui:
@@ -45,6 +45,6 @@ logging:
 server:
   tomcat:
     threads:
-      max: 50 # 동시 처리 스레드
-    accept-count: 20
+      max: 10
+    accept-count: 50
     max-connections: 100
