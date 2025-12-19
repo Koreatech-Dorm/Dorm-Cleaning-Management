@@ -2,8 +2,8 @@ spring:
   application:
     name: dorm-cleaning-management
 
-  profiles:
-    active: dev
+#  profiles:
+#    active: dev
 
   mvc:
     pathmatch:
@@ -13,7 +13,7 @@ spring:
     hibernate:
       ddl-auto: update
 
-    show-sql: true
+    show-sql: false
 
     properties:
       hibernate:
@@ -24,6 +24,10 @@ spring:
         format_sql: true
         generate_statistics: true
   datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
        maximum-pool-size: 5
        minimum-idle: 2
@@ -34,17 +38,13 @@ springdoc:
   api-docs:
     path: /v3/api-docs
 
-logging:
-  level:
-    org:
-      hibernate:
-#        SQL: DEBUG
-        type: trace
-        com.zaxxer.hikari: DEBUG
-
 server:
   tomcat:
     threads:
       max: 10
     accept-count: 50
     max-connections: 100
+
+app:
+  host: ${APP_HOST}
+  allowed-ip-prefix: ${ADMIN_ALLOWED_IP_PREFIX}
