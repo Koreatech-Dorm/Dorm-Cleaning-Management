@@ -15,4 +15,6 @@ public interface UserService {
     public List<AccountListResponseDto> AllAdminAccounts(UserRole role);
 
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException;
+
+    public void delete(String username, String password);
 }

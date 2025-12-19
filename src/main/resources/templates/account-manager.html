@@ -153,6 +153,34 @@
             accountStatus.style.color = 'red';
         }
     });
+
+    
+    // 관리자 계정 삭제
+    document.getElementById('deleteAccountForm').addEventListener('submit', async (e) => {
+        e.preventDefault(); // 폼 기본 제출 방지
+
+        const deleteUsername = document.getElementById('deleteUsername').value;
+        const deletePassword = document.getElementById('deletePassword').value;
+        const deleteAccountStatus = document.getElementById('deleteAccountStatus');
+
+        try {
+            await axios.delete('/admin/api/delete/account', {
+                params: {
+                    username: deleteUsername,   
+                    password: deletePassword
+                }
+            });
+            deleteAccountStatus.textContent = '✅ 관리자 계정이 삭제되었습니다!';
+            deleteAccountStatus.style.color = 'blue';
+
+            e.target.reset();
+            loadAccoundList();
+        } catch (err) {
+            const msg = err?.response?.data?.message || '계정을 삭제하지 못하였습니다.';
+            deleteAccountStatus.textContent = `⚠️ ${msg}`;
+            deleteAccountStatus.style.color = 'red';
+        }
+    });
 </script>
 
 <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
