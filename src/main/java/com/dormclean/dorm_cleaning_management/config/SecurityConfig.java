@@ -24,16 +24,9 @@ public class SecurityConfig {
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
                 http
                                 .authorizeHttpRequests(auth -> auth
-                                        .requestMatchers(
-                                                "/check",
-                                                "/api/check/**",
-                                                "/login",
-                                                "/loginProc",
-                                                "/v3/api-docs/**",      // Swagger OpenAPI
-                                                "/swagger-ui/**",       // Swagger UI
-                                                "/swagger-ui.html"      // Swagger UI html
-                                        ).permitAll()
+                                                .requestMatchers("/check", "/api/check/**", "/login", "/loginProc")
                                                 // .requestMatchers("/**")
+                                                .permitAll()
                                                 .requestMatchers("/admin/account-manager").hasAnyRole("SUPERADMIN")
                                                 .requestMatchers("/admin/**").hasAnyRole("ADMIN", "SUPERADMIN")
                                                 .anyRequest().authenticated())
