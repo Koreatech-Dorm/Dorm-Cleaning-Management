@@ -15,6 +15,10 @@ RUN ./gradlew bootJar --no-daemon
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y fonts-nanum && \
+    fc-cache -fv && \
+    rm -rf /var/lib/apt/lists/*
+
 # 빌드 결과물 복사
 COPY --from=build /app/build/libs/*.jar app.jar
 
