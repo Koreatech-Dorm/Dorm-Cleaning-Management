@@ -433,47 +433,53 @@
 
             if (!selectedDormCode || !selectedRoomNumber) return;
 
-            const res = await fetch(`/admin/api/rooms/${selectedRoomNumber}/status`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    dormCode: selectedDormCode,
-                    newRoomStatus: newStatus
-                })
-            });
+            try {
+                const res = await fetch(`/admin/api/rooms/${selectedRoomNumber}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        dormCode: selectedDormCode,
+                        newRoomStatus: newStatus
+                    })
+                });
 
-            if (!res.ok) {
-                alert('상태 변경 실패');
-                return;
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    throw errorData;
+                }
+
+                const updatedRoom = await res.json();
+
+                const card = document.querySelector(
+                    `.room-card[data-dorm-code="${selectedDormCode}"][data-room-number="${selectedRoomNumber}"]`
+                );
+
+                if (card) {
+                    // 상태
+                    card.dataset.roomStatus = updatedRoom.roomStatus;
+
+                    // 시간 선택
+                    let time = "";
+                    if (updatedRoom.roomStatus === "OCCUPIED")
+                        time = formatTime(updatedRoom.checkInAt);
+                    else if (updatedRoom.roomStatus === "VACANT")
+                        time = formatTime(updatedRoom.checkOutAt);
+                    else
+                        time = formatTime(updatedRoom.cleanedAt);
+
+                    // UI 반영
+                    updateRoomCardUI(card, updatedRoom.roomStatus, time);
+                    applyStatusFilter(selectedStatus);
+                }
+
+                bootstrap.Modal.getInstance(
+                    document.getElementById('statusModal')
+                ).hide();
+
+            } catch (err) {
+                const msg = err?.message ?? '상태 변경 중 오류가 발생했습니다.';
+                alert(msg);
             }
-
-            const updatedRoom = await res.json();
-
-            const card = document.querySelector(
-                `.room-card[data-dorm-code="${selectedDormCode}"][data-room-number="${selectedRoomNumber}"]`
-            );
-
-            if (card) {
-                // 상태
-                card.dataset.roomStatus = updatedRoom.roomStatus;
-
-                // 시간 선택
-                let time = "";
-                if (updatedRoom.roomStatus === "OCCUPIED")
-                    time = formatTime(updatedRoom.checkInAt);
-                else if (updatedRoom.roomStatus === "VACANT")
-                    time = formatTime(updatedRoom.checkOutAt);
-                else
-                    time = formatTime(updatedRoom.cleanedAt);
-
-                // UI 반영
-                updateRoomCardUI(card, updatedRoom.roomStatus, time);
-                applyStatusFilter(selectedStatus);
-            }
-
-            bootstrap.Modal.getInstance(
-                document.getElementById('statusModal')
-            ).hide();
         });
 
         // 보이는 카드만 가져오기

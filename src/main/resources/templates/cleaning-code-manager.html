@@ -60,10 +60,14 @@
             if (cleaningCode) {
                 currentKey.value = cleaningCode;
             } else {
-                currentKey.value = "⚠️ 인증코드가 존재하지 않습니다.";
+                // 정상 응답인데 값이 없는 경우 (방어 코드)
+                currentKey.value = "⚠️ 인증코드를 찾을 수 없습니다.";
             }
         } catch (err) {
-            currentKey.value = "⚠️ 인증코드가 존재하지 않습니다.";
+            // ❗ 서버 에러 메시지 파싱
+            const serverMessage = err.response?.data?.message ?? "인증 코드를 불러오는 중 오류가 발생했습니다.";
+
+            currentKey.value = `⚠️ ${serverMessage}`;
         }
     }
     

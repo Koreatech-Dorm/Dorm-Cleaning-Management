@@ -184,8 +184,8 @@
                 downloadLink.download = `QR_${dormCode}동_${roomNumber}호.png`;
             })
             .catch(err => {
-                const message = err?.message ?? 'QR 코드 생성에 실패했습니다.';
-                alert(message);
+                const msg = err?.message ?? 'QR 코드 생성에 실패했습니다.';
+                alert(msg);
                 resultArea.style.display = 'none';
             })
             .finally(() => {

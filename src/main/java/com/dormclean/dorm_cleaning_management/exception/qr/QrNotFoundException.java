@@ -6,6 +6,6 @@ import com.dormclean.dorm_cleaning_management.exception.BaseException;
 public class QrNotFoundException extends BaseException {
 
     public QrNotFoundException() {
-        super(ErrorCode.DORM_NOT_FOUND);
+        super(ErrorCode.QR_NOT_FOUND);
     }
 }

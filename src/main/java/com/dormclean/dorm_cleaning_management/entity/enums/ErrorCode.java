@@ -25,9 +25,10 @@ public enum ErrorCode {
     ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "1201", "호실을 찾을 수 없습니다."),
     ROOM_ALREADY_EXISTS(HttpStatus.CONFLICT, "1202", "이미 존재하는 호실입니다."),
     INVALID_ROOM_STATUS(HttpStatus.BAD_REQUEST, "1203", "잘못된 호실 상태입니다."),
-    ROOM_CHECK_IN_NOT_ALLOWED(HttpStatus.CONFLICT, "1204", "준비된 방만 입실이 가능합니다."),
-    ROOM_CHECK_OUT_NOT_ALLOWED(HttpStatus.CONFLICT, "1205", "재실 중인 방만 퇴실이 가능합니다."),
-    ROOM_CLEAN_NOT_ALLOWED(HttpStatus.CONFLICT, "1206", "공실인 방만 청소가 가능합니다."),
+    CANNOT_CHANGE_ROOM_STATUS(HttpStatus.BAD_REQUEST, "1204", "호실 상태를 변경할 수 없습니다."),
+    ROOM_CHECK_IN_NOT_ALLOWED(HttpStatus.CONFLICT, "1205", "준비된 방만 입실이 가능합니다."),
+    ROOM_CHECK_OUT_NOT_ALLOWED(HttpStatus.CONFLICT, "1206", "재실 중인 방만 퇴실이 가능합니다."),
+    ROOM_CLEAN_NOT_ALLOWED(HttpStatus.CONFLICT, "1207", "공실인 방만 청소가 가능합니다."),
 
     // QR
     QR_NOT_FOUND(HttpStatus.NOT_FOUND, "1301", "호실을 찾을 수 없습니다."),
@@ -36,7 +37,8 @@ public enum ErrorCode {
     ZIP_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "1304", "ZIP 파일 생성 중 오류가 발생했습니다."),
 
     // 청소 인증 코드
-    INVALID_CLEANING_CODE(HttpStatus.BAD_REQUEST, "1401", "유효하지 않은 QR입니다."),
+    CLEANING_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, "1401", "인증 코드를 찾을 수 없습니다."),
+    INVALID_CLEANING_CODE(HttpStatus.BAD_REQUEST, "1402", "유효하지 않은 인증 코드입니다."),
 
     // Excel
     EXCEL_PROCESSING_FAILED(HttpStatus.BAD_REQUEST, "1501", "엑셀 파일 처리 중 오류가 발생했습니다."),
