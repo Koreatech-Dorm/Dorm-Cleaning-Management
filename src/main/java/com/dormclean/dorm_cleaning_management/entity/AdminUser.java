@@ -33,10 +33,10 @@ public class AdminUser extends BaseEntity {
     private LocalDateTime lastLoginAt;
 
     @Builder
-    public AdminUser(String username, String password) {
+    public AdminUser(String username, String password, UserRole role) {
         this.username = username;
         this.password = password;
-        this.role = UserRole.ADMIN;
+        this.role = (role != null) ? role: UserRole.ADMIN;
     }
 
     public void updateLastLoginAt() {

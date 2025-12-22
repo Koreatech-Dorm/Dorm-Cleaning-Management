@@ -3,11 +3,9 @@ package com.dormclean.dorm_cleaning_management.service.qr;
 import com.dormclean.dorm_cleaning_management.dto.zipFile.QrGenerationData;
 import com.dormclean.dorm_cleaning_management.dto.qr.QrRequestDto;
 import com.dormclean.dorm_cleaning_management.dto.qr.QrResponseDto;
-import com.dormclean.dorm_cleaning_management.dto.zipFile.ZipFileEntry;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
 import com.dormclean.dorm_cleaning_management.entity.QrCode;
 import com.dormclean.dorm_cleaning_management.entity.Room;
-import com.dormclean.dorm_cleaning_management.entity.enums.RoomStatus;
 import com.dormclean.dorm_cleaning_management.repository.DormRepository;
 import com.dormclean.dorm_cleaning_management.repository.QrCodeRepository;
 import com.dormclean.dorm_cleaning_management.repository.RoomRepository;
@@ -26,6 +24,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -130,39 +129,31 @@ public class QrCodeServiceImpl implements QrCodeService {
     }
 
     @Override
-    public byte[] generateZipForDorms(List<String> dormCodes) {
-        // 데이터 준비 및 qrCode 업데이트/저장
+    public void generateZipForDormsToStream(List<String> dormCodes, OutputStream outputStream) {
         List<QrGenerationData> qrDataList = qrDataProcessor.prepareQrDataAndSaveBulk(dormCodes);
 
-        // 순서가 섞이지 않도록 리스트 처리는 주의해야 하나, ZIP 내 파일명이 명확하므로 병렬 처리 결과 수집이 더 중요
-        List<ZipFileEntry> zipEntries = qrDataList.parallelStream()
-                .map(data -> {
-                    byte[] imageBytes = generateQrCode(
-                            data.content(),
-                            250,
-                            250,
-                            data.labelText());
-                    return new ZipFileEntry(data.fileName(), imageBytes);
-                })
-                .toList();
+        // ZipOutputStream 생성
+        try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
+            for (QrGenerationData data : qrDataList) {
+                // QR 이미지 생성 (하나씩만 메모리에 올림)
+                byte[] imageBytes = generateQrCode(
+                        data.content(),
+                        250,
+                        250,
+                        data.labelText());
 
-        return createZipFromEntries(zipEntries);
-    }
+                // 즉시 ZIP에 추가
+                ZipEntry zipEntry = new ZipEntry(data.fileName());
+                zos.putNextEntry(zipEntry);
+                zos.write(imageBytes);
+                zos.closeEntry();
 
-    private byte[] createZipFromEntries(List<ZipFileEntry> entries) {
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ZipOutputStream zip = new ZipOutputStream(baos)) {
-
-            for (ZipFileEntry entry : entries) {
-                ZipEntry zipEntry = new ZipEntry(entry.fileName());
-                zip.putNextEntry(zipEntry);
-                zip.write(entry.imageBytes());
-                zip.closeEntry();
+                // 네트워크 스트림 비우기 유도 (클라이언트가 끊기지 않게 함)
+                outputStream.flush();
             }
-            zip.finish();
-            return baos.toByteArray();
+            zos.finish(); // 압축 마무리
         } catch (IOException e) {
-            throw new RuntimeException("ZIP 생성 실패", e);
+            throw new RuntimeException("ZIP 생성 중 오류 발생", e);
         }
     }
 

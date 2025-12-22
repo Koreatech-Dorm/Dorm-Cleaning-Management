@@ -3,6 +3,7 @@ package com.dormclean.dorm_cleaning_management.service.qr;
 import com.dormclean.dorm_cleaning_management.dto.qr.QrRequestDto;
 import com.dormclean.dorm_cleaning_management.dto.qr.QrResponseDto;
 
+import java.io.OutputStream;
 import java.util.List;
 
 public interface QrCodeService {
@@ -12,5 +13,5 @@ public interface QrCodeService {
 
     QrResponseDto getQrData(String token);
 
-    byte[] generateZipForDorms(List<String> dormCodes);
+    void generateZipForDormsToStream(List<String> dormCodes, OutputStream outputStream);
 }

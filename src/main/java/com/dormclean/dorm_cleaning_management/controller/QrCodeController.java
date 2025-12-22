@@ -4,6 +4,7 @@ import com.dormclean.dorm_cleaning_management.dto.qr.QrRequestDto;
 import com.dormclean.dorm_cleaning_management.service.qr.QrCodeService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -11,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -36,13 +38,13 @@ public class QrCodeController {
     }
 
     @GetMapping("/qr/generate/zip")
-    public ResponseEntity<byte[]> generateQrCodeZip(@RequestParam("dormCodes") List<String> dormCodes) {
-        byte[] zipFile = qrCodeService.generateZipForDorms(dormCodes);
+    public void generateQrCodeZip(
+            @RequestParam("dormCodes") List<String> dormCodes,
+            HttpServletResponse response) throws IOException {
+        response.setContentType("application/zip");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=dorm_qr_codes.zip");
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=dorm_qr_codes.zip")
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(zipFile);
+        // 서비스에서 스트림에 직접 데이터를 쏘도록 호출
+        qrCodeService.generateZipForDormsToStream(dormCodes, response.getOutputStream());
     }
 }

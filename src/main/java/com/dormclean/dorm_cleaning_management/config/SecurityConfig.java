@@ -1,5 +1,7 @@
 package com.dormclean.dorm_cleaning_management.config;
 
+import com.dormclean.dorm_cleaning_management.security.IpRestrictionFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,10 +12,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity(debug = true)
+@RequiredArgsConstructor
 public class SecurityConfig {
+    private final IpRestrictionFilter ipRestrictionFilter;
 
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -25,6 +30,10 @@ public class SecurityConfig {
                                                 .requestMatchers("/admin/account-manager").hasAnyRole("SUPERADMIN")
                                                 .requestMatchers("/admin/**").hasAnyRole("ADMIN", "SUPERADMIN")
                                                 .anyRequest().authenticated())
+                                .addFilterBefore(
+                                        ipRestrictionFilter,
+                                        UsernamePasswordAuthenticationFilter.class
+                                )
                                 .csrf(csrf -> csrf.disable())
                                 .formLogin(form -> form
                                                 .loginPage("/login")
