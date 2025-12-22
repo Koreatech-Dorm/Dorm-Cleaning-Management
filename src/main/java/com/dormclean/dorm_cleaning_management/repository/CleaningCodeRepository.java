@@ -9,4 +9,6 @@ public interface CleaningCodeRepository extends JpaRepository<CleaningCode, Long
     Optional<CleaningCode> findByCleaningCode(String cleaningCode);
 
     Optional<CleaningCode> findById(Long id);
+
+    Optional<CleaningCode> findTopByOrderByIdDesc();
 }

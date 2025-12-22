@@ -21,29 +21,26 @@ public class CleaningCodeServiceImpl implements CleaningCodeService {
     @Override
     @Transactional
     public void registration(@Valid RegistrationCleaningCodeRequestDto dto) {
-        CleaningCode existingCode = cleaningCodeRepository.findById(1L)
-                .orElseThrow(CleaningCodeNotFoundException::new);
 
-        if (existingCode != null) {
-            // 이미 있다면 덮어쓰기
-            existingCode.updateCode(dto.cleaningCode());
-        } else {
-            // 없다면 새로 저장
-            CleaningCode newCleaningCode = CleaningCode.builder()
-                    .cleaningCode(dto.cleaningCode())
-                    .build();
-            cleaningCodeRepository.save(newCleaningCode);
-        }
+        cleaningCodeRepository.findTopByOrderByIdDesc()
+                .ifPresentOrElse(
+                        existingCode -> {
+                            // 이미 있으면 덮어쓰기
+                            existingCode.updateCode(dto.cleaningCode());
+                        },
+                        () -> {
+                            // 없으면 새로 생성
+                            CleaningCode newCode = CleaningCode.builder()
+                                    .cleaningCode(dto.cleaningCode())
+                                    .build();
+                            cleaningCodeRepository.save(newCode);
+                        });
     }
 
     @Override
     public GetCleaningCodeResponseDto getCleaningCode() {
-        CleaningCode cleaningCode = cleaningCodeRepository.findById(1L)
-                .orElse(null);
-
-        if (cleaningCode == null) {
-            return null;
-        }
+        CleaningCode cleaningCode = cleaningCodeRepository.findTopByOrderByIdDesc()
+                .orElseThrow(CleaningCodeNotFoundException::new);
 
         return new GetCleaningCodeResponseDto(cleaningCode.getCleaningCode());
     }
