@@ -107,4 +107,25 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     where d.dormCode in :dormCodes
 """)
     List<Room> findAllRoomsWithDormAndQrByDormCodes(@Param("dormCodes") List<String> dormCodes);
+
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Room r SET r.roomStatus = 'OCCUPIED' " +
+            "WHERE r.roomNumber = :roomNumber " +
+            "AND r.dorm.dormCode = :dormCode " +
+            "AND r.roomStatus = 'READY'")
+    int updateStatusToCheckIn(String dormCode, String roomNumber);
+
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Room r SET r.roomStatus = 'VACANT' " +
+            "WHERE r.roomNumber = :roomNumber " +
+            "AND r.dorm.dormCode = :dormCode " +
+            "AND r.roomStatus = 'OCCUPIED'")
+    int updateStatusToCheckOut(String dormCode, String roomNumber);
+
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Room r SET r.roomStatus = 'READY' " +
+            "WHERE r.roomNumber = :roomNumber " +
+            "AND r.dorm.dormCode = :dormCode " +
+            "AND r.roomStatus = 'VACANT'")
+    int updateStatusToCleaned(String dormCode, String roomNumber);
 }
