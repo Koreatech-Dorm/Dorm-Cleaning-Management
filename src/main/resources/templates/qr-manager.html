@@ -183,8 +183,8 @@
                 downloadLink.href = imageUrl;
                 downloadLink.download = `QR_${dormCode}동_${roomNumber}호.png`;
             })
-            .catch(err => {
-                const msg = err?.message ?? 'QR 코드 생성에 실패했습니다.';
+            .catch(error => {
+                const msg = error?.response?.data?.message;
                 alert(msg);
                 resultArea.style.display = 'none';
             })
@@ -209,11 +209,16 @@
             params.append('dormCodes', cb.value);
         });
 
-        // API 호출 (GET 방식, 파일 다운로드 트리거)
-        const apiUrl = `/admin/api/qr/generate/zip?${params.toString()}`;
+        try {
+            // API 호출 (GET 방식, 파일 다운로드 트리거)
+            const apiUrl = `/admin/api/qr/generate/zip?${params.toString()}`;
 
-        // 브라우저가 파일 다운로드로 인식하도록 location 변경
-        window.location.href = apiUrl;
+            // 브라우저가 파일 다운로드로 인식하도록 location 변경
+            window.location.href = apiUrl;
+        } catch (error) {
+            const msg = error?.response?.data?.message;
+            alert(msg);
+        }
     }
 </script>
 

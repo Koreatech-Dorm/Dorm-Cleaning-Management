@@ -122,7 +122,7 @@
                 accountGrid.appendChild(row);
             });
         } catch (err) {
-            const msg = err?.response?.data?.message || `관리자 계정 정보를 불러오지 못하였습니다.`;
+            const msg = err?.response?.data?.message;
             alert(msg);
         }
     }
@@ -155,7 +155,7 @@
             e.target.reset();
             loadAccoundList();
         } catch (err) {
-            const msg = err?.response?.data?.message || '계정을 등록하지 못하였습니다.';
+            const msg = err?.response?.data?.message;
             accountStatus.textContent = `⚠️ ${msg}`;
             accountStatus.style.color = 'red';
         }
@@ -183,7 +183,7 @@
             e.target.reset();
             loadAccoundList();
         } catch (err) {
-            const msg = err?.response?.data?.message || '계정을 삭제하지 못하였습니다.';
+            const msg = err?.response?.data?.message;
             deleteAccountStatus.textContent = `⚠️ ${msg}`;
             deleteAccountStatus.style.color = 'red';
         }

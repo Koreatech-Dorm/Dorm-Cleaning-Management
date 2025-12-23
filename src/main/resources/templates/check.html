@@ -224,7 +224,7 @@
                 location.reload();
             })
             .catch(error => {
-                const msg = err.response?.data?.message ?? "인증에 실패했습니다.";
+                const msg = err?.response?.data?.message;
                 alert(msg);
             });
     }
@@ -265,8 +265,7 @@
                 location.reload();
             })
             .catch(error => {
-                const msg = error.response && error.response.data ? error.response.data.message : "알 수 없는 오류가 발생했습니다.";
-                console.error('Error:', error.response);
+                const msg = error?.response?.data?.message;
                 alert(msg);
             });
     }

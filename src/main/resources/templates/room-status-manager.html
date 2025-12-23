@@ -176,8 +176,8 @@
                 renderAllGrids(allRooms);
                 applyDormFloorFilter("", "");
                 emptyState.style.display = "none";
-            } catch (err) {
-                const msg = err?.response?.data?.message ?? "호실 정보를 불러오지 못하였습니다.";
+            } catch (error) {
+                const msg = error?.response?.data?.message;
                 alert(msg);
             }
         }
@@ -401,9 +401,8 @@
                     opt.textContent = `${floor}층`;
                     floorSelect.appendChild(opt);
                 });
-            } catch (err) {
-                const msg = err?.response?.data?.message ?? '층 정보 로드 실패';
-                console.error(msg, err);
+            } catch (error) {
+                const msg = error?.response?.data?.message;
                 alert(msg);
             }
         });
@@ -483,8 +482,8 @@
                     document.getElementById('statusModal')
                 ).hide();
 
-            } catch (err) {
-                const msg = err?.message ?? '상태 변경 중 오류가 발생했습니다.';
+            } catch (error) {
+                const msg = error?.response?.data?.message;
                 alert(msg);
             }
         });
