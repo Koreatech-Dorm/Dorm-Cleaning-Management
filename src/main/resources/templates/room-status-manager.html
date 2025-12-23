@@ -640,7 +640,15 @@
                         })
                     });
 
-                    if (!res.ok) return;
+                    // HTTP 상태 코드 확인
+                    if (!res.ok) {
+                        const errorData = await res.json().catch(() => ({}));
+                        console.error(
+                            `Error updating rooms for dorm ${dormCode}:`,
+                            errorData.message || res.statusText
+                        );
+                        return; // 다음 dormCode 처리
+                    }
 
                     const {updatedCount, time} = await res.json();
                     console.log(`${dormCode}: ${updatedCount}개 방 상태 변경됨`);
