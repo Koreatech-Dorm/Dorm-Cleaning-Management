@@ -68,7 +68,12 @@ public class QrCodeServiceImpl implements QrCodeService {
         }
 
         // URL 생성
-        String content = String.format("%s/?token=%s", host, qrCode.getUuid());
+        String content;
+        if(host.contains("8080")){
+            content = String.format("%s/check?token=%s", host, qrCode.getUuid());
+        } else{
+            content = String.format("%s/?token=%s", host, qrCode.getUuid());
+        }
 
         String labelText = String.format("%s동 %s호", dto.dormCode(), dto.roomNumber());
 
