@@ -253,9 +253,9 @@
                 table.appendChild(seperator);
             });
             floorDiv.appendChild(table);
-        } catch (err) {
-            console.error(err);
-            emptyState.innerHTML = `<p>생활관을 선택하여 호실을 조회하세요.</p>`;
+        } catch (error) {
+            const msg = error?.response?.data?.message;
+            emptyState.innerHTML = `<p>${msg}</p>`;
             emptyState.style.display = 'flex';
         }
     }
@@ -284,9 +284,9 @@
                 statusEl.style.color = 'blue';
                 e.target.reset();
                 loadRooms(); // 갱신
-            } catch (err) {
-                const message = err.response.data.message;
-                statusEl.textContent = `⚠️ ${roomNumber}호 추가 실패: ${message}`;
+            } catch (error) {
+                const msg = error?.response?.data?.message;
+                statusEl.textContent = `⚠️ ${msg}`;
                 statusEl.style.color = 'red';
             }
         });
@@ -316,8 +316,9 @@
             statusEl.style.color = 'blue';
             e.target.reset();
             loadRooms(); // 갱신
-        } catch (err) {
-            statusEl.textContent = `⚠️ ${roomNumber}호 삭제에 실패하였습니다.`;
+        } catch (error) {
+            const msg = error?.response?.data?.message;
+            statusEl.textContent = `⚠️ ${msg}`;
             statusEl.style.color = 'red';
         }
     });
@@ -347,12 +348,13 @@
                 headers: { "Content-Type": "multipart/form-data" }
             });
 
-            statusEl.textContent = "✅ 호실 일괄 등록 완료!";
+            statusEl.textContent = "✅ 호실을 일괄 등록하였습니다.";
             statusEl.style.color = "blue";
 
             loadRooms();
-        } catch (err) {
-            statusEl.textContent = "⚠️ 업로드 중 오류 발생!";
+        } catch (error) {
+            const msg = error?.response?.data?.message;
+            statusEl.textContent = `⚠️ ${msg}`;
             statusEl.style.color = "red";
         }
     }
@@ -398,8 +400,9 @@
             // 모달 닫기
             bootstrap.Modal.getInstance(document.getElementById('confirmDeleteAllModal')).hide();
 
-        } catch (err) {
-            statusEl.textContent = `⚠️ 호실 일괄 삭제에 실패하였습니다.`;
+        } catch (error) {
+            const msg = error?.response?.data?.message;
+            statusEl.textContent = `⚠️ ${msg}`;
             statusEl.style.color = 'red';
         }
     });

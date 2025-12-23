@@ -4,6 +4,8 @@ import com.dormclean.dorm_cleaning_management.dto.dorm.CreateDormRequestDto;
 import com.dormclean.dorm_cleaning_management.dto.dorm.DormDeleteRequestDto;
 import com.dormclean.dorm_cleaning_management.dto.dorm.DormListResponseDto;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
+import com.dormclean.dorm_cleaning_management.exception.dorm.DormAlreadyExistsException;
+import com.dormclean.dorm_cleaning_management.exception.dorm.DormNotFoundException;
 import com.dormclean.dorm_cleaning_management.repository.DormRepository;
 
 import jakarta.transaction.Transactional;
@@ -26,6 +28,9 @@ public class DormServiceImpl implements DormService {
     }
 
     public Dorm createDorm(CreateDormRequestDto dto) {
+        if (dormRepository.existsByDormCode(dto.dormCode())) {
+            throw new DormAlreadyExistsException();
+        }
         Dorm dorm = Dorm.builder()
                 .dormCode(dto.dormCode())
                 .build();
@@ -36,7 +41,7 @@ public class DormServiceImpl implements DormService {
     @Transactional
     public void deleteDorm(DormDeleteRequestDto dto) {
         Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
-                .orElseThrow(() -> new IllegalArgumentException("해당 생활관을 찾을 수 없습니다."));
+                .orElseThrow(DormNotFoundException::new);
 
         dormRepository.delete(dorm);
     }

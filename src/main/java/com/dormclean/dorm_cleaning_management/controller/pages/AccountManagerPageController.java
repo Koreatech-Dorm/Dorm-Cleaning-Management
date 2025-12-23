@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.dormclean.dorm_cleaning_management.entity.AdminUser;
 import com.dormclean.dorm_cleaning_management.entity.enums.UserRole;
+import com.dormclean.dorm_cleaning_management.exception.admin.AdminNotFoundException;
 import com.dormclean.dorm_cleaning_management.repository.UserRepository;
 
 import org.springframework.ui.Model;
@@ -20,7 +21,7 @@ public class AccountManagerPageController {
     @GetMapping("/account-manager")
     public String adminLogin(Model model) {
         AdminUser superAdmin = userRepository.findByRole(UserRole.SUPERADMIN)
-                .orElseThrow(() -> new RuntimeException("SUPERADMIN not found"));
+                .orElseThrow(AdminNotFoundException::new);
         model.addAttribute("superAdmin", superAdmin);
         return "account-manager";
     }

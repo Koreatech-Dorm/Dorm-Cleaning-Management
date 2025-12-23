@@ -3,6 +3,8 @@ package com.dormclean.dorm_cleaning_management.service.cleaningCode;
 import com.dormclean.dorm_cleaning_management.dto.cleaningCode.GetCleaningCodeResponseDto;
 import com.dormclean.dorm_cleaning_management.dto.cleaningCode.RegistrationCleaningCodeRequestDto;
 import com.dormclean.dorm_cleaning_management.entity.CleaningCode;
+import com.dormclean.dorm_cleaning_management.exception.cleaningCode.CleaningCodeNotFoundException;
+import com.dormclean.dorm_cleaning_management.exception.qr.QrNotFoundException;
 import com.dormclean.dorm_cleaning_management.repository.CleaningCodeRepository;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -19,29 +21,26 @@ public class CleaningCodeServiceImpl implements CleaningCodeService {
     @Override
     @Transactional
     public void registration(@Valid RegistrationCleaningCodeRequestDto dto) {
-        CleaningCode existingCode = cleaningCodeRepository.findById(1L)
-                .orElse(null);
 
-        if (existingCode != null) {
-            // 이미 있다면 덮어쓰기
-            existingCode.updateCode(dto.cleaningCode());
-        } else {
-            // 없다면 새로 저장
-            CleaningCode newCleaningCode = CleaningCode.builder()
-                    .cleaningCode(dto.cleaningCode())
-                    .build();
-            cleaningCodeRepository.save(newCleaningCode);
-        }
+        cleaningCodeRepository.findTopByOrderByIdDesc()
+                .ifPresentOrElse(
+                        existingCode -> {
+                            // 이미 있으면 덮어쓰기
+                            existingCode.updateCode(dto.cleaningCode());
+                        },
+                        () -> {
+                            // 없으면 새로 생성
+                            CleaningCode newCode = CleaningCode.builder()
+                                    .cleaningCode(dto.cleaningCode())
+                                    .build();
+                            cleaningCodeRepository.save(newCode);
+                        });
     }
 
     @Override
     public GetCleaningCodeResponseDto getCleaningCode() {
-        CleaningCode cleaningCode = cleaningCodeRepository.findById(1L)
-                .orElse(null);
-
-        if (cleaningCode == null) {
-            return null;
-        }
+        CleaningCode cleaningCode = cleaningCodeRepository.findTopByOrderByIdDesc()
+                .orElseThrow(CleaningCodeNotFoundException::new);
 
         return new GetCleaningCodeResponseDto(cleaningCode.getCleaningCode());
     }

@@ -24,17 +24,11 @@ public class QrCodeController {
 
     @GetMapping("/qr/generate")
     public ResponseEntity<byte[]> generateQrCode(@Valid @ModelAttribute QrRequestDto dto) {
-        try {
-            byte[] qrImage = qrCodeService.createSecureQr(dto);
+        byte[] qrImage = qrCodeService.createSecureQr(dto);
 
-            return ResponseEntity.ok()
-                    .contentType(MediaType.IMAGE_PNG)
-                    .body(qrImage);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).build();
-        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_PNG)
+                .body(qrImage);
     }
 
     @GetMapping("/qr/generate/zip")

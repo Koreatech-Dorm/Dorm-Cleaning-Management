@@ -6,6 +6,11 @@ import com.dormclean.dorm_cleaning_management.dto.qr.QrResponseDto;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
 import com.dormclean.dorm_cleaning_management.entity.QrCode;
 import com.dormclean.dorm_cleaning_management.entity.Room;
+import com.dormclean.dorm_cleaning_management.exception.dorm.DormNotFoundException;
+import com.dormclean.dorm_cleaning_management.exception.qr.InvalidQrException;
+import com.dormclean.dorm_cleaning_management.exception.qr.QrCreationFailedException;
+import com.dormclean.dorm_cleaning_management.exception.qr.ZipCreationFailedException;
+import com.dormclean.dorm_cleaning_management.exception.room.RoomNotFoundException;
 import com.dormclean.dorm_cleaning_management.repository.DormRepository;
 import com.dormclean.dorm_cleaning_management.repository.QrCodeRepository;
 import com.dormclean.dorm_cleaning_management.repository.RoomRepository;
@@ -44,9 +49,9 @@ public class QrCodeServiceImpl implements QrCodeService {
     @Transactional
     public byte[] createSecureQr(QrRequestDto dto) {
         Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
-                .orElseThrow(() -> new RuntimeException("해당 생활관의 정보를 찾을 수 없습니다."));
+                .orElseThrow(DormNotFoundException::new);
         Room room = roomRepository.findByDormAndRoomNumber(dorm, dto.roomNumber())
-                .orElseThrow(() -> new RuntimeException("해당 호실의 정보를 찾을 수 없습니다."));
+                .orElseThrow(RoomNotFoundException::new);
 
         QrCode qrCode = qrCodeRepository.findByRoom(room).orElse(null);
 
@@ -67,8 +72,12 @@ public class QrCodeServiceImpl implements QrCodeService {
 
         String labelText = String.format("%s동 %s호", dto.dormCode(), dto.roomNumber());
 
-        // QR 이미지 생성
-        return generateQrCode(content, 250, 250, labelText);
+        try {
+            // QR 이미지 생성
+            return generateQrCode(content, 250, 250, labelText);
+        } catch (Exception e) {
+            throw new QrCreationFailedException();
+        }
     }
 
     @Override
@@ -124,7 +133,7 @@ public class QrCodeServiceImpl implements QrCodeService {
             return baos.toByteArray();
 
         } catch (Exception e) {
-            throw new RuntimeException("QR 코드 생성 중 오류가 발생했습니다.", e);
+            throw new QrCreationFailedException();
         }
     }
 
@@ -153,7 +162,7 @@ public class QrCodeServiceImpl implements QrCodeService {
             }
             zos.finish(); // 압축 마무리
         } catch (IOException e) {
-            throw new RuntimeException("ZIP 생성 중 오류 발생", e);
+            throw new ZipCreationFailedException();
         }
     }
 
@@ -162,6 +171,6 @@ public class QrCodeServiceImpl implements QrCodeService {
     public QrResponseDto getQrData(String token) {
         // 찾은 정보를 DTO로 변환해서 반환
         return qrCodeRepository.findByToken(token)
-                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 QR입니다."));
+                .orElseThrow(InvalidQrException::new);
     }
 }

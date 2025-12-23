@@ -29,6 +29,10 @@
                             </tr>
                         </table>
                         <label for="adminAccount" class="form-label mt-4"> 관리자 계정</label>
+                        <div class="empty-state" id="emptyState"> 
+                            <div class="loader"></div>
+                            <p>로딩중...</p> 
+                        </div>
                         <!-- 계정 그리드 -->
                         <table id="accountGrid" class="room-table">
                         </table>
@@ -93,9 +97,10 @@
 
 <script>
     const accountGrid = document.getElementById('accountGrid');
+    const emptyState = document.getElementById('emptyState');
 
     async function loadAccoundList() {
-        accountGrid.innerHTML = "";
+        accountGrid.innerHTML = ``;
         let sep = document.createElement('tr');
         const sepTd = document.createElement('td');
         sepTd.classList.add('floor-separator');
@@ -103,6 +108,7 @@
         sep.appendChild(sepTd);
         accountGrid.appendChild(sep);
         try {
+            emptyState.style.display = "none";
             const res = await axios.get('/admin/api/accounts');
             let accounts = res.data;
 
@@ -116,7 +122,8 @@
                 accountGrid.appendChild(row);
             });
         } catch (err) {
-            accountGrid.innerHTML = `<div class="room-cell">실패</div>`;
+            const msg = err?.response?.data?.message;
+            alert(msg);
         }
     }
     loadAccoundList();
@@ -148,7 +155,7 @@
             e.target.reset();
             loadAccoundList();
         } catch (err) {
-            const msg = err?.response?.data?.message || '계정을 등록하지 못하였습니다.';
+            const msg = err?.response?.data?.message;
             accountStatus.textContent = `⚠️ ${msg}`;
             accountStatus.style.color = 'red';
         }
@@ -176,7 +183,7 @@
             e.target.reset();
             loadAccoundList();
         } catch (err) {
-            const msg = err?.response?.data?.message || '계정을 삭제하지 못하였습니다.';
+            const msg = err?.response?.data?.message;
             deleteAccountStatus.textContent = `⚠️ ${msg}`;
             deleteAccountStatus.style.color = 'red';
         }
