@@ -29,9 +29,12 @@
                             </tr>
                         </table>
                         <label for="adminAccount" class="form-label mt-4"> 관리자 계정</label>
+                        <div class="empty-state" id="emptyState"> 
+                            <div class="loader"></div>
+                            <p>로딩중...</p> 
+                        </div>
                         <!-- 계정 그리드 -->
                         <table id="accountGrid" class="room-table">
-                            <div class="room-cell">관리자 계정 정보를 불러오는 중입니다.</div>
                         </table>
                     </div>
                 </div>
@@ -94,9 +97,10 @@
 
 <script>
     const accountGrid = document.getElementById('accountGrid');
+    const emptyState = document.getElementById('emptyState');
 
     async function loadAccoundList() {
-        accountGrid.innerHTML = "";
+        accountGrid.innerHTML = ``;
         let sep = document.createElement('tr');
         const sepTd = document.createElement('td');
         sepTd.classList.add('floor-separator');
@@ -104,6 +108,7 @@
         sep.appendChild(sepTd);
         accountGrid.appendChild(sep);
         try {
+            emptyState.style.display = "none";
             const res = await axios.get('/admin/api/accounts');
             let accounts = res.data;
 
@@ -117,7 +122,8 @@
                 accountGrid.appendChild(row);
             });
         } catch (err) {
-            accountGrid.innerHTML = `<div class="room-cell">관리자 계정 정보를 불러오지 못하였습니다.</div>`;
+            const msg = err?.response?.data?.message || `관리자 계정 정보를 불러오지 못하였습니다.`;
+            alert(msg);
         }
     }
     loadAccoundList();

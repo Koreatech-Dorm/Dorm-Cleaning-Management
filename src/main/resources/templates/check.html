@@ -224,7 +224,8 @@
                 location.reload();
             })
             .catch(error => {
-                alert("인증 실패: 코드가 올바르지 않습니다.");
+                const msg = err.response?.data?.message ?? "인증에 실패했습니다.";
+                alert(msg);
             });
     }
 
@@ -264,9 +265,9 @@
                 location.reload();
             })
             .catch(error => {
-                const errorMessage = error.response && error.response.data ? error.response.data.message : "알 수 없는 오류가 발생했습니다.";
+                const msg = error.response && error.response.data ? error.response.data.message : "알 수 없는 오류가 발생했습니다.";
                 console.error('Error:', error.response);
-                alert(`처리 중 오류 발생:\n${errorMessage}`);
+                alert(msg);
             });
     }
     /*]]>*/

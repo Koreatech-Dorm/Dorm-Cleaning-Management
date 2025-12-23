@@ -170,11 +170,16 @@
 
         let allRooms = []; // 전체 방 데이터를 저장
         async function initRooms() {
-            const res = await fetch("/admin/api/rooms/all");
-            allRooms = await res.json();
-            renderAllGrids(allRooms);
-            applyDormFloorFilter("", "");
-            emptyState.style.display = "none";
+            try {
+                const res = await fetch("/admin/api/rooms/all");
+                allRooms = await res.json();
+                renderAllGrids(allRooms);
+                applyDormFloorFilter("", "");
+                emptyState.style.display = "none";
+            } catch (err) {
+                const msg = err?.response?.data?.message ?? "호실 정보를 불러오지 못하였습니다.";
+                alert(msg);
+            }
         }
 
         initRooms();
@@ -397,7 +402,9 @@
                     floorSelect.appendChild(opt);
                 });
             } catch (err) {
-                console.error('층 정보 로드 실패', err);
+                const msg = err?.response?.data?.message ?? '층 정보 로드 실패';
+                console.error(msg, err);
+                alert(msg);
             }
         });
 

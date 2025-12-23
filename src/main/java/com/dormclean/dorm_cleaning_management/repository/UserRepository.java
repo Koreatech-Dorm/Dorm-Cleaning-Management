@@ -16,4 +16,6 @@ public interface UserRepository extends JpaRepository<AdminUser, Long> {
 
     // 특정 권한을 가진 모든 사용자 조회
     List<AdminUser> findAllByRole(UserRole role);
+
+    boolean existsByUsername(String username);
 }

@@ -16,10 +16,12 @@ public enum ErrorCode {
     ADMIN_NOT_FOUND(HttpStatus.NOT_FOUND, "1002", "관리자를 찾을 수 없습니다."),
     ADMIN_ALREADY_EXISTS(HttpStatus.CONFLICT, "1003", "이미 존재하는 관리자입니다."),
     ADMIN_PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "1004", "비밀번호가 일치하지 않습니다."),
+    ADMIN_ACCOUNT_LOAD_FAILED(HttpStatus.NOT_FOUND, "1005", "관리자 계정을 불러오지 못했습니다."),
 
     // 생활관
     DORM_NOT_FOUND(HttpStatus.NOT_FOUND, "1101", "생활관을 찾을 수 없습니다."),
     DORM_ALREADY_EXISTS(HttpStatus.CONFLICT, "1102", "이미 존재하는 생활관입니다."),
+    DORM_LOAD_FAILED(HttpStatus.NOT_FOUND, "1103", "호실을 불러오지 못했습니다."),
 
     // 호실
     ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "1201", "호실을 찾을 수 없습니다."),
@@ -29,6 +31,8 @@ public enum ErrorCode {
     ROOM_CHECK_IN_NOT_ALLOWED(HttpStatus.CONFLICT, "1205", "준비된 방만 입실이 가능합니다."),
     ROOM_CHECK_OUT_NOT_ALLOWED(HttpStatus.CONFLICT, "1206", "재실 중인 방만 퇴실이 가능합니다."),
     ROOM_CLEAN_NOT_ALLOWED(HttpStatus.CONFLICT, "1207", "공실인 방만 청소가 가능합니다."),
+    FLOOR_LOAD_FAILED(HttpStatus.NOT_FOUND, "1208", "층 정보를 불러오지 못했습니다."),
+    ROOM_LOAD_FAILED(HttpStatus.NOT_FOUND, "1209", "호실을 불러오지 못했습니다."),
 
     // QR
     QR_NOT_FOUND(HttpStatus.NOT_FOUND, "1301", "호실을 찾을 수 없습니다."),

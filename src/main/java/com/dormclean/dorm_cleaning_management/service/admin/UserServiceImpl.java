@@ -11,7 +11,10 @@ import org.springframework.stereotype.Service;
 
 import com.dormclean.dorm_cleaning_management.dto.admin.AccountListResponseDto;
 import com.dormclean.dorm_cleaning_management.entity.AdminUser;
+import com.dormclean.dorm_cleaning_management.entity.enums.ErrorCode;
 import com.dormclean.dorm_cleaning_management.entity.enums.UserRole;
+import com.dormclean.dorm_cleaning_management.exception.admin.AdminAccountLoadFailedException;
+import com.dormclean.dorm_cleaning_management.exception.admin.AdminAlreadyExistsException;
 import com.dormclean.dorm_cleaning_management.exception.admin.AdminNotFoundException;
 import com.dormclean.dorm_cleaning_management.exception.admin.AdminPasswordMismatchException;
 import com.dormclean.dorm_cleaning_management.exception.admin.SuperAdminNotFoundException;
@@ -27,6 +30,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         @Override
         public AdminUser create(String username, String password) {
+                if (userRepository.existsByUsername(username)) {
+                        throw new AdminAlreadyExistsException();
+                }
                 AdminUser user = AdminUser.builder()
                                 .username(username)
                                 .password(passwordEncoder.encode(password))
@@ -36,12 +42,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         @Override
         public List<AccountListResponseDto> AllAdminAccounts(UserRole role) {
-                return userRepository.findAllByRole(role)
-                                .stream()
-                                .map(user -> new AccountListResponseDto(
-                                                user.getUsername()))
-                                .toList();
-
+                try {
+                        return userRepository.findAllByRole(role)
+                                        .stream()
+                                        .map(user -> new AccountListResponseDto(
+                                                        user.getUsername()))
+                                        .toList();
+                } catch (Exception err) {
+                        // DB 조회 자체가 실패한 경우
+                        throw new AdminAccountLoadFailedException();
+                }
         }
 
         @Override

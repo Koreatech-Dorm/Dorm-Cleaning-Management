@@ -5,7 +5,10 @@ import com.dormclean.dorm_cleaning_management.entity.Dorm;
 import com.dormclean.dorm_cleaning_management.entity.Room;
 import com.dormclean.dorm_cleaning_management.entity.enums.RoomStatus;
 import com.dormclean.dorm_cleaning_management.exception.dorm.DormNotFoundException;
+import com.dormclean.dorm_cleaning_management.exception.room.FloorLoadFailedException;
 import com.dormclean.dorm_cleaning_management.exception.room.InvalidRoomStatusException;
+import com.dormclean.dorm_cleaning_management.exception.room.RoomAlreadyExistsException;
+import com.dormclean.dorm_cleaning_management.exception.room.RoomLoadFailedException;
 import com.dormclean.dorm_cleaning_management.exception.room.RoomNotFoundException;
 import com.dormclean.dorm_cleaning_management.repository.DormRepository;
 import com.dormclean.dorm_cleaning_management.repository.RoomRepository;
@@ -27,9 +30,12 @@ public class RoomServiceImpl implements RoomService {
         // 방 생성
         @Override
         public Room createRoom(CreateRoomRequestDto dto) {
-
                 Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
                                 .orElseThrow(DormNotFoundException::new);
+
+                if (roomRepository.existsByDormAndRoomNumber(dorm, dto.roomNumber())) {
+                        throw new RoomAlreadyExistsException();
+                }
 
                 Integer floor = extractFloor(dto.roomNumber());
 
@@ -61,33 +67,48 @@ public class RoomServiceImpl implements RoomService {
         @Override
         @Transactional(readOnly = true)
         public List<RoomListResponseDto> getRooms() {
-                return roomRepository.findAllRoomsDto();
+                try {
+                        return roomRepository.findAllRoomsDto();
+                } catch (Exception e) {
+                        throw new RoomLoadFailedException();
+                }
         }
 
         // 특정 Dorm의 모든 방 조회 (층 목록 등)
         @Override
         @Transactional(readOnly = true)
         public List<RoomListResponseDto> getRooms(String dormCode) {
-                return roomRepository.findRoomByDormCode(dormCode);
+                try {
+                        return roomRepository.findRoomByDormCode(dormCode);
+                } catch (Exception e) {
+                        throw new RoomLoadFailedException();
+                }
         }
 
         // 특정 Dorm + Floor의 방 목록 조회
         @Override
         @Transactional(readOnly = true)
         public List<RoomListResponseDto> getRooms(String dormCode, Integer floor) {
-                return roomRepository.findRoomByDormCodeAndFloor(dormCode, floor);
+                try {
+                        return roomRepository.findRoomByDormCodeAndFloor(dormCode, floor);
+                } catch (Exception e) {
+                        throw new RoomLoadFailedException();
+                }
         }
 
         @Override
         public List<Integer> getFloors(String dormCode) {
                 Dorm dorm = dormRepository.findByDormCode(dormCode)
                                 .orElseThrow(DormNotFoundException::new);
-
-                return roomRepository.findByDorm(dorm).stream()
-                                .map(Room::getFloor)
-                                .distinct()
-                                .sorted()
-                                .toList();
+                try {
+                        return roomRepository.findByDorm(dorm).stream()
+                                        .map(Room::getFloor)
+                                        .distinct()
+                                        .sorted()
+                                        .toList();
+                } catch (Exception e) {
+                        throw new FloorLoadFailedException();
+                }
         }
 
         // 호실 상태 변경

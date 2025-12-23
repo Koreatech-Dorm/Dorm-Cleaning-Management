@@ -6,9 +6,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.dormclean.dorm_cleaning_management.dto.exception.ErrorResponseDto;
+import com.dormclean.dorm_cleaning_management.entity.enums.ErrorCode;
+
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 
+@Slf4j
 @RestControllerAdvice(basePackages = "com.dormclean.dorm_cleaning_management")
 public class GlobalExceptionHandler {
     // @Valid 실패
@@ -43,8 +47,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<ErrorResponseDto> handle(BaseException e) {
+
+        // 서버 로그에만 code, status 기록
+        ErrorCode errorCode = e.getErrorCode();
+        log.warn("[ErrorCode: {}] {}",
+                errorCode.getCode(),
+                errorCode.getMessage());
+
+        // 사용자에게는 message만 전달
         return ResponseEntity
-                .status(e.getErrorCode().getStatus())
+                .status(errorCode.getStatus())
                 .body(ErrorResponseDto.from(e));
     }
 }
