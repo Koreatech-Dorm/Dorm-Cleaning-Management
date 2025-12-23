@@ -28,6 +28,8 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
@@ -138,29 +140,33 @@ public class QrCodeServiceImpl implements QrCodeService {
     }
 
     @Override
-    public void generateZipForDormsToStream(List<String> dormCodes, OutputStream outputStream) {
+    public File generateZipForDorms(List<String> dormCodes) {
         List<QrGenerationData> qrDataList = qrDataProcessor.prepareQrDataAndSaveBulk(dormCodes);
 
-        // ZipOutputStream 생성
-        try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
-            for (QrGenerationData data : qrDataList) {
-                // QR 이미지 생성 (하나씩만 메모리에 올림)
-                byte[] imageBytes = generateQrCode(
-                        data.content(),
-                        250,
-                        250,
-                        data.labelText());
+        try {
+            File tempZip = File.createTempFile("dorm_qr_", ".zip");
 
-                // 즉시 ZIP에 추가
-                ZipEntry zipEntry = new ZipEntry(data.fileName());
-                zos.putNextEntry(zipEntry);
-                zos.write(imageBytes);
-                zos.closeEntry();
+            try (FileOutputStream fos = new FileOutputStream(tempZip);
+                    ZipOutputStream zos = new ZipOutputStream(fos)) {
 
-                // 네트워크 스트림 비우기 유도 (클라이언트가 끊기지 않게 함)
-                outputStream.flush();
+                for (QrGenerationData data : qrDataList) {
+                    byte[] imageBytes = generateQrCode(
+                            data.content(),
+                            250,
+                            250,
+                            data.labelText());
+
+                    ZipEntry entry = new ZipEntry(data.fileName());
+                    zos.putNextEntry(entry);
+                    zos.write(imageBytes);
+                    zos.closeEntry();
+                }
+
+                zos.finish();
             }
-            zos.finish(); // 압축 마무리
+
+            return tempZip;
+
         } catch (IOException e) {
             throw new ZipCreationFailedException();
         }

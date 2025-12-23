@@ -94,13 +94,25 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn orange-btn w-100 py-3 fw-bold rounded-pill">
-                            <i class="bi bi-file-earmark-zip"></i> ZIP 파일 다운로드
+                        <button
+                            type="submit"
+                            id="zipDownloadBtn"
+                            class="btn orange-btn w-100 py-3 fw-bold rounded-pill position-relative overflow-hidden">
+
+                            <span class="btn-label">
+                                <i class="bi bi-file-earmark-zip"></i> ZIP 파일 다운로드
+                            </span>
+
+                            <div class="btn-progress position-absolute top-0 start-0 h-100"
+                                style="width:0%"></div>
+
+                            <span class="btn-progress-text position-absolute top-50 start-50 translate-middle fw-bold" style="visibility: hidden;">
+                                0%
+                            </span>
                         </button>
                     </form>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
@@ -195,7 +207,7 @@
 
 
     // 일괄 다운로드 함수
-    function downloadZip() {
+    async function downloadZip() {
         const checkedBoxes = document.querySelectorAll('.dorm-checkbox:checked');
 
         if (checkedBoxes.length === 0) {
@@ -203,23 +215,128 @@
             return;
         }
 
-        // 선택된 생활관 코드 수집
         const params = new URLSearchParams();
-        checkedBoxes.forEach(cb => {
-            params.append('dormCodes', cb.value);
-        });
+        checkedBoxes.forEach(cb => params.append('dormCodes', cb.value));
 
-        try {
-            // API 호출 (GET 방식, 파일 다운로드 트리거)
-            const apiUrl = `/admin/api/qr/generate/zip?${params.toString()}`;
+        const apiUrl = `/admin/api/qr/generate/zip?${params.toString()}`;
 
-            // 브라우저가 파일 다운로드로 인식하도록 location 변경
-            window.location.href = apiUrl;
-        } catch (error) {
-            const msg = error?.response?.data?.message;
-            alert(msg);
+        updateProgress(0, '준비 중...');
+
+        const response = await fetch(apiUrl);
+
+        if (!response.ok) {
+            alert('ZIP 다운로드 중 오류가 발생했습니다.');
+            return;
+        }
+
+        const contentLength = response.headers.get('Content-Length');
+        if (!contentLength) {
+            updateProgress(0, '파일 크기 확인 중...');
+            return;
+        }
+
+        const total = parseInt(contentLength, 10);
+        let loaded = 0;
+
+        const reader = response.body.getReader();
+        const chunks = [];
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            chunks.push(value);
+            loaded += value.length;
+
+            const percent = Math.floor((loaded / total) * 100);
+            updateProgress(percent);
+        }
+
+        const blob = new Blob(chunks, { type: 'application/zip' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'qr_codes.zip';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        URL.revokeObjectURL(url);
+
+        updateProgress(100);
+    }
+
+    let visualPercent = 0;
+    let targetPercent = 0;
+    let animating = false;
+    let isCompleted = false;
+    function updateProgress(percent, text) {
+        if (isCompleted) return;
+
+        targetPercent = percent;
+
+        const btn = document.getElementById('zipDownloadBtn');
+        const label = btn.querySelector('.btn-progress-text');
+        const defaultLabel = btn.querySelector('.btn-label');
+
+        btn.classList.add('loading');
+
+        defaultLabel.style.visibility = 'hidden';
+        label.style.visibility = 'visible';
+        label.textContent = text ?? percent + '%';
+
+        if (!animating) {
+            animating = true;
+            requestAnimationFrame(animateProgress);
+        }
+
+        if (percent >= 100 && !isCompleted) {
+            isCompleted = true;
+            setTimeout(finishProgress, 300);
         }
     }
+
+    function animateProgress() {
+        const bar = document.querySelector('#zipDownloadBtn .btn-progress');
+
+        if (visualPercent < targetPercent) {
+            visualPercent += Math.max((targetPercent - visualPercent) * 0.08, 0.3);
+            visualPercent = Math.min(visualPercent, targetPercent);
+            bar.style.width = visualPercent + '%';
+        }
+
+        if (!isCompleted && visualPercent < targetPercent) {
+            requestAnimationFrame(animateProgress);
+        } else {
+            animating = false;
+        }
+    }
+
+    async function finishProgress() {
+        const btn = document.getElementById('zipDownloadBtn');
+        const bar = btn.querySelector('.btn-progress');
+        const label = btn.querySelector('.btn-progress-text');
+        const defaultLabel = btn.querySelector('.btn-label');
+
+        bar.style.width = '100%';
+        label.textContent = '✔ 완료';
+
+        btn.classList.remove('loading');
+        btn.classList.add('completed');
+
+        setTimeout(() => {
+            bar.style.width = '0%';
+            visualPercent = 0;
+            targetPercent = 0;
+            isCompleted = false;
+
+            label.textContent = '';
+            defaultLabel.style.visibility = 'visible';
+            btn.classList.remove('completed');
+        }, 1500);
+    }
+
 </script>
 
 <footer th:replace="~{fragments/footer :: footerFragment}"></footer>
