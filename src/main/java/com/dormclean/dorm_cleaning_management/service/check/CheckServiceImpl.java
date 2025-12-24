@@ -26,39 +26,33 @@ public class CheckServiceImpl implements CheckService {
     private final CleaningCodeRepository cleaningCodeRepository;
 
     @Override
+    @Transactional
     public void checkIn(CheckRequestDto dto) {
-        Room room = findRoomStatus(dto);
+        int updatedCount = roomRepository.updateStatusToCheckIn(dto.dormCode(), dto.roomNumber());
 
-        if (room.getRoomStatus() != RoomStatus.READY) {
+        if (updatedCount == 0) {
             throw new RoomCheckInNotAllowedException();
         }
-        room.checkIn();
     }
 
     @Override
+    @Transactional
     public void checkOut(CheckRequestDto dto) {
-        Room room = findRoomStatus(dto);
+        int updatedCount = roomRepository.updateStatusToCheckOut(dto.dormCode(), dto.roomNumber());
 
-        if (room.getRoomStatus() != RoomStatus.OCCUPIED) {
+        if (updatedCount == 0) {
             throw new RoomCheckOutNotAllowedException();
         }
-        room.checkOut();
     }
 
     @Override
+    @Transactional
     public void cleanCheck(CheckRequestDto dto) {
-        Room room = findRoomStatus(dto);
+        int updatedCount = roomRepository.updateStatusToCleaned(dto.dormCode(), dto.roomNumber());
 
-        if (room.getRoomStatus() != RoomStatus.VACANT) {
+        if (updatedCount == 0) {
             throw new RoomCleanNotAllowedException();
         }
-        room.clean();
-    }
-
-    private Room findRoomStatus(CheckRequestDto dto) {
-        Room room = roomRepository.findRoomByDormCodeAndRoomNumber(dto.dormCode(), dto.roomNumber());
-
-        return room;
     }
 
     @Override
