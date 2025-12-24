@@ -671,8 +671,8 @@
 
 
         // 일괄 변경 적용 버튼 
-        document.getElementById('applyBulkBtn').addEventListener('click', () => {
-            updateAllSelectedRoom();
+        document.getElementById('applyBulkBtn').addEventListener('click', async () => {
+            await updateAllSelectedRoom();
             document.getElementById('bulkSelectBtn').click();
             selectedRooms.clear();
             syncSelectAllButton();
