@@ -30,6 +30,8 @@ public class QrDataProcessor {
         List<QrGenerationData> resultData = new ArrayList<>();
         List<QrCode> qrCodesToSave = new ArrayList<>();
 
+        boolean isLocal = host.contains("8080");
+
         for (Room room : allRooms) {
             QrCode qrCode = room.getQrCode();
 
@@ -40,8 +42,11 @@ public class QrDataProcessor {
             }
             qrCodesToSave.add(qrCode);
 
+            String urlPath = isLocal ? "/check?token=" : "/?token=";
+            String content = host + urlPath + qrCode.getUuid();
+
             resultData.add(new QrGenerationData(
-                    String.format("%s/?token=%s", host, qrCode.getUuid()),
+                    content,
                     String.format("%s동 %s호", room.getDorm().getDormCode(), room.getRoomNumber()),
                     String.format("%s/QR_%s.png", room.getDorm().getDormCode(), room.getRoomNumber())
             ));
