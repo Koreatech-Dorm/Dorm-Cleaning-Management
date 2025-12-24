@@ -20,9 +20,11 @@
                     <div class="card p-4 mb-4" style="height: 500px !important;">
                         <h4 class="mb-3">현재 생활관 목록</h4>
                         <label for="dormCode" class="form-label">생활관 이름</label>
-                        <!-- 생활관 목록 그리드 -->
-                        <div class="floor-div col" id="dormDiv" style="overflow-x: hidden; overflow-y: auto; height: 400px !important;">                    
-
+                        <!-- 호실 그리드 -->
+                        <div class="floor-div col" id="dormDiv" style="overflow-x: hidden; overflow-y: auto; height: 400px !important;">
+                            <div class="empty-state" id="emptyState" style="margin-top: 120px;">
+                                <p>생활관을 선택하여 호실을 조회하세요.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -72,34 +74,21 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 <script>
-    const dormDiv = document.getElementById('dormDiv');
     const emptyState = document.getElementById('emptyState');
+    const dormDiv = document.getElementById('dormDiv');
 
-    
     // 생활관 목록 불러오기
     async function loadDormList() {
-        // 조회 그리드 초기화
-        dormDiv.innerHTML = `<div class="empty-state" id="emptyState" style="margin-top: 4rem"> 
-                                <div class="loader"></div>
-                                <p>로딩중...</p> 
-                            </div>`;
 
-        const emptyState = document.getElementById('emptyState');
-        emptyState.style.display = 'block';
+        dormDiv.innerHTML = '<p>로딩 중...</p>';
+        emptyState.style.display = 'none';
 
         try {
+            dormDiv.innerHTML = ``;
             dormDiv.style.marginTop = "1rem";
 
             const res = await axios.get('/admin/api/dorms'); // 전체 생활관 조회 API 필요
             let dorms = res.data;
-
-            dormDiv.innerHTML = '';
-            emptyState.style.display = 'none';
-
-            if (!dorms || dorms.length === 0) {
-                dormDiv.innerHTML = `<p class="text-muted">등록된 생활관이 없습니다.</p>`;
-                return;
-            }
 
             const table = document.createElement('table');
             table.classList.add('room-table');
@@ -151,7 +140,6 @@
             dormDiv.appendChild(table);
 
         } catch (error) {
-            emptyState.style.display = 'none';
             const msg = error?.response?.data?.message;
             tbody.innerHTML = `
                 <tr><td colspan="2" class="text-danger">⚠️ ${msg}</td></tr>

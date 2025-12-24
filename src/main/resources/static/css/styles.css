@@ -346,10 +346,15 @@ main {
    EMPTY STATE
    ========================================= */
 .empty-state {
-    display: grid;
-    place-items: center;
-    min-height: 200px;
+    grid-column: 1 / -1;
     text-align: center;
+    /* padding: 60px 20px; */
+    color: #999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 0;
 }
 
 .empty-state p {
