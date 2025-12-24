@@ -41,12 +41,7 @@ public class ExcelController {
     public ResponseEntity<?> uploadRooms(
             @RequestParam("file") MultipartFile file) {
 
-        try {
-            excelService.registerByExcel(file);
-            return ResponseEntity.ok("Success");
-
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Excel parsing error: " + e.getMessage());
-        }
+        excelService.registerByExcel(file);
+        return ResponseEntity.ok("Success");
     }
 }

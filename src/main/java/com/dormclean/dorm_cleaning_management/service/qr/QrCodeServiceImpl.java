@@ -3,11 +3,14 @@ package com.dormclean.dorm_cleaning_management.service.qr;
 import com.dormclean.dorm_cleaning_management.dto.zipFile.QrGenerationData;
 import com.dormclean.dorm_cleaning_management.dto.qr.QrRequestDto;
 import com.dormclean.dorm_cleaning_management.dto.qr.QrResponseDto;
-import com.dormclean.dorm_cleaning_management.dto.zipFile.ZipFileEntry;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
 import com.dormclean.dorm_cleaning_management.entity.QrCode;
 import com.dormclean.dorm_cleaning_management.entity.Room;
-import com.dormclean.dorm_cleaning_management.entity.enums.RoomStatus;
+import com.dormclean.dorm_cleaning_management.exception.dorm.DormNotFoundException;
+import com.dormclean.dorm_cleaning_management.exception.qr.InvalidQrException;
+import com.dormclean.dorm_cleaning_management.exception.qr.QrCreationFailedException;
+import com.dormclean.dorm_cleaning_management.exception.qr.ZipCreationFailedException;
+import com.dormclean.dorm_cleaning_management.exception.room.RoomNotFoundException;
 import com.dormclean.dorm_cleaning_management.repository.DormRepository;
 import com.dormclean.dorm_cleaning_management.repository.QrCodeRepository;
 import com.dormclean.dorm_cleaning_management.repository.RoomRepository;
@@ -25,7 +28,10 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -45,9 +51,9 @@ public class QrCodeServiceImpl implements QrCodeService {
     @Transactional
     public byte[] createSecureQr(QrRequestDto dto) {
         Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
-                .orElseThrow(() -> new RuntimeException("해당 생활관의 정보를 찾을 수 없습니다."));
+                .orElseThrow(DormNotFoundException::new);
         Room room = roomRepository.findByDormAndRoomNumber(dorm, dto.roomNumber())
-                .orElseThrow(() -> new RuntimeException("해당 호실의 정보를 찾을 수 없습니다."));
+                .orElseThrow(RoomNotFoundException::new);
 
         QrCode qrCode = qrCodeRepository.findByRoom(room).orElse(null);
 
@@ -64,12 +70,21 @@ public class QrCodeServiceImpl implements QrCodeService {
         }
 
         // URL 생성
-        String content = String.format("%s/check?token=%s", host, qrCode.getUuid());
+        String content;
+        if (host.contains("8080")) {
+            content = String.format("%s/check?token=%s", host, qrCode.getUuid());
+        } else {
+            content = String.format("%s/?token=%s", host, qrCode.getUuid());
+        }
 
         String labelText = String.format("%s동 %s호", dto.dormCode(), dto.roomNumber());
 
-        // QR 이미지 생성
-        return generateQrCode(content, 250, 250, labelText);
+        try {
+            // QR 이미지 생성
+            return generateQrCode(content, 250, 250, labelText);
+        } catch (Exception e) {
+            throw new QrCreationFailedException();
+        }
     }
 
     @Override
@@ -125,44 +140,36 @@ public class QrCodeServiceImpl implements QrCodeService {
             return baos.toByteArray();
 
         } catch (Exception e) {
-            throw new RuntimeException("QR 코드 생성 중 오류가 발생했습니다.", e);
+            throw new QrCreationFailedException();
         }
     }
 
     @Override
-    public byte[] generateZipForDorms(List<String> dormCodes) {
-        // 데이터 준비 및 qrCode 업데이트/저장
+    public void generateZipForDormsToStream(List<String> dormCodes, OutputStream outputStream) {
         List<QrGenerationData> qrDataList = qrDataProcessor.prepareQrDataAndSaveBulk(dormCodes);
 
-        // 순서가 섞이지 않도록 리스트 처리는 주의해야 하나, ZIP 내 파일명이 명확하므로 병렬 처리 결과 수집이 더 중요
-        List<ZipFileEntry> zipEntries = qrDataList.parallelStream()
-                .map(data -> {
-                    byte[] imageBytes = generateQrCode(
-                            data.content(),
-                            250,
-                            250,
-                            data.labelText());
-                    return new ZipFileEntry(data.fileName(), imageBytes);
-                })
-                .toList();
+        // ZipOutputStream 생성
+        try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
+            for (QrGenerationData data : qrDataList) {
+                // QR 이미지 생성 (하나씩만 메모리에 올림)
+                byte[] imageBytes = generateQrCode(
+                        data.content(),
+                        250,
+                        250,
+                        data.labelText());
 
-        return createZipFromEntries(zipEntries);
-    }
+                // 즉시 ZIP에 추가
+                ZipEntry zipEntry = new ZipEntry(data.fileName());
+                zos.putNextEntry(zipEntry);
+                zos.write(imageBytes);
+                zos.closeEntry();
 
-    private byte[] createZipFromEntries(List<ZipFileEntry> entries) {
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ZipOutputStream zip = new ZipOutputStream(baos)) {
-
-            for (ZipFileEntry entry : entries) {
-                ZipEntry zipEntry = new ZipEntry(entry.fileName());
-                zip.putNextEntry(zipEntry);
-                zip.write(entry.imageBytes());
-                zip.closeEntry();
+                // 네트워크 스트림 비우기 유도 (클라이언트가 끊기지 않게 함)
+                outputStream.flush();
             }
-            zip.finish();
-            return baos.toByteArray();
+            zos.finish(); // 압축 마무리
         } catch (IOException e) {
-            throw new RuntimeException("ZIP 생성 실패", e);
+            throw new ZipCreationFailedException();
         }
     }
 
@@ -171,6 +178,6 @@ public class QrCodeServiceImpl implements QrCodeService {
     public QrResponseDto getQrData(String token) {
         // 찾은 정보를 DTO로 변환해서 반환
         return qrCodeRepository.findByToken(token)
-                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 QR입니다."));
+                .orElseThrow(InvalidQrException::new);
     }
 }

@@ -744,3 +744,70 @@ main {
     text-align: center; 
     justify-content: center;
 }
+
+#zipDownloadBtn {
+    height: 56px;
+    background-color: #ff9800;
+    border: none;
+    overflow: hidden;
+}
+
+#zipDownloadBtn .btn-progress {
+    background-image: repeating-linear-gradient(
+        45deg,
+        #ff9800 0,
+        #ff9800 12px,
+        #ffb74d 12px,
+        #ffb74d 24px
+    );
+
+    animation: stripeMove 0.6s linear infinite;
+    will-change: background-position;
+}
+
+#zipDownloadBtn .btn-label {
+    position: relative;
+    z-index: 3;
+    color: #fff;
+}
+
+#zipDownloadBtn .btn-progress-text {
+    z-index: 4;
+    color: #fff;
+    pointer-events: none;
+}
+
+#zipDownloadBtn.loading {
+    pointer-events: none;
+    background-color: #ffcc80;
+}
+
+#zipDownloadBtn.completed .btn-progress {
+    animation: none;
+    background: #f57c00; /* 진한 주황 */
+}
+
+.progress-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 2000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    pointer-events: all; /* 🔒 뒤 클릭 차단 */
+}
+
+.progress-modal {
+    background: #fff;
+    width: 360px;
+    padding: 24px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+body.blocked {
+    overflow: hidden; /* 스크롤 차단 */
+}

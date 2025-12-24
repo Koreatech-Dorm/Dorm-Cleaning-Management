@@ -95,12 +95,16 @@
                         </div>
 
                         <button type="submit" class="btn orange-btn w-100 py-3 fw-bold rounded-pill">
-                            <i class="bi bi-file-earmark-zip"></i> ZIP 파일 다운로드
+                            <div class="empty-state" id="emptyState" style="display: none; margin: 0; padding: 0; place-items: center;"> 
+                                <div class="loader" style="margin: 0; padding: 0; height: 24px; width: 24px;"></div>
+                            </div>
+                            <div id="buttonText">
+                                <i class="bi bi-file-earmark-zip"></i> ZIP 파일 다운로드
+                            </div>
                         </button>
                     </form>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
@@ -163,35 +167,52 @@
         qrImage.style.display = 'none';
         loadingSpinner.style.display = 'block';
 
-        const params = new URLSearchParams({ dormCode: dormCode, roomNumber: roomNumber });
+        const params = new URLSearchParams({ dormCode, roomNumber });
         const apiUrl = `/admin/api/qr/generate?${params.toString()}`;
 
-        qrImage.onload = function() {
-            loadingSpinner.style.display = 'none';
-            qrImage.style.display = 'block';
-        };
+        fetch(apiUrl)
+            .then(async response => {
+                if (!response.ok) {
+                    // 서버에서 내려준 에러 메시지 파싱
+                    const errorData = await response.json();
+                    throw errorData;
+                }
+                return response.blob(); // PNG 이미지
+            })
+            .then(blob => {
+                const imageUrl = URL.createObjectURL(blob);
+                qrImage.src = imageUrl;
+                qrImage.style.display = 'block';
 
-        qrImage.onerror = function() {
-            loadingSpinner.style.display = 'none';
-            alert('QR 코드 생성 실패');
-            resultArea.style.display = 'none';
-        };
-
-        qrImage.src = apiUrl;
-
-        // 파일명 정제를 위해 괄호 등 제거 (선택사항)
-        downloadLink.href = apiUrl;
-        downloadLink.download = `QR_${dormCode}동_${roomNumber}호.png`;
+                downloadLink.href = imageUrl;
+                downloadLink.download = `QR_${dormCode}동_${roomNumber}호.png`;
+            })
+            .catch(error => {
+                const msg = error?.response?.data?.message;
+                alert(msg);
+                resultArea.style.display = 'none';
+            })
+            .finally(() => {
+                loadingSpinner.style.display = 'none';
+            });
     }
 
+
     // 일괄 다운로드 함수
-    function downloadZip() {
+    async function downloadZip() {
         const checkedBoxes = document.querySelectorAll('.dorm-checkbox:checked');
+        const emptyState = document.getElementById('emptyState');
+        const buttonText = document.getElementById('buttonText');
 
         if (checkedBoxes.length === 0) {
             alert('최소 하나 이상의 생활관을 선택해주세요.');
             return;
         }
+
+        buttonText.style.display = 'none';
+        emptyState.style.display = 'grid';
+
+        await new Promise(resolve => setTimeout(resolve, 1700)) 
 
         // 선택된 생활관 코드 수집
         const params = new URLSearchParams();
@@ -199,12 +220,23 @@
             params.append('dormCodes', cb.value);
         });
 
-        // API 호출 (GET 방식, 파일 다운로드 트리거)
-        const apiUrl = `/admin/api/qr/generate/zip?${params.toString()}`;
+        try {
+            // API 호출 (GET 방식, 파일 다운로드 트리거)
+            const apiUrl = `/admin/api/qr/generate/zip?${params.toString()}`;
 
-        // 브라우저가 파일 다운로드로 인식하도록 location 변경
-        window.location.href = apiUrl;
+            // 브라우저가 파일 다운로드로 인식하도록 location 변경
+            window.location.href = apiUrl;
+            
+            buttonText.style.display = 'block';
+            emptyState.style.display = 'none';
+        } catch (error) {
+            const msg = error?.response?.data?.message;
+            alert(msg);
+            buttonText.style.display = 'block';
+            emptyState.style.display = 'none';
+        }
     }
+
 </script>
 
 <footer th:replace="~{fragments/footer :: footerFragment}"></footer>

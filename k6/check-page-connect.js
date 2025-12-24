@@ -40,7 +40,7 @@ export default function () {
     const token = user.token;
 
     // 도커 내부망 호스트 사용
-    const url = `http://nginx-proxy/check?token=${token}`;
+    const url = `http://host.docker.internal:8080/check?token=${token}`;
 
     const res = http.get(url);
 

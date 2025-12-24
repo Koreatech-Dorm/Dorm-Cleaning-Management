@@ -109,7 +109,31 @@
                 </div>
             </div>
         </div>
+    </div>
 
+    <!-- 🔒 진행 중 오버레이 -->
+    <div id="progressOverlay" class="progress-overlay" style="display:none;">
+        <div class="progress-modal shadow">
+            <h5 class="mb-3">처리 중입니다</h5>
+
+            <div class="progress mb-2 position-relative" style="height: 20px;">
+                <div id="overlayProgressBar"
+                    class="progress-bar progress-bar-striped progress-bar-animated"
+                    role="progressbar"
+                    style="width: 0%;">
+                </div>
+                <span id="overlayProgressText"
+                    class="btn-progress-text position-absolute top-50 start-50 translate-middle fw-bold" 
+                    style="visibility: hidden;">
+                    0%
+                </span>
+            </div>
+
+            <small class="text-muted">
+                선택된 항목을 일괄 처리하고 있습니다.<br>
+                잠시만 기다려 주세요.
+            </small>
+        </div>
     </div>
 
     <script>
@@ -170,11 +194,16 @@
 
         let allRooms = []; // 전체 방 데이터를 저장
         async function initRooms() {
-            const res = await fetch("/admin/api/rooms/all");
-            allRooms = await res.json();
-            renderAllGrids(allRooms);
-            applyDormFloorFilter("", "");
-            emptyState.style.display = "none";
+            try {
+                const res = await fetch("/admin/api/rooms/all");
+                allRooms = await res.json();
+                renderAllGrids(allRooms);
+                applyDormFloorFilter("", "");
+                emptyState.style.display = "none";
+            } catch (error) {
+                const msg = error?.response?.data?.message;
+                alert(msg);
+            }
         }
 
         initRooms();
@@ -382,7 +411,8 @@
             bulkMode = true;
             document.getElementById('bulkSelectBtn').click();
 
-
+            if (!dormCode) return;
+            
             // 층 목록 갱신
             try {
                 const res = await fetch(`/admin/api/floors?dormCode=${dormCode}`);
@@ -396,8 +426,9 @@
                     opt.textContent = `${floor}층`;
                     floorSelect.appendChild(opt);
                 });
-            } catch (err) {
-                console.error('층 정보 로드 실패', err);
+            } catch (error) {
+                const msg = error?.response?.data?.message;
+                alert(msg);
             }
         });
 
@@ -433,47 +464,53 @@
 
             if (!selectedDormCode || !selectedRoomNumber) return;
 
-            const res = await fetch(`/admin/api/rooms/${selectedRoomNumber}/status`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    dormCode: selectedDormCode,
-                    newRoomStatus: newStatus
-                })
-            });
+            try {
+                const res = await fetch(`/admin/api/rooms/${selectedRoomNumber}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        dormCode: selectedDormCode,
+                        newRoomStatus: newStatus
+                    })
+                });
 
-            if (!res.ok) {
-                alert('상태 변경 실패');
-                return;
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    throw errorData;
+                }
+
+                const updatedRoom = await res.json();
+
+                const card = document.querySelector(
+                    `.room-card[data-dorm-code="${selectedDormCode}"][data-room-number="${selectedRoomNumber}"]`
+                );
+
+                if (card) {
+                    // 상태
+                    card.dataset.roomStatus = updatedRoom.roomStatus;
+
+                    // 시간 선택
+                    let time = "";
+                    if (updatedRoom.roomStatus === "OCCUPIED")
+                        time = formatTime(updatedRoom.checkInAt);
+                    else if (updatedRoom.roomStatus === "VACANT")
+                        time = formatTime(updatedRoom.checkOutAt);
+                    else
+                        time = formatTime(updatedRoom.cleanedAt);
+
+                    // UI 반영
+                    updateRoomCardUI(card, updatedRoom.roomStatus, time);
+                    applyStatusFilter(selectedStatus);
+                }
+
+                bootstrap.Modal.getInstance(
+                    document.getElementById('statusModal')
+                ).hide();
+
+            } catch (error) {
+                const msg = error?.response?.data?.message;
+                alert(msg);
             }
-
-            const updatedRoom = await res.json();
-
-            const card = document.querySelector(
-                `.room-card[data-dorm-code="${selectedDormCode}"][data-room-number="${selectedRoomNumber}"]`
-            );
-
-            if (card) {
-                // 상태
-                card.dataset.roomStatus = updatedRoom.roomStatus;
-
-                // 시간 선택
-                let time = "";
-                if (updatedRoom.roomStatus === "OCCUPIED")
-                    time = formatTime(updatedRoom.checkInAt);
-                else if (updatedRoom.roomStatus === "VACANT")
-                    time = formatTime(updatedRoom.checkOutAt);
-                else
-                    time = formatTime(updatedRoom.cleanedAt);
-
-                // UI 반영
-                updateRoomCardUI(card, updatedRoom.roomStatus, time);
-                applyStatusFilter(selectedStatus);
-            }
-
-            bootstrap.Modal.getInstance(
-                document.getElementById('statusModal')
-            ).hide();
         });
 
         // 보이는 카드만 가져오기
@@ -606,52 +643,67 @@
         async function updateAllSelectedRoom() {
             if (selectedRooms.size === 0) return;
 
-            const newStatus = document.getElementById('bulkStatusSelect').value;
+            showProgressOverlay();
 
-            const grouped = {};
+            try {
+                const newStatus = bulkStatusSelect.value;
 
-            selectedRooms.forEach(key => {
-                const [dormCode, roomNumber] = key.split("|");
-                if (!grouped[dormCode]) grouped[dormCode] = [];
-                grouped[dormCode].push(roomNumber);
-            });
+                const grouped = {};
+                selectedRooms.forEach(key => {
+                    const [dormCode, roomNumber] = key.split("|");
+                    if (!grouped[dormCode]) grouped[dormCode] = [];
+                    grouped[dormCode].push(roomNumber);
+                });
 
-            await Promise.all(
-                Object.entries(grouped).map(async ([dormCode, roomNumbers]) => {
-                    const res = await fetch(`/admin/api/rooms/bulk-status`, {
-                        method: 'PATCH',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            dormCode,
-                            roomNumbers,
-                            newRoomStatus: newStatus
-                        })
-                    });
+                const tasks = Object.entries(grouped);
+                const total = tasks.length;
+                let done = 0;
 
-                    if (!res.ok) return;
+                await Promise.all(
+                    tasks.map(async ([dormCode, roomNumbers]) => {
+                        try {
+                            const res = await fetch(`/admin/api/rooms/bulk-status`, {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    dormCode,
+                                    roomNumbers,
+                                    newRoomStatus: newStatus
+                                })
+                            });
 
-                    const {updatedCount, time} = await res.json();
-                    console.log(`${dormCode}: ${updatedCount}개 방 상태 변경됨`);
+                            if (!res.ok) throw await res.json();
 
-                    roomNumbers.forEach(roomNumber => {
-                        const card = document.querySelector(
-                            `.room-card[data-dorm-code="${dormCode}"][data-room-number="${roomNumber}"]`
-                        );
+                            const { updatedCount, time } = await res.json();
+                            console.log(`${dormCode}: ${updatedCount}개 방 상태 변경됨`);
 
-                        if (!card) return;
+                            roomNumbers.forEach(roomNumber => {
+                                const card = document.querySelector(
+                                    `.room-card[data-dorm-code="${dormCode}"][data-room-number="${roomNumber}"]`
+                                );
+                                if (card) {
+                                    updateRoomCardUI(card, newStatus, formatTime(time));
+                                }
+                            });
 
-                        updateRoomCardUI(card, newStatus, formatTime(time));
-                    });
-                })
-            );
-
-            applyStatusFilter(selectedStatus);
+                        } catch (error) {
+                            console.error(`❌ ${dormCode} 실패`);
+                        } finally {
+                            done++;
+                            updateOverlayProgress(done, total);
+                        }
+                    })
+                );
+                applyStatusFilter(selectedStatus);
+            } finally {
+                setTimeout(hideProgressOverlay, 400);
+            }
         }
 
 
         // 일괄 변경 적용 버튼 
-        document.getElementById('applyBulkBtn').addEventListener('click', () => {
-            updateAllSelectedRoom();
+        document.getElementById('applyBulkBtn').addEventListener('click', async () => {
+            await updateAllSelectedRoom();
             document.getElementById('bulkSelectBtn').click();
             selectedRooms.clear();
             syncSelectAllButton();
@@ -701,6 +753,30 @@
             }
         }
 
+        const overlay = document.getElementById('progressOverlay');
+        const overlayBar = document.getElementById('overlayProgressBar');
+        const overlayText = document.getElementById('overlayProgressText');
+
+        function showProgressOverlay() {
+            overlay.style.display = 'flex';
+            overlayBar.style.width = '0%';
+            overlayText.textContent = '0%';
+            overlayText.style.visibility = "visible";
+            document.body.classList.add('blocked');
+        }
+
+        function updateOverlayProgress(done, total) {
+            const percent = Math.round((done / total) * 100);
+            overlayBar.style.width = `${percent}%`;
+            overlayText.textContent = `${percent}%`;
+            overlayText.style.visibility = "visible";
+        }
+
+        function hideProgressOverlay() {
+            overlay.style.display = 'none';
+            overlayText.style.visibility = "hidden";
+            document.body.classList.remove('blocked');
+        }
 
     </script>
 </main>

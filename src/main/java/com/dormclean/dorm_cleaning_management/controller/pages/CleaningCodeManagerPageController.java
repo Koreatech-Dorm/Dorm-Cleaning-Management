@@ -21,7 +21,6 @@ public class CleaningCodeManagerPageController {
     @GetMapping("/cleaning-code-manager")
     public String dormManager(Model model) {
         List<Dorm> dormList = dormRepository.findAll();
-
         model.addAttribute("dorms", dormList);
         return "cleaning-code-manager";
     }

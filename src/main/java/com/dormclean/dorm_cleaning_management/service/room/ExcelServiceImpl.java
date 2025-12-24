@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.dormclean.dorm_cleaning_management.entity.Dorm;
 import com.dormclean.dorm_cleaning_management.entity.Room;
 import com.dormclean.dorm_cleaning_management.entity.enums.RoomStatus;
+import com.dormclean.dorm_cleaning_management.exception.excel.ExcelProcessingFailedException;
 import com.dormclean.dorm_cleaning_management.repository.DormRepository;
 import com.dormclean.dorm_cleaning_management.repository.RoomRepository;
 
@@ -30,7 +31,7 @@ public class ExcelServiceImpl implements ExcelService {
     public void downloadExcel(HttpServletResponse res) throws IOException {
 
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("RoomInfo");
+        Sheet sheet = workbook.createSheet("RegisterRoomsForm");
         sheet.setDefaultColumnWidth(28);
 
         // Header Font Style
@@ -131,53 +132,55 @@ public class ExcelServiceImpl implements ExcelService {
 
     @Override
     @Transactional
-    public void registerByExcel(MultipartFile file) throws Exception {
-        try (InputStream inputStream = file.getInputStream()) {
-            try (Workbook workbook = new XSSFWorkbook(inputStream)) {
-                Sheet sheet = workbook.getSheetAt(0);
+    public void registerByExcel(MultipartFile file) {
 
-                for (int i = 2; i <= sheet.getLastRowNum(); i++) {
-                    Row row = sheet.getRow(i);
-                    if (row == null)
-                        continue;
+        try (InputStream inputStream = file.getInputStream();
+                Workbook workbook = new XSSFWorkbook(inputStream)) {
 
-                    DataFormatter formatter = new DataFormatter();
+            Sheet sheet = workbook.getSheetAt(0);
+            DataFormatter formatter = new DataFormatter();
 
-                    String dormCode = formatter.formatCellValue(row.getCell(0));
-                    String roomNumber = formatter.formatCellValue(row.getCell(1));
-
-                    if (dormCode.isEmpty() || roomNumber.isEmpty())
-                        continue;
-
-                    // 1. 생활관 존재 확인
-                    Dorm dorm = dormRepository.findByDormCode(dormCode)
-                            .orElseGet(() -> Dorm.builder()
-                                    .dormCode(dormCode)
-                                    .build());
-                    if (dorm.getId() == null) {
-                        dorm = dormRepository.save(dorm);
-                    }
-
-                    // 2. 호실 존재 체크
-                    boolean exists = roomRepository.existsByDormAndRoomNumber(dorm, roomNumber);
-
-                    if (exists) {
-                        continue; // 이미 존재 → PASS
-                    }
-
-                    Integer floor = extractFloor(roomNumber);
-
-                    // 3. 신규 호실 저장
-                    Room room = Room.builder()
-                            .dorm(dorm)
-                            .floor(floor)
-                            .roomNumber(roomNumber)
-                            .status(RoomStatus.READY)
-                            .build();
-
-                    roomRepository.save(room);
+            for (int i = 2; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null) {
+                    continue;
                 }
+
+                String dormCode = formatter.formatCellValue(row.getCell(0));
+                String roomNumber = formatter.formatCellValue(row.getCell(1));
+
+                if (dormCode.isEmpty() || roomNumber.isEmpty()) {
+                    continue; // 빈 행 무시
+                }
+
+                // 1. 생활관 존재 확인
+                Dorm dorm = dormRepository.findByDormCode(dormCode)
+                        .orElseGet(() -> dormRepository.save(
+                                Dorm.builder()
+                                        .dormCode(dormCode)
+                                        .build()));
+
+                // 2. 호실 중복 체크
+                if (roomRepository.existsByDormAndRoomNumber(dorm, roomNumber)) {
+                    continue;
+                }
+
+                Integer floor = extractFloor(roomNumber);
+
+                // 3. 신규 호실 저장
+                Room room = Room.builder()
+                        .dorm(dorm)
+                        .floor(floor)
+                        .roomNumber(roomNumber)
+                        .status(RoomStatus.READY)
+                        .build();
+
+                roomRepository.save(room);
             }
+
+        } catch (IOException | IllegalArgumentException e) {
+            // Excel 파일 자체 문제
+            throw new ExcelProcessingFailedException();
         }
     }
 

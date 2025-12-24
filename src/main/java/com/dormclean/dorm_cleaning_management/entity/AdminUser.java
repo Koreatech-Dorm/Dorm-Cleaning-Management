@@ -1,6 +1,6 @@
 package com.dormclean.dorm_cleaning_management.entity;
 
-import com.dormclean.dorm_cleaning_management.entity.enums.AdminRole;
+import com.dormclean.dorm_cleaning_management.entity.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -15,30 +15,31 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-public class AdminUser extends BaseEntity{
+public class AdminUser extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(unique = true, nullable = false)
-    private String userId;
+    private String username;
 
     @Column(nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
-    private AdminRole role = AdminRole.COMMON_ADMIN;
+    @Column(nullable = false)
+    private UserRole role = UserRole.ADMIN;
 
     private LocalDateTime lastLoginAt;
 
     @Builder
-    public AdminUser(String userId, String password, AdminRole role) {
-        this.userId = userId;
+    public AdminUser(String username, String password, UserRole role) {
+        this.username = username;
         this.password = password;
-        this.role = role;
+        this.role = (role != null) ? role: UserRole.ADMIN;
     }
 
-    public void updateLastLoginAt(){
+    public void updateLastLoginAt() {
         this.lastLoginAt = LocalDateTime.now();
     }
 }

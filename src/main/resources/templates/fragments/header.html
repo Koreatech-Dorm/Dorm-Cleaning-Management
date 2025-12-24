@@ -34,6 +34,18 @@
                     인증코드 생성
                 </a>
             </li>
+            <li class="nav-item ms-auto"></li>
+            <li class="nav-item" 
+                sec:authorize="hasRole('SUPERADMIN')">
+                <a class="nav-link text-dark" th:href="@{/admin/account-manager}">
+                    계정 관리
+                </a>
+            </li>
+            <li class="nav-item" style="margin-right: 25px;">
+                <a class="nav-link text-dark" sec:authorize="isAuthenticated()" th:href="@{/logout}">
+                    로그아웃
+                </a>
+            </li>
         </ul>
     </div>
 </nav>

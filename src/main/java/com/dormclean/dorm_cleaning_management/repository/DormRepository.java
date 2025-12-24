@@ -10,6 +10,8 @@ import java.util.Optional;
 
 @Repository
 public interface DormRepository extends JpaRepository<Dorm, Long> {
+    boolean existsByDormCode(String dormCode);
+
     Optional<Dorm> findById(Long roomId);
 
     Optional<Dorm> findByDormCode(String dormCode);

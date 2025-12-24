@@ -2,6 +2,7 @@ package com.dormclean.dorm_cleaning_management.controller;
 
 import com.dormclean.dorm_cleaning_management.dto.cleaningCode.GetCleaningCodeResponseDto;
 import com.dormclean.dorm_cleaning_management.dto.cleaningCode.RegistrationCleaningCodeRequestDto;
+import com.dormclean.dorm_cleaning_management.exception.cleaningCode.CleaningCodeNotFoundException;
 import com.dormclean.dorm_cleaning_management.service.cleaningCode.CleaningCodeService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,7 +33,7 @@ public class CleaningCodeController {
         GetCleaningCodeResponseDto dto = cleaningCodeService.getCleaningCode();
 
         if (dto == null) {
-            return ResponseEntity.notFound().build();
+            throw new CleaningCodeNotFoundException();
         }
 
         return ResponseEntity.ok(dto);

@@ -22,8 +22,9 @@
                         <label for="dormCode" class="form-label">생활관 이름</label>
                         <!-- 호실 그리드 -->
                         <div class="floor-div col" id="dormDiv" style="overflow-x: hidden; overflow-y: auto; height: 400px !important;">
-                            <div class="empty-state" id="emptyState" style="margin-top: 120px;">
-                                <p>생활관을 선택하여 호실을 조회하세요.</p>
+                            <div class="empty-state" id="emptyState" style="margin: 4rem"> 
+                                <div class="loader"></div>
+                                <p>로딩중...</p> 
                             </div>
                         </div>
                     </div>
@@ -74,21 +75,22 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 <script>
-    const emptyState = document.getElementById('emptyState');
     const dormDiv = document.getElementById('dormDiv');
 
     // 생활관 목록 불러오기
     async function loadDormList() {
-
-        dormDiv.innerHTML = '<p>로딩 중...</p>';
-        emptyState.style.display = 'none';
+        dormDiv.innerHTML = `<div class="empty-state" id="emptyState" style="margin: 4rem"> 
+                                <div class="loader"></div>
+                                <p>로딩중...</p> 
+                            </div>`;
 
         try {
-            dormDiv.innerHTML = ``;
             dormDiv.style.marginTop = "1rem";
 
             const res = await axios.get('/admin/api/dorms'); // 전체 생활관 조회 API 필요
             let dorms = res.data;
+
+            dormDiv.innerHTML = ``;
 
             const table = document.createElement('table');
             table.classList.add('room-table');
@@ -139,9 +141,10 @@
             });
             dormDiv.appendChild(table);
 
-        } catch (err) {
+        } catch (error) {
+            const msg = error?.response?.data?.message;
             tbody.innerHTML = `
-                <tr><td colspan="2" class="text-danger">⚠️ 생활관 정보를 불러오지 못했습니다.</td></tr>
+                <tr><td colspan="2" class="text-danger">⚠️ ${msg}</td></tr>
             `;
         }
     }
@@ -163,8 +166,8 @@
             statusEl.style.color = 'blue';
             e.target.reset();
             loadDormList();
-        } catch (err) {
-            const msg = err?.response?.data?.message || '생활관을 추가하지 못하였습니다.';
+        } catch (error) {
+            const msg = error?.response?.data?.message;
             statusEl.textContent = `⚠️ ${msg}`;
             statusEl.style.color = 'red';
         }
@@ -182,8 +185,8 @@
             statusEl.style.color = 'blue';
             e.target.reset();
             loadDormList();
-        } catch (err) {
-            const msg = err?.response?.data?.message || `${dormCode}동을 삭제하지 못하였습니다.`;
+        } catch (error) {
+            const msg = error?.response?.data?.message;
             statusEl.textContent = `⚠️ ${msg}`;
             statusEl.style.color = 'red';
         }

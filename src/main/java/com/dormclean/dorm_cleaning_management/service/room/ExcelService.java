@@ -7,5 +7,5 @@ import jakarta.servlet.http.HttpServletResponse;
 public interface ExcelService {
     public void downloadExcel(HttpServletResponse res) throws Exception;
 
-    public void registerByExcel(MultipartFile file) throws Exception;
+    public void registerByExcel(MultipartFile file);
 }

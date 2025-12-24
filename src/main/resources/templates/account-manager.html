@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: headFragment}"> </head>
+
+<body>
+<header th:replace="~{fragments/header :: headerFragment}"></header>
+
+<main class="container-fluid px-4 mt-4">
+    <!-- 메인 컨텐츠 -->
+    <div class="container">
+        <div class="page-header">
+            <h2>계정 관리</h2>
+            <p>관리자 계정을 등록/삭제 합니다.</p>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="row g-4">
+                    <div class="card p-4 mb-4" style="height: 500px !important;">
+                        <h4 class="mb-3">현재 계정 목록</h4>
+                        <label for="superadminAccount" class="form-label"> 최고 관리자 계정</label>
+                        <table class="room-table">
+                            <tr>
+                                <td class="floor-separator" colspan="100%"></td>
+                            </tr>
+                            <tr>
+                                <td class="room-cell" th:text="${superAdmin.username}" style="font-weight: bold;"></td>
+                            </tr>
+                        </table>
+                        <label for="adminAccount" class="form-label mt-4"> 관리자 계정</label>
+                        <div class="empty-state" id="emptyState"> 
+                            <div class="loader"></div>
+                            <p>로딩중...</p> 
+                        </div>
+                        <!-- 계정 그리드 -->
+                        <table id="accountGrid" class="room-table">
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="row g-4">
+                    <!-- 계정 등록 -->
+                    <div class="col-md-6">
+                        <div class="card p-4 h-100">
+                            <h4 class="mb-3">계정 등록</h4>
+                            <form id="createAccountForm">
+                                <div class="mb-3">
+                                    <label for="username" class="form-label">관리자 ID</label>
+                                    <input type="text" id="username" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="password1" class="form-label">비밀번호</label>
+                                    <input type="password" id="password1" class="form-control"required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="password2" class="form-label">비밀번호 확인</label>
+                                    <input type="password" id="password2" class="form-control"required>
+                                </div>
+                                <div class="form-bottom mt-auto">
+                                    <button type="submit" class="btn btn-primary">계정 등록하기</button>
+                                    <p id="accountStatus" class="status-msg text-muted">계정을 등록하려면 세부 정보를 입력하십시오.</p>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- 계정 삭제 -->
+                    <div class="col-md-6">
+                        <div class="card p-4 h-100">
+                            <h4 class="mb-3">계정 삭제</h4>
+                            <form id="deleteAccountForm">
+                                <div class="mb-3">
+                                    <label for="deleteUsername" class="form-label">삭제할 관리자 ID</label>
+                                    <input type="text" id="deleteUsername" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="deletePassword" class="form-label">최고 관리자 패스워드</label>
+                                    <input type="password" id="deletePassword" class="form-control" required>
+                                </div>
+                                <div class="form-bottom mt-auto">
+                                    <button type="submit" class="btn btn-primary">생활관 삭제하기</button>
+                                    <p id="deleteAccountStatus" class="status-msg text-muted">계정을 삭제하려면 세부 정보를 입력하십시오.</p>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<script>
+    const accountGrid = document.getElementById('accountGrid');
+    const emptyState = document.getElementById('emptyState');
+
+    async function loadAccoundList() {
+        accountGrid.innerHTML = ``;
+        let sep = document.createElement('tr');
+        const sepTd = document.createElement('td');
+        sepTd.classList.add('floor-separator');
+        sepTd.colSpan = "100%";
+        sep.appendChild(sepTd);
+        accountGrid.appendChild(sep);
+        try {
+            emptyState.style.display = "none";
+            const res = await axios.get('/admin/api/accounts');
+            let accounts = res.data;
+
+            accounts.forEach(account => {
+                let row = document.createElement('tr');
+                const td = document.createElement('td');
+                td.classList.add('room-cell');
+                td.style.fontWeight = "bold";
+                td.innerText = `${account.username}`;
+                row.appendChild(td);
+                accountGrid.appendChild(row);
+            });
+        } catch (err) {
+            const msg = err?.response?.data?.message;
+            alert(msg);
+        }
+    }
+    loadAccoundList();
+
+    // 관리자 계정 등록
+    document.getElementById('createAccountForm').addEventListener('submit', async (e) => {
+        e.preventDefault(); // 폼 기본 제출 방지
+
+        const username = document.getElementById('username').value;
+        const password1 = document.getElementById('password1').value;
+        const password2 = document.getElementById('password2').value;
+        const accountStatus = document.getElementById('accountStatus');
+
+        // 비밀번호 확인
+        if (password1 !== password2) {
+            accountStatus.textContent = '⚠️ 비밀번호가 일치하지 않습니다.';
+            accountStatus.style.color = 'red';
+            return; // 서버 요청 중단
+        }
+
+        try {
+            const res = await axios.post('/admin/api/signup', {
+                username: username,
+                password: password1
+            });
+            accountStatus.textContent = '✅ 관리자 계정이 등록되었습니다!';
+            accountStatus.style.color = 'blue';
+
+            e.target.reset();
+            loadAccoundList();
+        } catch (err) {
+            const msg = err?.response?.data?.message;
+            accountStatus.textContent = `⚠️ ${msg}`;
+            accountStatus.style.color = 'red';
+        }
+    });
+
+    
+    // 관리자 계정 삭제
+    document.getElementById('deleteAccountForm').addEventListener('submit', async (e) => {
+        e.preventDefault(); // 폼 기본 제출 방지
+
+        const deleteUsername = document.getElementById('deleteUsername').value;
+        const deletePassword = document.getElementById('deletePassword').value;
+        const deleteAccountStatus = document.getElementById('deleteAccountStatus');
+
+        try {
+            await axios.delete('/admin/api/delete/account', {
+                params: {
+                    username: deleteUsername,   
+                    password: deletePassword
+                }
+            });
+            deleteAccountStatus.textContent = '✅ 관리자 계정이 삭제되었습니다!';
+            deleteAccountStatus.style.color = 'blue';
+
+            e.target.reset();
+            loadAccoundList();
+        } catch (err) {
+            const msg = err?.response?.data?.message;
+            deleteAccountStatus.textContent = `⚠️ ${msg}`;
+            deleteAccountStatus.style.color = 'red';
+        }
+    });
+</script>
+
+<footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+</body>
+</html>
