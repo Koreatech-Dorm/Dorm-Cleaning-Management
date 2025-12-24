@@ -39,21 +39,10 @@ public class QrCodeController {
     public void generateQrCodeZip(
             @RequestParam("dormCodes") List<String> dormCodes,
             HttpServletResponse response) throws IOException {
-
-        File zipFile = qrCodeService.generateZipForDorms(dormCodes);
-
         response.setContentType("application/zip");
-        response.setHeader(
-                HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=dorm_qr_codes.zip");
-        response.setContentLengthLong(zipFile.length()); // ⭐ 핵심
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=dorm_qr_codes.zip");
 
-        try (InputStream is = new FileInputStream(zipFile);
-                OutputStream os = response.getOutputStream()) {
-
-            is.transferTo(os);
-        } finally {
-            zipFile.delete(); // 임시 파일 정리
-        }
+        // 서비스에서 스트림에 직접 데이터를 쏘도록 호출
+        qrCodeService.generateZipForDormsToStream(dormCodes, response.getOutputStream());
     }
 }
