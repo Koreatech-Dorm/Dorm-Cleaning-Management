@@ -150,6 +150,27 @@
     </div>
 </div>
 
+<div class="progress-overlay" id="progressOverlay" style="display:none;">
+    <div class="progress-modal">
+        <p id="progressTitle" class="mb-2 fw-bold">처리 중입니다...</p>
+
+        <div class="progress mb-2 position-relative" style="height: 20px;">
+            <div id="overlayProgressBar"
+                class="progress-bar progress-bar-striped progress-bar-animated"
+                role="progressbar"
+                style="width: 0%;"></div>
+            <span id="overlayProgressText"
+                class="btn-progress-text position-absolute top-50 start-50 translate-middle fw-bold">
+                0%
+            </span>
+        </div>
+
+        <p id="progressSubText" style="font-size:13px;color:#666;">
+            잠시만 기다려주세요.
+        </p>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
@@ -292,11 +313,11 @@
         });
 
     // 호실 삭제
-    document.getElementById('deleteRoomForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
+    document.getElementById('confirmDeleteAllBtn')
+        .addEventListener('click', async () => {
+
         const dormCode = dormSelect.value;
-        const roomNumber = document.getElementById('deleteRoomNumber').value;
-        const statusEl = document.getElementById('deleteRoomStatus');
+        const statusEl = document.getElementById('deleteAllRoomStatus');
 
         if (!dormCode) {
             statusEl.textContent = '⚠️ 생활관을 먼저 선택하세요.';
@@ -304,28 +325,74 @@
             return;
         }
 
-            try {
-                await axios.delete(`/admin/api/rooms/delete`,{
+        showProgressOverlay(
+            '호실 일괄 삭제 중',
+            `${dormCode}동 호실을 삭제하고 있습니다.`
+        );
+
+        try {
+            const res = await fetch(`/admin/api/rooms/info/byDorm?dormCode=${dormCode}`);
+            const rooms = await res.json();
+
+            const total = rooms.length;
+            let done = 0;
+
+            if (total === 0) {
+                updateProgress(100);
+                hideProgressOverlay();
+                return;
+            }
+
+            for (const room of rooms) {
+                await axios.delete(`/admin/api/rooms/delete`, {
                     params: {
                         dormCode: dormCode,
-                        roomNumber: roomNumber
+                        roomNumber: room.roomNumber
                     }
                 });
 
-            statusEl.textContent = `✅ ${roomNumber}호가 삭제되었습니다.`;
+                done++;
+                updateProgress(Math.round((done / total) * 100));
+            }
+
+            statusEl.textContent = '✅ 선택한 생활관의 호실이 일괄 삭제되었습니다.';
             statusEl.style.color = 'blue';
-            e.target.reset();
-            loadRooms(); // 갱신
+
+            loadRooms();
+
+            // 모달 닫기
+            bootstrap.Modal.getInstance(
+                document.getElementById('confirmDeleteAllModal')
+            ).hide();
+
         } catch (error) {
-            const msg = error?.response?.data?.message;
+            const msg = error?.response?.data?.message || '삭제 중 오류 발생';
             statusEl.textContent = `⚠️ ${msg}`;
             statusEl.style.color = 'red';
+        } finally {
+            setTimeout(hideProgressOverlay, 400);
         }
     });
 
     // 호실 등록 양식 다운로드
-    function downloadExcelTemplate() {
+    async function downloadExcelTemplate() {
+        showProgressOverlay(
+            '양식 다운로드 중',
+            '엑셀 양식을 다운로드하고 있습니다.'
+        );
+
+        let p = 0;
+        while (p < 90) {
+            p += 5;
+            updateProgress(p);
+            await new Promise(resolve => setTimeout(resolve, p));
+        }
+
         window.location.href = '/admin/api/Excel/download';
+
+        updateProgress(100);
+
+        setTimeout(hideProgressOverlay, 400);
     }
 
     // 호실 일괄 등록
@@ -340,24 +407,43 @@
             return;
         }
 
+        showProgressOverlay(
+            '호실 일괄 등록 중',
+            '엑셀 데이터를 처리하고 있습니다.'
+        );
+
         const formData = new FormData();
         formData.append("file", fileInput.files[0]);
 
         try {
             await axios.post('/admin/api/Excel/register', formData, {
-                headers: { "Content-Type": "multipart/form-data" }
+                headers: { "Content-Type": "multipart/form-data" },
+
+                onUploadProgress: (progressEvent) => {
+                    if (!progressEvent.total) return;
+                    const percent = Math.round(
+                        (progressEvent.loaded * 100) / progressEvent.total
+                    );
+                    updateProgress(percent);
+                }
             });
 
+            updateProgress(100);
             statusEl.textContent = "✅ 호실을 일괄 등록하였습니다.";
             statusEl.style.color = "blue";
 
-            loadRooms();
+            floorDiv.innerHTML = `<div class="empty-state" id="emptyState" style="margin-top: 120px;">
+                                    <p>생활관을 선택하여 호실을 조회하세요.</p>
+                                </div>`;
         } catch (error) {
             const msg = error?.response?.data?.message;
             statusEl.textContent = `⚠️ ${msg}`;
             statusEl.style.color = "red";
+        } finally {
+            setTimeout(hideProgressOverlay, 400);
         }
     }
+
 
     // 호실 일괄 삭제
     document.getElementById('deleteAllRoomForm').addEventListener('submit', async (e) => {
@@ -375,38 +461,93 @@
         modal.show();
     });
 
-    document.getElementById('confirmDeleteAllBtn').addEventListener('click', async () => {
+    document.getElementById('confirmDeleteAllBtn')
+        .addEventListener('click', async () => {
+
         const dormCode = dormSelect.value;
         const statusEl = document.getElementById('deleteAllRoomStatus');
 
+        showProgressOverlay(
+            '호실 일괄 삭제 중',
+            '선택한 생활관의 모든 호실을 삭제하고 있습니다.'
+        );
+
         try {
-            const res = await fetch(`/api/rooms/info/byDorm?dormCode=${dormCode}`);
+            const res = await fetch(`/admin/api/rooms/info/byDorm?dormCode=${dormCode}`);
             const rooms = await res.json();
 
+            const total = rooms.length;
+            let done = 0;
+
+            if (total === 0) {
+                updateProgress(100);
+                hideProgressOverlay();
+                return;
+            }
+
             for (const room of rooms) {
-                await axios.delete(`/api/rooms/delete`, {
+                await axios.delete(`/admin/api/rooms/delete`, {
                     params: {
                         dormCode: dormCode,
                         roomNumber: room.roomNumber
                     }
                 });
+
+                done++;
+                const percent = Math.round((done / total) * 100);
+                updateProgress(percent);
+
+                // 👀 UX 확인용 지연 (테스트 끝나면 제거 가능)
+                await new Promise(r => setTimeout(r, 120));
             }
 
-            statusEl.textContent = `✅ 호실이 일괄 삭제되었습니다.`;
+            updateProgress(100);
+            statusEl.textContent = '✅ 호실이 일괄 삭제되었습니다.';
             statusEl.style.color = 'blue';
 
             loadRooms();
 
             // 모달 닫기
-            bootstrap.Modal.getInstance(document.getElementById('confirmDeleteAllModal')).hide();
+            bootstrap.Modal.getInstance(
+                document.getElementById('confirmDeleteAllModal')
+            ).hide();
 
         } catch (error) {
-            const msg = error?.response?.data?.message;
+            const msg = error?.response?.data?.message || '삭제 중 오류 발생';
             statusEl.textContent = `⚠️ ${msg}`;
             statusEl.style.color = 'red';
+        } finally {
+            setTimeout(hideProgressOverlay, 400);
         }
     });
 
+
+    const overlay = document.getElementById('progressOverlay');
+    const overlayBar = document.getElementById('overlayProgressBar');
+    const overlayText = document.getElementById('overlayProgressText');
+    const progressTitle = document.getElementById('progressTitle');
+    const progressSubText = document.getElementById('progressSubText');
+
+    function showProgressOverlay(title, subText) {
+        progressTitle.textContent = title;
+        progressSubText.textContent = subText;
+
+        overlayBar.style.width = '0%';
+        overlayText.textContent = '0%';
+
+        overlay.style.display = 'flex';
+        document.body.classList.add('blocked');
+    }
+
+    function updateProgress(percent) {
+        overlayBar.style.width = `${percent}%`;
+        overlayText.textContent = `${percent}%`;
+    }
+
+    function hideProgressOverlay() {
+        overlay.style.display = 'none';
+        document.body.classList.remove('blocked');
+    }
 </script>
 </main>
 

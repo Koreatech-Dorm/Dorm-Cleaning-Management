@@ -662,7 +662,6 @@
                 await Promise.all(
                     tasks.map(async ([dormCode, roomNumbers]) => {
                         try {
-                            await new Promise(r => setTimeout(r, 800));
                             const res = await fetch(`/admin/api/rooms/bulk-status`, {
                                 method: 'PATCH',
                                 headers: { 'Content-Type': 'application/json' },
@@ -687,7 +686,7 @@
                                 }
                             });
 
-                        } catch (e) {
+                        } catch (error) {
                             console.error(`❌ ${dormCode} 실패`);
                         } finally {
                             done++;
