@@ -95,7 +95,12 @@
                         </div>
 
                         <button type="submit" class="btn orange-btn w-100 py-3 fw-bold rounded-pill">
-                            <i class="bi bi-file-earmark-zip"></i> ZIP 파일 다운로드
+                            <div class="empty-state" id="emptyState" style="display: none; margin: 0; padding: 0; place-items: center;"> 
+                                <div class="loader" style="margin: 0; padding: 0; height: 24px; width: 24px;">다운로드 중...</div>
+                            </div>
+                            <div id="buttonText">
+                                <i class="bi bi-file-earmark-zip"></i> ZIP 파일 다운로드
+                            </div>
                         </button>
                     </form>
                 </div>
@@ -194,13 +199,20 @@
 
 
     // 일괄 다운로드 함수
-    function downloadZip() {
+    async function downloadZip() {
         const checkedBoxes = document.querySelectorAll('.dorm-checkbox:checked');
+        const emptyState = document.getElementById('emptyState');
+        const buttonText = document.getElementById('buttonText');
 
         if (checkedBoxes.length === 0) {
             alert('최소 하나 이상의 생활관을 선택해주세요.');
             return;
         }
+
+        buttonText.style.display = 'none';
+        emptyState.style.display = 'grid';
+
+        await new Promise(resolve => setTimeout(resolve, 1700)) 
 
         // 선택된 생활관 코드 수집
         const params = new URLSearchParams();
@@ -214,9 +226,14 @@
 
             // 브라우저가 파일 다운로드로 인식하도록 location 변경
             window.location.href = apiUrl;
+            
+            buttonText.style.display = 'block';
+            emptyState.style.display = 'none';
         } catch (error) {
             const msg = error?.response?.data?.message;
             alert(msg);
+            buttonText.style.display = 'block';
+            emptyState.style.display = 'none';
         }
     }
 
