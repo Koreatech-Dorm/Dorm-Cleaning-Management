@@ -496,9 +496,6 @@
                 done++;
                 const percent = Math.round((done / total) * 100);
                 updateProgress(percent);
-
-                // 👀 UX 확인용 지연 (테스트 끝나면 제거 가능)
-                await new Promise(r => setTimeout(r, 120));
             }
 
             updateProgress(100);
