@@ -32,80 +32,78 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
     @Modifying(clearAutomatically = true)
     @Query("""
-    update Room r
-    set r.roomStatus = :status,
-        r.cleanedAt = :now
-    where r.dorm = :dorm
-      and r.roomNumber in :roomNumbers
-    """)
+            update Room r
+            set r.roomStatus = :status,
+                r.cleanedAt = :now
+            where r.dorm = :dorm
+              and r.roomNumber in :roomNumbers
+            """)
     int bulkStatusUpdate(
             Dorm dorm,
             List<String> roomNumbers,
             RoomStatus status,
-            Instant now
-    );
+            Instant now);
 
     @Query("""
-    select new com.dormclean.dorm_cleaning_management.dto.room.RoomListResponseDto(
-        r.dorm.dormCode,
-        r.floor,
-        r.roomNumber,
-        r.roomStatus,
-        r.cleanedAt,
-        r.checkInAt,
-        r.checkOutAt
-    )
-    from Room r
-    """)
+            select new com.dormclean.dorm_cleaning_management.dto.room.RoomListResponseDto(
+                r.dorm.dormCode,
+                r.floor,
+                r.roomNumber,
+                r.roomStatus,
+                r.cleanedAt,
+                r.checkInAt,
+                r.checkOutAt
+            )
+            from Room r
+            """)
     List<RoomListResponseDto> findAllRoomsDto();
 
     @Query("""
-    select new com.dormclean.dorm_cleaning_management.dto.room.RoomListResponseDto(
-        r.dorm.dormCode,
-        r.floor,
-        r.roomNumber,
-        r.roomStatus,
-        r.cleanedAt,
-        r.checkInAt,
-        r.checkOutAt        
-        )
-     from Room r
-     where r.dorm.dormCode = :dormCode
-    """)
-    List<RoomListResponseDto> findRoomByDormCode(String dormCode);
+            select new com.dormclean.dorm_cleaning_management.dto.room.RoomListResponseDto(
+                r.dorm.dormCode,
+                r.floor,
+                r.roomNumber,
+                r.roomStatus,
+                r.cleanedAt,
+                r.checkInAt,
+                r.checkOutAt
+                )
+             from Room r
+             where r.dorm.dormCode = :dormCode
+            """)
+    List<RoomListResponseDto> findRoomByDormCode(@Param("dormCode") String dormCode);
 
     @Query("""
-    select new com.dormclean.dorm_cleaning_management.dto.room.RoomListResponseDto(
-        r.dorm.dormCode,
-        r.floor,
-        r.roomNumber,
-        r.roomStatus,
-        r.cleanedAt,
-        r.checkInAt,
-        r.checkOutAt
-    )
-    from Room r
-    where r.dorm.dormCode = :dormCode
-      and r.floor = :floor
-    """)
+            select new com.dormclean.dorm_cleaning_management.dto.room.RoomListResponseDto(
+                r.dorm.dormCode,
+                r.floor,
+                r.roomNumber,
+                r.roomStatus,
+                r.cleanedAt,
+                r.checkInAt,
+                r.checkOutAt
+            )
+            from Room r
+            where r.dorm.dormCode = :dormCode
+              and r.floor = :floor
+            """)
     List<RoomListResponseDto> findRoomByDormCodeAndFloor(
-            String dormCode,
-            Integer floor
-    );
+            @Param("dormCode") String dormCode,
+            @Param("floor") Integer floor);
 
     @Query("""
-    select r
-    from Room r join r.dorm d where d.dormCode = :dormCode and r.roomNumber = :roomNumber
-    """)
-    Room findRoomByDormCodeAndRoomNumber(String dormCode, String roomNumber);
+            select r
+            from Room r join r.dorm d where d.dormCode = :dormCode and r.roomNumber = :roomNumber
+            """)
+    Room findRoomByDormCodeAndRoomNumber(@Param("dormCode") String dormCode, @Param("roomNumber") String roomNumber);
 
     @Query("""
-    select r
-    from Room r
-    join fetch r.dorm d
-    left join fetch r.qrCode q
-    where d.dormCode in :dormCodes
-""")
+            select r
+            from Room r
+            join fetch r.dorm d
+            left join fetch r.qrCode q
+            where d.dormCode in :dormCodes
+            """)
     List<Room> findAllRoomsWithDormAndQrByDormCodes(@Param("dormCodes") List<String> dormCodes);
 
     @Modifying(clearAutomatically = true)
