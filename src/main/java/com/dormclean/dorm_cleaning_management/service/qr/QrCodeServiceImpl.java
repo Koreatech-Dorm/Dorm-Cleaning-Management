@@ -32,7 +32,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -46,6 +48,20 @@ public class QrCodeServiceImpl implements QrCodeService {
     private final RoomRepository roomRepository;
     private final DormRepository dormRepository;
     private final QrDataProcessor qrDataProcessor;
+
+    private static final QRCodeWriter QR_WRITER = new QRCodeWriter();
+    private static final MatrixToImageConfig QR_CONFIG = new MatrixToImageConfig(0xFF000000, 0xFFFFFFFF);
+    private static final Map<RenderingHints.Key, Object> HINTS;
+    private static final Font LABEL_FONT = new Font("SansSerif", Font.BOLD, 20);
+
+    static {
+        HINTS = new HashMap<>();
+        HINTS.put(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
+        HINTS.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        HINTS.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        ImageIO.setUseCache(false);
+    }
 
     @Override
     @Transactional
@@ -90,51 +106,36 @@ public class QrCodeServiceImpl implements QrCodeService {
     @Override
     public byte[] generateQrCode(String content, int width, int height, String labelText) {
         try {
-            // QR Code BitMatrix 생성
-            QRCodeWriter qrCodeWriter = new QRCodeWriter();
-            BitMatrix bitMatrix = qrCodeWriter.encode(content, BarcodeFormat.QR_CODE, width, height);
+            BitMatrix bitMatrix = QR_WRITER.encode(content, BarcodeFormat.QR_CODE, width, height);
 
-            // BitMatrix를 BufferedImage로 변환
-            MatrixToImageConfig config = new MatrixToImageConfig(0xFF000000, 0xFFFFFFFF); // 흑백 설정
-            BufferedImage qrImage = MatrixToImageWriter.toBufferedImage(bitMatrix, config);
+            BufferedImage qrImage = MatrixToImageWriter.toBufferedImage(bitMatrix, QR_CONFIG);
 
-            // 텍스트를 위한 추가 공간 설정 (하단에 50px 추가)
             int textHeight = 50;
-            BufferedImage combinedImage = new BufferedImage(width, height + textHeight, BufferedImage.TYPE_INT_RGB);
 
-            // 그래픽 객체 생성 (그리기 도구)
+            BufferedImage combinedImage = new BufferedImage(width, height + textHeight, BufferedImage.TYPE_BYTE_BINARY);
+
             Graphics2D g = combinedImage.createGraphics();
 
-            // 텍스트 안티앨리어싱 설정 (LCD 화면에 최적화된 설정, 가장 선명하게 보임)
-            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
+            try {
+                g.setRenderingHints(HINTS);
 
-            // 전체적인 렌더링 품질을 최우선으로 설정
-            g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                g.setColor(Color.WHITE);
+                g.fillRect(0, 0, width, height + textHeight);
+                g.drawImage(qrImage, 0, 0, null);
 
-            // 일반적인 도형의 안티앨리어싱 설정 (글자 외의 요소도 부드럽게)
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g.setColor(Color.BLACK);
+                g.setFont(LABEL_FONT);
 
-            // 전체 배경을 흰색으로 칠하기
-            g.setColor(Color.WHITE);
-            g.fillRect(0, 0, width, height + textHeight);
+                FontMetrics fontMetrics = g.getFontMetrics();
+                int textWidth = fontMetrics.stringWidth(labelText);
+                int x = (width - textWidth) / 2;
+                int y = height + (textHeight / 2) + (fontMetrics.getAscent() / 4);
 
-            // QR 이미지 그리기
-            g.drawImage(qrImage, 0, 0, null);
+                g.drawString(labelText, x, y);
+            } finally {
+                g.dispose();
+            }
 
-            // 텍스트 설정 및 그리기
-            g.setColor(Color.BLACK);
-            g.setFont(new Font("Pretendard", Font.BOLD, 20)); // 폰트 설정 (시스템에 없는 경우 SansSerif 등으로 대체)
-
-            // 텍스트를 중앙에 정렬하기 위한 좌표 계산
-            FontMetrics fontMetrics = g.getFontMetrics();
-            int textWidth = fontMetrics.stringWidth(labelText);
-            int x = (width - textWidth) / 2; // 가로 중앙
-            int y = height + (textHeight / 2) + (fontMetrics.getAscent() / 4); // 세로 중앙 (QR 아래)
-
-            g.drawString(labelText, x, y);
-            g.dispose(); // 그래픽 자원 해제
-
-            // 이미지를 byte[]로 변환하여 반환
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(combinedImage, "png", baos);
             return baos.toByteArray();
@@ -150,6 +151,7 @@ public class QrCodeServiceImpl implements QrCodeService {
 
         // ZipOutputStream 생성
         try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
+            zos.setLevel(5);
             for (QrGenerationData data : qrDataList) {
                 // QR 이미지 생성 (하나씩만 메모리에 올림)
                 byte[] imageBytes = generateQrCode(
@@ -163,9 +165,6 @@ public class QrCodeServiceImpl implements QrCodeService {
                 zos.putNextEntry(zipEntry);
                 zos.write(imageBytes);
                 zos.closeEntry();
-
-                // 네트워크 스트림 비우기 유도 (클라이언트가 끊기지 않게 함)
-                outputStream.flush();
             }
             zos.finish(); // 압축 마무리
         } catch (IOException e) {

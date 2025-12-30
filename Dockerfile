@@ -26,4 +26,4 @@ ENV PORT=8080
 EXPOSE 8080
 
 # Spring Boot 실행
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Xmx384m", "-Djava.awt.headless=true", "-jar", "app.jar"]
