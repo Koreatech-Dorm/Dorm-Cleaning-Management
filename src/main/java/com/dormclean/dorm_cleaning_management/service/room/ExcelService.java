@@ -5,7 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.servlet.http.HttpServletResponse;
 
 public interface ExcelService {
-    public void downloadExcel(HttpServletResponse res) throws Exception;
+    public byte[] downloadExcel() throws Exception;
 
     public void registerByExcel(MultipartFile file);
 }
