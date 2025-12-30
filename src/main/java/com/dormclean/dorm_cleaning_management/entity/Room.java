@@ -1,6 +1,8 @@
 package com.dormclean.dorm_cleaning_management.entity;
 
 import com.dormclean.dorm_cleaning_management.entity.enums.RoomStatus;
+import com.dormclean.dorm_cleaning_management.exception.room.RoomCheckInNotAllowedException;
+import com.dormclean.dorm_cleaning_management.exception.room.RoomCheckOutNotAllowedException;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.Instant;
@@ -51,6 +53,31 @@ public class Room {
         this.checkOutAt = checkOutAt;
     }
 
+    public boolean canCheckIn() {
+        return this.roomStatus == RoomStatus.READY;
+    }
+
+    public boolean canCheckOut() {
+        return this.roomStatus == RoomStatus.OCCUPIED;
+    }
+
+    public void checkIn() {
+        if (!canCheckIn()) throw new RoomCheckInNotAllowedException();
+        this.roomStatus = RoomStatus.OCCUPIED;
+        this.checkInAt = Instant.now();
+    }
+
+    public void checkOut() {
+        if (!canCheckOut()) throw new RoomCheckOutNotAllowedException();
+        this.roomStatus = RoomStatus.VACANT;
+        this.checkOutAt = Instant.now();
+    }
+
+    public void cleanComplete() {
+        this.roomStatus = RoomStatus.READY;
+        this.cleanedAt = Instant.now();
+    }
+
     public void updateStatus(RoomStatus status) {
         this.roomStatus = status;
     }
@@ -67,26 +94,4 @@ public class Room {
         this.checkOutAt = checkOutAt;
     }
 
-    public void checkIn() {
-        if (this.roomStatus == RoomStatus.READY) {
-            this.roomStatus = RoomStatus.OCCUPIED;
-            this.checkInAt = Instant.now();
-            this.checkOutAt = null;
-            this.cleanedAt = null;
-        }
-    }
-
-    public void checkOut() {
-        if (this.roomStatus == RoomStatus.OCCUPIED) {
-            this.roomStatus = RoomStatus.VACANT;
-            this.checkOutAt = Instant.now();
-        }
-    }
-
-    public void clean() {
-        if (this.getRoomStatus() == RoomStatus.VACANT) {
-            this.updateStatus(RoomStatus.READY);
-            this.cleanedAt = Instant.now();
-        }
-    }
 }
