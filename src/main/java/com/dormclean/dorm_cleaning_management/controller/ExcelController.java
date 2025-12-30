@@ -4,6 +4,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,17 +28,19 @@ public class ExcelController {
 
     // 호실 등록 양식 다운로드
     @GetMapping("/Excel/download")
-    public ResponseEntity<Void> download(HttpServletResponse res) throws Exception {
+    public ResponseEntity<ByteArrayResource> download() throws Exception {
 
-        // 파일 이름 설정
-        String fileName = "Room_Information";
+        byte[] file = excelService.downloadExcel();
+        ByteArrayResource resource = new ByteArrayResource(file);
 
-        res.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        res.setHeader("Content-Disposition", "attachment;filename=" + fileName + ".xlsx");
-
-        excelService.downloadExcel(res);
-
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok()
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=room_template.xlsx")
+                .contentLength(file.length)
+                .contentType(
+                        MediaType.parseMediaType("application/octet-stream"))
+                .body(resource);
     }
 
     @PostMapping("/Excel/register")

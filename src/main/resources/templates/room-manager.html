@@ -374,24 +374,57 @@
         }
     });
 
-    // 호실 등록 양식 다운로드
+    // Excel 양식 다운로드
     async function downloadExcelTemplate() {
         showProgressOverlay(
             '양식 다운로드 중',
             '엑셀 양식을 다운로드하고 있습니다.'
         );
 
-        let p = 0;
-        while (p < 90) {
-            p += 5;
-            updateProgress(p);
-            await new Promise(resolve => setTimeout(resolve, p));
+        const response = await fetch('/admin/api/Excel/download');
+
+        if (!response.ok) {
+            hideProgressOverlay();
+            throw new Error('다운로드 실패');
         }
 
-        window.location.href = '/admin/api/Excel/download';
+        const contentLength = response.headers.get('Content-Length');
+        if (!contentLength) {
+            console.warn('Content-Length 없음 → 정확한 진행률 불가');
+        }
+
+        const total = parseInt(contentLength, 10);
+        let loaded = 0;
+
+        const reader = response.body.getReader();
+        const chunks = [];
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            chunks.push(value);
+            loaded += value.length;
+
+            if (total) {
+                const percent = Math.floor((loaded / total) * 100);
+                updateProgress(percent);
+            }
+        }
+
+        const blob = new Blob(chunks, {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        });
+
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'room_template.xlsx';
+        a.click();
+
+        window.URL.revokeObjectURL(url);
 
         updateProgress(100);
-
         setTimeout(hideProgressOverlay, 400);
     }
 
@@ -496,9 +529,6 @@
                 done++;
                 const percent = Math.round((done / total) * 100);
                 updateProgress(percent);
-
-                // 👀 UX 확인용 지연 (테스트 끝나면 제거 가능)
-                await new Promise(r => setTimeout(r, 120));
             }
 
             updateProgress(100);
