@@ -4,6 +4,7 @@ import com.dormclean.dorm_cleaning_management.dto.qr.QrResponseDto;
 import com.dormclean.dorm_cleaning_management.entity.QrCode;
 import com.dormclean.dorm_cleaning_management.entity.Room;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -15,13 +16,27 @@ public interface QrCodeRepository extends JpaRepository<QrCode, Long> {
     Optional<QrCode> findByRoom(Room room);
 
     @Query("""
-    select new com.dormclean.dorm_cleaning_management.dto.qr.QrResponseDto(
-        d.dormCode,
-        r.roomNumber,
-        r.roomStatus
-        )
-        from QrCode q join q.room r join r.dorm d
-        where q.uuid = :token  
-    """)
+            select new com.dormclean.dorm_cleaning_management.dto.qr.QrResponseDto(
+                d.dormCode,
+                r.roomNumber,
+                r.roomStatus
+                )
+                from QrCode q join q.room r join r.dorm d
+                where q.uuid = :token
+            """)
     Optional<QrResponseDto> findByToken(String token);
+
+    @Modifying(clearAutomatically = true)
+    @Query("""
+                delete from QrCode qr
+                where qr.room.id in (
+                    select r.id
+                    from Room r
+                    where r.dorm.dormCode = :dormCode
+                    and r.roomNumber in :roomNumbers
+                )
+            """)
+    int deleteQrCodesByDormCodeAndRoomNumbers(
+            @Param("dormCode") String dormCode,
+            @Param("roomNumbers") List<String> roomNumbers);
 }

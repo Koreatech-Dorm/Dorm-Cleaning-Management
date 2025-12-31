@@ -97,6 +97,16 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
             """)
     Room findRoomByDormCodeAndRoomNumber(@Param("dormCode") String dormCode, @Param("roomNumber") String roomNumber);
 
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+                delete from Room r
+                where r.dorm.dormCode = :dormCode
+                and r.roomNumber in :roomNumbers
+            """)
+    int deleteByDormCodeAndRoomNumbers(
+            @Param("dormCode") String dormCode,
+            @Param("roomNumbers") List<String> roomNumbers);
+
     @Query("""
             select r
             from Room r

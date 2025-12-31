@@ -15,4 +15,6 @@ public interface QrCodeService {
     QrResponseDto getQrData(String token);
 
     void generateZipForDormsToStream(List<String> dormCodes, OutputStream outputStream);
+
+    int deleteQRCodesByDormCode(String dormCode, List<String> roomNumbers);
 }
