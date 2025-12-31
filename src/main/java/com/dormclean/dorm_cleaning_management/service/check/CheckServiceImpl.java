@@ -4,7 +4,6 @@ import com.dormclean.dorm_cleaning_management.dto.check.CheckRequestDto;
 import com.dormclean.dorm_cleaning_management.dto.cleaningCode.CleaningCodeDto;
 import com.dormclean.dorm_cleaning_management.entity.CleaningCode;
 import com.dormclean.dorm_cleaning_management.entity.Room;
-import com.dormclean.dorm_cleaning_management.entity.enums.RoomStatus;
 import com.dormclean.dorm_cleaning_management.exception.cleaningCode.InvalidCleaningCodeException;
 import com.dormclean.dorm_cleaning_management.exception.room.RoomCheckInNotAllowedException;
 import com.dormclean.dorm_cleaning_management.exception.room.RoomCheckOutNotAllowedException;
@@ -28,31 +27,28 @@ public class CheckServiceImpl implements CheckService {
     @Override
     @Transactional
     public void checkIn(CheckRequestDto dto) {
-        int updatedCount = roomRepository.updateStatusToCheckIn(dto.dormCode(), dto.roomNumber());
+        Room room = roomRepository.findByDormCodeAndRoomNumber(dto.dormCode(), dto.roomNumber())
+                .orElseThrow(RoomCheckInNotAllowedException::new);
 
-        if (updatedCount == 0) {
-            throw new RoomCheckInNotAllowedException();
-        }
+        room.checkIn();
     }
 
     @Override
     @Transactional
     public void checkOut(CheckRequestDto dto) {
-        int updatedCount = roomRepository.updateStatusToCheckOut(dto.dormCode(), dto.roomNumber());
+        Room room = roomRepository.findByDormCodeAndRoomNumber(dto.dormCode(), dto.roomNumber())
+                .orElseThrow(RoomCheckOutNotAllowedException::new);
 
-        if (updatedCount == 0) {
-            throw new RoomCheckOutNotAllowedException();
-        }
+        room.checkOut();
     }
 
     @Override
     @Transactional
     public void cleanCheck(CheckRequestDto dto) {
-        int updatedCount = roomRepository.updateStatusToCleaned(dto.dormCode(), dto.roomNumber());
+        Room room = roomRepository.findByDormCodeAndRoomNumber(dto.dormCode(), dto.roomNumber())
+                .orElseThrow(RoomCleanNotAllowedException::new);
 
-        if (updatedCount == 0) {
-            throw new RoomCleanNotAllowedException();
-        }
+        room.cleanComplete();
     }
 
     @Override
