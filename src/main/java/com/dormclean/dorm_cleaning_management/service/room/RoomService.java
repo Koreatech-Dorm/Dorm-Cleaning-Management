@@ -22,4 +22,6 @@ public interface RoomService {
     int updateRoomStatusBulk(BulkRoomStatusUpdateDto dto, Instant now);
 
     void deleteRoom(String dormCode, String roomNumber);
+
+    int deleteRoomsByDormCode(String dormCode, List<String> roomNumbers);
 }

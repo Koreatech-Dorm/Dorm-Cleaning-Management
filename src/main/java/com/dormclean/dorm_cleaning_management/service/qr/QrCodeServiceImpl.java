@@ -179,4 +179,14 @@ public class QrCodeServiceImpl implements QrCodeService {
         return qrCodeRepository.findByToken(token)
                 .orElseThrow(InvalidQrException::new);
     }
+
+    // QrCode 삭제
+    @Override
+    @Transactional
+    public int deleteQRCodesByDormCode(String dormCode, List<String> roomNumbers) {
+        if (roomNumbers == null || roomNumbers.isEmpty()) {
+            return 0;
+        }
+        return qrCodeRepository.deleteQrCodesByDormCodeAndRoomNumbers(dormCode, roomNumbers);
+    }
 }

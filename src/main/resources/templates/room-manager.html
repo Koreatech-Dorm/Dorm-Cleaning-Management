@@ -518,15 +518,21 @@
                 return;
             }
 
-            for (const room of rooms) {
-                await axios.delete(`/admin/api/rooms/delete`, {
+            const grouped = {};
+            rooms.forEach(room => {
+                if (!grouped[room.floor]) grouped[room.floor] = [];
+                grouped[room.floor].push(room.roomNumber);
+            })
+
+            for (const roomNumbers of Object.values(grouped)) {
+                await axios.delete(`/admin/api/rooms/delete/all`, {
                     params: {
-                        dormCode: dormCode,
-                        roomNumber: room.roomNumber
+                        dormCode,
+                        roomNumbers
                     }
                 });
 
-                done++;
+                done += roomNumbers.length;
                 const percent = Math.round((done / total) * 100);
                 updateProgress(percent);
             }

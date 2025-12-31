@@ -2,6 +2,7 @@ package com.dormclean.dorm_cleaning_management.controller;
 
 import com.dormclean.dorm_cleaning_management.dto.room.*;
 import com.dormclean.dorm_cleaning_management.entity.Room;
+import com.dormclean.dorm_cleaning_management.service.qr.QrCodeService;
 import com.dormclean.dorm_cleaning_management.service.room.RoomService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,6 +20,7 @@ import java.util.List;
 @Tag(name = "호실(방) 관리 API", description = "호실(방) 관련 API")
 public class RoomController {
     private final RoomService roomService;
+    private final QrCodeService qrCodeService;
 
     // 모든 호실 정보 반환
     @GetMapping("/rooms/all")
@@ -83,6 +85,19 @@ public class RoomController {
             @RequestParam("dormCode") String dormCode,
             @RequestParam("roomNumber") String roomNumber) {
         roomService.deleteRoom(dormCode, roomNumber);
+
+        return ResponseEntity.ok().build();
+    }
+
+    // 호실 일괄 삭제
+    @DeleteMapping("/rooms/delete/all")
+    public ResponseEntity<Void> deleteRoomsByDormCode(
+            @RequestParam("dormCode") String dormCode,
+            @RequestParam("roomNumbers") List<String> roomNumbers) {
+
+        qrCodeService.deleteQRCodesByDormCode(dormCode, roomNumbers);
+
+        roomService.deleteRoomsByDormCode(dormCode, roomNumbers);
 
         return ResponseEntity.ok().build();
     }
