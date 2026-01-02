@@ -14,4 +14,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send Health Check
-        run: curl -s https://dorm-cleaning-management-test.onrender.com/healthcheck
+        run: curl -s https://koreatech-dorm-management.onrender.com/health
