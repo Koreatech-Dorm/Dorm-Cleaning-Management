@@ -179,4 +179,14 @@ public class RoomServiceImpl implements RoomService {
 
                 roomRepository.delete(room);
         }
+
+        // 호실 삭제
+        @Override
+        @Transactional
+        public int deleteRoomsByDormCode(String dormCode, List<String> roomNumbers) {
+                if (roomNumbers == null || roomNumbers.isEmpty()) {
+                        return 0;
+                }
+                return roomRepository.deleteByDormCodeAndRoomNumbers(dormCode, roomNumbers);
+        }
 }

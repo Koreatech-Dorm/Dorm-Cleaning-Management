@@ -94,8 +94,8 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn orange-btn w-100 py-3 fw-bold rounded-pill">
-                            <div class="empty-state" id="emptyState" style="display: none; margin: 0; padding: 0; place-items: center;"> 
+                        <button type="button" id="downloadBtn" class="btn orange-btn w-100 py-3 fw-bold rounded-pill" onclick="downloadZip()">
+                            <div class="empty-state" id="emptyState" style="display: none; margin: 0; padding: 0; place-items: center;">
                                 <div class="loader" style="margin: 0; padding: 0; height: 24px; width: 24px;"></div>
                             </div>
                             <div id="buttonText">
@@ -203,35 +203,47 @@
         const checkedBoxes = document.querySelectorAll('.dorm-checkbox:checked');
         const emptyState = document.getElementById('emptyState');
         const buttonText = document.getElementById('buttonText');
+        const downloadBtn = document.getElementById('downloadBtn'); // 버튼 선택
 
         if (checkedBoxes.length === 0) {
             alert('최소 하나 이상의 생활관을 선택해주세요.');
             return;
         }
 
+        // [로딩 시작] 버튼 비활성화 및 UI 교체
+        downloadBtn.disabled = true;
+        downloadBtn.style.opacity = '0.8'; // 비활성화 느낌을 주기 위한 투명도 조절
         buttonText.style.display = 'none';
         emptyState.style.display = 'grid';
 
-        await new Promise(resolve => setTimeout(resolve, 1700)) 
-
-        // 선택된 생활관 코드 수집
         const params = new URLSearchParams();
-        checkedBoxes.forEach(cb => {
-            params.append('dormCodes', cb.value);
-        });
+        checkedBoxes.forEach(cb => params.append('dormCodes', cb.value));
 
         try {
-            // API 호출 (GET 방식, 파일 다운로드 트리거)
             const apiUrl = `/admin/api/qr/generate/zip?${params.toString()}`;
+            const response = await fetch(apiUrl, { method: 'GET' });
 
-            // 브라우저가 파일 다운로드로 인식하도록 location 변경
-            window.location.href = apiUrl;
-            
-            buttonText.style.display = 'block';
-            emptyState.style.display = 'none';
+            if (!response.ok) throw new Error('파일 다운로드 중 오류가 발생했습니다.');
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `dorm_qr_codes_${new Date().toISOString().slice(0,10)}.zip`;
+
+            document.body.appendChild(a);
+            a.click();
+
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
         } catch (error) {
-            const msg = error?.response?.data?.message;
-            alert(msg);
+            console.error(error);
+            alert(error.message || '서버 오류가 발생했습니다.');
+        } finally {
+            // [로딩 종료] 버튼 다시 활성화 및 UI 복구
+            downloadBtn.disabled = false;
+            downloadBtn.style.opacity = '1';
             buttonText.style.display = 'block';
             emptyState.style.display = 'none';
         }
