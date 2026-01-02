@@ -2,11 +2,7 @@ name: Render Keep Alive (9AM-12AM KST)
 
 on:
   schedule:
-    # 10분마다 실행
-    # UTC 기준 21:00 (KST 06:00) ~ 14:50 (KST 23:50)
-    # 21시부터 다음날 14시까지 매 10분마다 작동
     - cron: '*/5 21-23,0-14 * * *'
-    # 밤 12시 정각에 마지막 핑 (UTC 15:00 / KST 00:00)
     - cron: '0 15 * * *'
 
 jobs:
