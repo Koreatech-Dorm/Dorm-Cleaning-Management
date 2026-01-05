@@ -728,13 +728,29 @@
         // 상태 필터 적용 함수
         let selectedStatus = "";
         function applyStatusFilter(status) {
-            const cards = Array.from(document.querySelectorAll('.room-card'));
+            const showFloorHeader = dormSelect.value !== "";
 
-            const isFloorView = dormSelect.value !== "" && floorSelect.value !== "";
-            
-            // 1️⃣ 호실 상태 필터
+            // ❌ offsetParent 쓰지 말 것
+            const cards = document.querySelectorAll('.room-card');
+
             cards.forEach(card => {
-                const cardStatus = 
+                const d = card.dataset.dormCode;
+                const f = card.closest('.room-grid')?.dataset.floor;
+
+                // 👉 dorm / floor 조건 먼저 체크
+                const dormMatch =
+                    dormSelect.value === "" || dormSelect.value === d;
+
+                const floorMatch =
+                    floorSelect.value === "" || floorSelect.value === f;
+
+                if (!dormMatch || !floorMatch) {
+                    card.style.display = "none";
+                    return;
+                }
+
+                // 👉 상태 조건
+                const cardStatus =
                     card.classList.contains('occupied') ? "OCCUPIED" :
                     card.classList.contains('vacant') ? "VACANT" :
                     "READY";
@@ -743,45 +759,44 @@
                     (status === "" || status === cardStatus) ? "flex" : "none";
             });
 
-            // 2️⃣ 층 단위 처리
+            updateHeadersByVisibleRooms(showFloorHeader);
+            syncSelectAllButton();
+        }
+
+        function updateHeadersByVisibleRooms(showFloorHeader) {
+
+            // ✅ 층 단위 처리
             document.querySelectorAll('.room-grid').forEach(grid => {
                 const floorTitle = document.querySelector(
                     `.floor-title[data-dorm-code="${grid.dataset.dormCode}"][data-floor="${grid.dataset.floor}"]`
                 );
 
-                const visibleRooms = grid.querySelectorAll(
-                    '.room-card:not([style*="display: none"])'
-                );
+                const hasRoom =
+                    grid.querySelectorAll('.room-card[style*="display: flex"]').length > 0;
 
-                const hasRoom = visibleRooms.length > 0;
-
-                // 층 뷰일 때만 floor-title 표시
                 grid.style.display = hasRoom ? 'flex' : 'none';
+
                 if (floorTitle) {
                     floorTitle.style.display =
-                        isFloorView && hasRoom ? 'flex' : 'none';
+                        showFloorHeader && hasRoom ? 'flex' : 'none';
                 }
             });
 
-            // 3️⃣ 생활관 단위 처리
+            // ✅ 생활관 단위 처리
             document.querySelectorAll('.dorm-title').forEach(dormTitle => {
                 const dormCode = dormTitle.dataset.dormCode;
-                const floorDiv = document.querySelector(`.floor-div[data-dorm-code="${dormCode}"]`);
-
-                const visibleRooms = floorDiv.querySelectorAll(
-                    '.room-card:not([style*="display: none"])'
+                const floorDiv = document.querySelector(
+                    `.floor-div[data-dorm-code="${dormCode}"]`
                 );
 
-                const hasRoom = visibleRooms.length > 0;
+                const hasRoom =
+                    floorDiv.querySelectorAll('.room-card[style*="display: flex"]').length > 0;
 
-                // 층 뷰가 아닐 때만 dorm-title 표시
                 dormTitle.style.display =
-                    !isFloorView && hasRoom ? 'flex' : 'none';
+                    !showFloorHeader && hasRoom ? 'flex' : 'none';
 
                 floorDiv.style.display = hasRoom ? 'block' : 'none';
             });
-
-            syncSelectAllButton();
         }
 
         // 상태 기준으로 검색 탭 초기화
