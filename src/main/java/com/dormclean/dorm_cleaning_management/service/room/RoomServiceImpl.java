@@ -117,11 +117,7 @@ public class RoomServiceImpl implements RoomService {
         public RoomListResponseDto updateRoomStatus(
                         String roomNumber,
                         RoomStatusUpdateDto dto) {
-
-                Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
-                                .orElseThrow(DormNotFoundException::new);
-
-                Room room = roomRepository.findByDormAndRoomNumber(dorm, roomNumber)
+                Room room = roomRepository.findByDormCodeAndRoomNumber(dto.dormCode(), roomNumber)
                                 .orElseThrow(RoomNotFoundException::new);
 
                 Instant now = Instant.now();
@@ -143,7 +139,7 @@ public class RoomServiceImpl implements RoomService {
                 }
 
                 return new RoomListResponseDto(
-                                dorm.getDormCode(),
+                                dto.dormCode(),
                                 room.getFloor(),
                                 room.getRoomNumber(),
                                 room.getRoomStatus(),
@@ -172,9 +168,7 @@ public class RoomServiceImpl implements RoomService {
         @Override
         @Transactional
         public void deleteRoom(String dormCode, String roomNumber) {
-                Dorm dorm = dormRepository.findByDormCode(dormCode)
-                                .orElseThrow(DormNotFoundException::new);
-                Room room = roomRepository.findByDormAndRoomNumber(dorm, roomNumber)
+                Room room = roomRepository.findByDormCodeAndRoomNumber(dormCode, roomNumber)
                                 .orElseThrow(RoomNotFoundException::new);
 
                 roomRepository.delete(room);

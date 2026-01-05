@@ -28,8 +28,6 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
@@ -46,7 +44,6 @@ public class QrCodeServiceImpl implements QrCodeService {
 
     private final QrCodeRepository qrCodeRepository;
     private final RoomRepository roomRepository;
-    private final DormRepository dormRepository;
     private final QrDataProcessor qrDataProcessor;
 
     private static final QRCodeWriter QR_WRITER = new QRCodeWriter();
@@ -66,9 +63,7 @@ public class QrCodeServiceImpl implements QrCodeService {
     @Override
     @Transactional
     public byte[] createSecureQr(QrRequestDto dto) {
-        Dorm dorm = dormRepository.findByDormCode(dto.dormCode())
-                .orElseThrow(DormNotFoundException::new);
-        Room room = roomRepository.findByDormAndRoomNumber(dorm, dto.roomNumber())
+        Room room = roomRepository.findByDormCodeAndRoomNumber(dto.dormCode(), dto.roomNumber())
                 .orElseThrow(RoomNotFoundException::new);
 
         QrCode qrCode = qrCodeRepository.findByRoom(room).orElse(null);

@@ -728,6 +728,9 @@
         function applyStatusFilter(status) {
             const cards = Array.from(document.querySelectorAll('.room-card'));
 
+            const isFloorView = dormSelect.value !== "" && floorSelect.value !== "";
+            
+            // 1️⃣ 호실 상태 필터
             cards.forEach(card => {
                 const cardStatus = 
                     card.classList.contains('occupied') ? "OCCUPIED" :
@@ -736,6 +739,44 @@
 
                 card.style.display =
                     (status === "" || status === cardStatus) ? "flex" : "none";
+            });
+
+            // 2️⃣ 층 단위 처리
+            document.querySelectorAll('.room-grid').forEach(grid => {
+                const floorTitle = document.querySelector(
+                    `.floor-title[data-dorm-code="${grid.dataset.dormCode}"][data-floor="${grid.dataset.floor}"]`
+                );
+
+                const visibleRooms = grid.querySelectorAll(
+                    '.room-card:not([style*="display: none"])'
+                );
+
+                const hasRoom = visibleRooms.length > 0;
+
+                // 층 뷰일 때만 floor-title 표시
+                grid.style.display = hasRoom ? 'flex' : 'none';
+                if (floorTitle) {
+                    floorTitle.style.display =
+                        isFloorView && hasRoom ? 'flex' : 'none';
+                }
+            });
+
+            // 3️⃣ 생활관 단위 처리
+            document.querySelectorAll('.dorm-title').forEach(dormTitle => {
+                const dormCode = dormTitle.dataset.dormCode;
+                const floorDiv = document.querySelector(`.floor-div[data-dorm-code="${dormCode}"]`);
+
+                const visibleRooms = floorDiv.querySelectorAll(
+                    '.room-card:not([style*="display: none"])'
+                );
+
+                const hasRoom = visibleRooms.length > 0;
+
+                // 층 뷰가 아닐 때만 dorm-title 표시
+                dormTitle.style.display =
+                    !isFloorView && hasRoom ? 'flex' : 'none';
+
+                floorDiv.style.display = hasRoom ? 'block' : 'none';
             });
 
             syncSelectAllButton();
