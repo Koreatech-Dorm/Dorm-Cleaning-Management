@@ -1,13 +1,29 @@
-name: Render Keep Alive (9AM-12AM KST)
+# name: Render Keep Alive (6AM-12AM KST)
+
+# on:
+#   schedule:
+#     - cron: '*/5 21-23,0-14 * * *'
+#     - cron: '0 15 * * *'
+
+# jobs:
+#   ping:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Send Health Check
+#         run: curl -s https://koreatech-dorm-management.onrender.com/health
+
+name: Render Keep Alive (6AM-7AM KST)
 
 on:
   schedule:
-    - cron: '*/5 21-23,0-14 * * *'
-    - cron: '0 15 * * *'
+    # KST 06:00 ~ 06:55 (UTC 21:00 ~ 21:55)
+    - cron: '*/5 21 * * *'
+    # KST 07:00 (UTC 22:00) 보정용 1회
+    - cron: '0 22 * * *'
 
 jobs:
-  ping:
+  wake:
     runs-on: ubuntu-latest
     steps:
       - name: Send Health Check
-        run: curl -s https://koreatech-dorm-management.onrender.com/health
+        run: curl -m 10 -s https://koreatech-dorm-management.onrender.com/wake
