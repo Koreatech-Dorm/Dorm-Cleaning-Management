@@ -29,8 +29,13 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
-       maximum-pool-size: 5
-       minimum-idle: 2
+      maximum-pool-size: 5
+      minimum-idle: 2
+      max-lifetime: 1200000      # 20분 (Aiven idle보다 짧게)
+      idle-timeout: 600000       # 10분
+      connection-timeout: 10000  # 10초
+      validation-timeout: 3000   # 3초
+      keepalive-time: 300000     # 5분 (중요)
 
 springdoc:
   swagger-ui:
